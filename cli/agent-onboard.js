@@ -400,7 +400,7 @@ function validateTargetConfig(value) {
 }
 
 function validateWorkItems(value) {
-  return validateJsonSchema(value, WORK_ITEMS_SCHEMA);
+  return validateWorkItemsDocument(value);
 }
 
 function workItemCounts(value) {
@@ -410,6 +410,130 @@ function workItemCounts(value) {
     milestones: Array.isArray(value.milestones) ? value.milestones.length : 0,
     work_items: Array.isArray(value.work_items) ? value.work_items.length : 0
   };
+}
+
+function parseOption(args, name) {
+  const index = args.indexOf(name);
+  if (index === -1) return undefined;
+  const value = args[index + 1];
+  if (!value || value.startsWith('-')) throw new Error(`${name} requires a value`);
+  return value;
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function uniqueIdErrors(items, collectionName) {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set();
+  const errors = [];
+  for (const item of items) {
+    if (!item || typeof item.id !== 'string') continue;
+    if (seen.has(item.id)) errors.push(`$.${collectionName}: duplicate id ${item.id}`);
+    seen.add(item.id);
+  }
+  return errors;
+}
+
+function validateWorkItemsGraph(value) {
+  const errors = [];
+  if (!isPlainObject(value)) return errors;
+
+  errors.push(...uniqueIdErrors(value.programs, 'programs'));
+  errors.push(...uniqueIdErrors(value.stages, 'stages'));
+  errors.push(...uniqueIdErrors(value.milestones, 'milestones'));
+  errors.push(...uniqueIdErrors(value.work_items, 'work_items'));
+
+  const programs = new Set(Array.isArray(value.programs) ? value.programs.map((item) => item.id) : []);
+  const stages = new Set(Array.isArray(value.stages) ? value.stages.map((item) => item.id) : []);
+  const milestones = new Set(Array.isArray(value.milestones) ? value.milestones.map((item) => item.id) : []);
+
+  if (Array.isArray(value.stages)) {
+    for (const item of value.stages) {
+      if (!item || typeof item.id !== 'string' || typeof item.program_id !== 'string') continue;
+      const expected = item.id.replace(/S[0-9]+$/, '');
+      if (item.program_id !== expected) errors.push(`$.stages.${item.id}: program_id must be ${expected}`);
+      if (!programs.has(item.program_id)) errors.push(`$.stages.${item.id}: missing program ${item.program_id}`);
+    }
+  }
+
+  if (Array.isArray(value.milestones)) {
+    for (const item of value.milestones) {
+      if (!item || typeof item.id !== 'string' || typeof item.stage_id !== 'string') continue;
+      const expected = item.id.replace(/M[0-9]+$/, '');
+      if (item.stage_id !== expected) errors.push(`$.milestones.${item.id}: stage_id must be ${expected}`);
+      if (!stages.has(item.stage_id)) errors.push(`$.milestones.${item.id}: missing stage ${item.stage_id}`);
+    }
+  }
+
+  if (Array.isArray(value.work_items)) {
+    for (const item of value.work_items) {
+      if (!item || typeof item.id !== 'string' || typeof item.milestone_id !== 'string') continue;
+      const expected = item.id.replace(/W[0-9]+$/, '');
+      if (item.milestone_id !== expected) errors.push(`$.work_items.${item.id}: milestone_id must be ${expected}`);
+      if (!milestones.has(item.milestone_id)) errors.push(`$.work_items.${item.id}: missing milestone ${item.milestone_id}`);
+    }
+  }
+
+  return errors;
+}
+
+function validateWorkItemsDocument(value) {
+  return [...validateJsonSchema(value, WORK_ITEMS_SCHEMA), ...validateWorkItemsGraph(value)];
+}
+
+function deriveWorkItemIds(workItemId) {
+  const match = /^(P[0-9]+)(S[0-9]+)(M[0-9]+)(W[0-9]+)$/.exec(workItemId);
+  if (!match) return null;
+  return {
+    program_id: match[1],
+    stage_id: `${match[1]}${match[2]}`,
+    milestone_id: `${match[1]}${match[2]}${match[3]}`,
+    work_item_id: `${match[1]}${match[2]}${match[3]}${match[4]}`
+  };
+}
+
+function appendWorkItemDryRun(currentLedger, options) {
+  const id = options.id;
+  const title = options.title;
+  const ids = deriveWorkItemIds(id);
+  if (!ids) throw new Error('work-items --append requires --id matching public P/S/M/W format');
+  if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    throw new Error('work-items --append requires --title');
+  }
+
+  const ledger = cloneJson(currentLedger);
+  const programTitle = options.program_title || `Program ${ids.program_id}`;
+  const stageTitle = options.stage_title || `Stage ${ids.stage_id}`;
+  const milestoneTitle = options.milestone_title || `Milestone ${ids.milestone_id}`;
+
+  const added = { programs: [], stages: [], milestones: [], work_items: [] };
+  if (ledger.work_items.some((item) => item.id === ids.work_item_id)) {
+    throw new Error('work-items --append refuses duplicate work item id');
+  }
+
+  if (!ledger.programs.some((item) => item.id === ids.program_id)) {
+    const item = { id: ids.program_id, title: programTitle, status: 'open' };
+    ledger.programs.push(item);
+    added.programs.push(item);
+  }
+  if (!ledger.stages.some((item) => item.id === ids.stage_id)) {
+    const item = { id: ids.stage_id, program_id: ids.program_id, title: stageTitle, status: 'open' };
+    ledger.stages.push(item);
+    added.stages.push(item);
+  }
+  if (!ledger.milestones.some((item) => item.id === ids.milestone_id)) {
+    const item = { id: ids.milestone_id, stage_id: ids.stage_id, title: milestoneTitle, status: 'open' };
+    ledger.milestones.push(item);
+    added.milestones.push(item);
+  }
+
+  const workItem = { id: ids.work_item_id, milestone_id: ids.milestone_id, title: title.trim(), status: 'open' };
+  ledger.work_items.push(workItem);
+  added.work_items.push(workItem);
+
+  return { proposed_ledger: ledger, added };
 }
 
 function getPathValue(value, dottedPath) {
@@ -753,6 +877,90 @@ function runTargetConfig(args) {
 }
 
 function runWorkItems(args) {
+  if (args.includes('--append')) {
+    const dry = args.includes('--dry-run');
+    const write = args.includes('--write');
+    if (!dry) throw new Error('work-items --append is exposed only with --dry-run in this release');
+    if (write) throw new Error('work-items --append --write is not exposed in this release');
+
+    const file = parseOption(args, '--file') || '.agent-onboard/work-items.json';
+    const absolutePath = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(absolutePath)) {
+      json({
+        schema: 'agent-onboard-work-items-append-dry-run-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command: 'agent-onboard work-items --append --dry-run',
+        file,
+        reason: 'missing .agent-onboard/work-items.json in current target repo root',
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const current = readJson(absolutePath);
+    const currentErrors = validateWorkItems(current);
+    if (currentErrors.length > 0) {
+      json({
+        schema: 'agent-onboard-work-items-append-dry-run-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command: 'agent-onboard work-items --append --dry-run',
+        file,
+        reason: 'current work-item ledger is invalid',
+        writes_performed: false,
+        errors: currentErrors
+      });
+      return 1;
+    }
+
+    let proposal;
+    try {
+      proposal = appendWorkItemDryRun(current, {
+        id: parseOption(args, '--id'),
+        title: parseOption(args, '--title'),
+        program_title: parseOption(args, '--program-title'),
+        stage_title: parseOption(args, '--stage-title'),
+        milestone_title: parseOption(args, '--milestone-title')
+      });
+    } catch (error) {
+      json({
+        schema: 'agent-onboard-work-items-append-dry-run-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command: 'agent-onboard work-items --append --dry-run',
+        file,
+        reason: error.message || String(error),
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const proposalErrors = validateWorkItems(proposal.proposed_ledger);
+    const ok = proposalErrors.length === 0;
+    json({
+      schema: 'agent-onboard-work-items-append-dry-run-result-001',
+      status: ok ? 'ok' : 'error',
+      command_family: 'work-items',
+      command: 'agent-onboard work-items --append --dry-run',
+      file,
+      mode: 'dry-run',
+      writes_performed: false,
+      counts_before: workItemCounts(current),
+      counts_after: workItemCounts(proposal.proposed_ledger),
+      added: proposal.added,
+      proposed_ledger: proposal.proposed_ledger,
+      errors: proposalErrors,
+      boundary: {
+        installs_dependencies: false,
+        runs_build_test_deploy: false,
+        publishes_or_pushes: false,
+        modifies_source_files: false,
+        modifies_work_items_file: false
+      }
+    });
+    return ok ? 0 : 1;
+  }
   if (args.includes('--init')) {
     const write = args.includes('--write');
     const dry = args.includes('--dry-run');
@@ -1007,7 +1215,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_work_item_ledger_init_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_work_item_append_dry_run_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
@@ -1037,6 +1245,8 @@ module.exports = {
   targetConfigTemplate,
   validateTargetConfig,
   validateWorkItems,
+  validateWorkItemsGraph,
+  appendWorkItemDryRun,
   workItemsTemplate,
   initWriteSet,
   planWrites,

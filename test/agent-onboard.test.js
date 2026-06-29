@@ -41,8 +41,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.8');
-  assert.strictEqual(output.release_line, 'public_work_item_ledger_init_gate');
+  assert.strictEqual(output.version, '0.0.9');
+  assert.strictEqual(output.release_line, 'public_work_item_append_dry_run_gate');
 }
 
 {
@@ -138,6 +138,67 @@ function cliTargetConfigForTest(dir) {
   assert.deepStrictEqual(output.conflicts, []);
   const value = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
   assert.strictEqual(value.schema, 'agent-onboard-target-work-items-001');
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  const result = run([
+    'work-items', '--append', '--dry-run',
+    '--id', id,
+    '--title', 'Public append dry-run seed',
+    '--program-title', 'Public program seed',
+    '--stage-title', 'Public stage seed',
+    '--milestone-title', 'Public milestone seed'
+  ], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.mode, 'dry-run');
+  assert.strictEqual(output.writes_performed, false);
+  assert.strictEqual(output.counts_before.work_items, 0);
+  assert.strictEqual(output.counts_after.programs, 1);
+  assert.strictEqual(output.counts_after.stages, 1);
+  assert.strictEqual(output.counts_after.milestones, 1);
+  assert.strictEqual(output.counts_after.work_items, 1);
+  assert.strictEqual(output.added.work_items[0].id, id);
+  assert.strictEqual(output.proposed_ledger.work_items[0].title, 'Public append dry-run seed');
+  const persisted = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
+  assert.strictEqual(persisted.work_items.length, 0);
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  const first = run(['work-items', '--append', '--dry-run', '--id', id, '--title', 'First'], { cwd: dir });
+  const proposal = readJsonOutput(first).proposed_ledger;
+  fs.writeFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), JSON.stringify(proposal, null, 2) + '\n');
+  const second = run(['work-items', '--append', '--dry-run', '--id', id, '--title', 'Duplicate'], { cwd: dir });
+  const output = readJsonFailure(second);
+  assert.strictEqual(output.status, 'error');
+  assert.strictEqual(output.writes_performed, false);
+  assert.ok(output.reason.includes('duplicate'));
+}
+
+{
+  const dir = tempRepo();
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  const result = run(['work-items', '--append', '--dry-run', '--id', id, '--title', 'Missing ledger'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(output.status, 'error');
+  assert.strictEqual(output.writes_performed, false);
+  assert.ok(output.reason.includes('missing'));
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  const result = run(['work-items', '--append', '--write', '--id', id, '--title', 'Not exposed'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(output.status, 'error');
+  assert.ok(output.message.includes('dry-run'));
 }
 
 {

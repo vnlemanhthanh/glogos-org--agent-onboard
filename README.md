@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.8` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.9` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.8
+npm install --save-dev agent-onboard@~0.0.9
 ```
 
 Run without installing:
@@ -87,6 +87,7 @@ npx agent-onboard work-items --init --dry-run
 npx agent-onboard work-items --init --write
 npx agent-onboard work-items --validate [.agent-onboard/work-items.json]
 npx agent-onboard work-items --list [.agent-onboard/work-items.json]
+npx agent-onboard work-items --append --dry-run --id <public-work-item-id> --title <title>
 npx agent-onboard target bootstrap --dry-run
 npx agent-onboard target bootstrap --write
 npx agent-onboard target-instance takeover --dry-run
@@ -197,7 +198,26 @@ npx agent-onboard work-items --validate
 npx agent-onboard work-items --list
 ```
 
-This release does not add work-item creation, claiming, closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
+Preview a public work-item append without writing the ledger:
+
+```sh
+npx agent-onboard work-items --append --dry-run --id <public-work-item-id> --title <title>
+```
+
+Optional parent titles can be previewed when the referenced program, stage, or milestone is not already present:
+
+```sh
+npx agent-onboard work-items --append --dry-run \
+  --id <public-work-item-id> \
+  --title <title> \
+  --program-title <program-title> \
+  --stage-title <stage-title> \
+  --milestone-title <milestone-title>
+```
+
+The append command returns `counts_before`, `counts_after`, `added`, and `proposed_ledger`. It never writes in this release. It refuses missing ledgers, invalid ledgers, duplicate work-item IDs, and IDs outside the public P/S/M/W shape.
+
+This release does not add work-item append write, claiming, closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
 
 ## Boundary guard seed
 
@@ -288,6 +308,8 @@ This version does not:
 `0.0.7` adds the P/S/M/W vocabulary and work-item ledger schema/template/list/validation surface with documented JSON output.
 
 `0.0.8` adds the public `work-items --init --dry-run|--write` surface for initializing only `.agent-onboard/work-items.json` with overwrite protection.
+
+`0.0.9` adds public `work-items --append --dry-run` for previewing a new work item and its missing parent chain without writing the ledger.
 
 <!-- ## Star History
 
