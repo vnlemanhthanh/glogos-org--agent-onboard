@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.10` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.11` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.10
+npm install --save-dev agent-onboard@~0.0.11
 ```
 
 Run without installing:
@@ -89,6 +89,7 @@ npx agent-onboard work-items --validate [.agent-onboard/work-items.json]
 npx agent-onboard work-items --list [.agent-onboard/work-items.json]
 npx agent-onboard work-items --append --dry-run --id <public-work-item-id> --title <title>
 npx agent-onboard work-items --append --write --id <public-work-item-id> --title <title>
+npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
 npx agent-onboard target bootstrap --dry-run
 npx agent-onboard target bootstrap --write
 npx agent-onboard target-instance takeover --dry-run
@@ -226,11 +227,20 @@ Write a public work item into the target repo ledger:
 
 ```sh
 npx agent-onboard work-items --append --write --id <public-work-item-id> --title <title>
+npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
 ```
 
 The append command refuses missing ledgers, invalid ledgers, duplicate work-item IDs, and IDs outside the public P/S/M/W shape.
 
-This release does not add work-item claiming, closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
+Preview a public claim without writing the ledger:
+
+```sh
+npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
+```
+
+The claim dry-run command reads the existing ledger, validates it, verifies that the requested work item exists and is still open, and returns `counts_before`, `counts_after`, `claimed`, and `proposed_ledger`. It writes nothing. Optional metadata can be previewed with `--claimed-at <timestamp>` and `--note <note>`.
+
+This release does not add claim write, work-item closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
 
 ## Boundary guard seed
 

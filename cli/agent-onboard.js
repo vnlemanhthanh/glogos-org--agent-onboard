@@ -177,7 +177,17 @@ const WORK_ITEMS_SCHEMA = {
           id: { type: 'string', pattern: '^P[0-9]+S[0-9]+M[0-9]+W[0-9]+$' },
           milestone_id: { type: 'string', pattern: '^P[0-9]+S[0-9]+M[0-9]+$' },
           title: { type: 'string', minLength: 1 },
-          status: { enum: ['open', 'closed'] }
+          status: { enum: ['open', 'claimed', 'closed'] },
+          claim: {
+            type: 'object',
+            required: ['actor', 'claimed_at'],
+            additionalProperties: false,
+            properties: {
+              actor: { type: 'string', minLength: 1 },
+              claimed_at: { type: 'string', minLength: 1 },
+              note: { type: 'string', minLength: 1 }
+            }
+          }
         }
       }
     }
@@ -473,6 +483,12 @@ function validateWorkItemsGraph(value) {
       const expected = item.id.replace(/W[0-9]+$/, '');
       if (item.milestone_id !== expected) errors.push(`$.work_items.${item.id}: milestone_id must be ${expected}`);
       if (!milestones.has(item.milestone_id)) errors.push(`$.work_items.${item.id}: missing milestone ${item.milestone_id}`);
+      if (item.status === 'claimed' && !isPlainObject(item.claim)) {
+        errors.push(`$.work_items.${item.id}: claimed work item requires claim`);
+      }
+      if (item.status === 'open' && Object.prototype.hasOwnProperty.call(item, 'claim')) {
+        errors.push(`$.work_items.${item.id}: open work item must not include claim`);
+      }
     }
   }
 
@@ -534,6 +550,42 @@ function appendWorkItemDryRun(currentLedger, options) {
   added.work_items.push(workItem);
 
   return { proposed_ledger: ledger, added };
+}
+
+function claimWorkItemDryRun(currentLedger, options) {
+  const id = options.id;
+  const actor = options.actor;
+  const ids = deriveWorkItemIds(id);
+  if (!ids) throw new Error('work-items --claim requires --id matching public P/S/M/W format');
+  if (!actor || typeof actor !== 'string' || actor.trim().length === 0) {
+    throw new Error('work-items --claim requires --actor');
+  }
+
+  const ledger = cloneJson(currentLedger);
+  const workItem = ledger.work_items.find((item) => item.id === ids.work_item_id);
+  if (!workItem) throw new Error('work-items --claim requires an existing work item id');
+  if (workItem.status === 'closed') throw new Error('work-items --claim refuses closed work item');
+  if (workItem.status === 'claimed' || Object.prototype.hasOwnProperty.call(workItem, 'claim')) {
+    throw new Error('work-items --claim refuses already claimed work item');
+  }
+
+  const claim = {
+    actor: actor.trim(),
+    claimed_at: options.claimed_at || new Date().toISOString()
+  };
+  if (options.note && String(options.note).trim().length > 0) claim.note = String(options.note).trim();
+  workItem.status = 'claimed';
+  workItem.claim = claim;
+
+  return {
+    proposed_ledger: ledger,
+    claimed: {
+      work_item_id: ids.work_item_id,
+      actor: claim.actor,
+      claimed_at: claim.claimed_at,
+      note: claim.note
+    }
+  };
 }
 
 function getPathValue(value, dottedPath) {
@@ -877,6 +929,95 @@ function runTargetConfig(args) {
 }
 
 function runWorkItems(args) {
+  if (args.includes('--claim')) {
+    const dry = args.includes('--dry-run');
+    const write = args.includes('--write');
+    if (!dry) throw new Error('work-items --claim requires --dry-run');
+    if (write) throw new Error('work-items --claim does not expose --write in this release');
+
+    const mode = 'dry-run';
+    const command = 'agent-onboard work-items --claim --dry-run';
+    const file = parseOption(args, '--file') || '.agent-onboard/work-items.json';
+    const absolutePath = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(absolutePath)) {
+      json({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'missing .agent-onboard/work-items.json in current target repo root',
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const current = readJson(absolutePath);
+    const currentErrors = validateWorkItems(current);
+    if (currentErrors.length > 0) {
+      json({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'current work-item ledger is invalid',
+        writes_performed: false,
+        errors: currentErrors
+      });
+      return 1;
+    }
+
+    let proposal;
+    try {
+      proposal = claimWorkItemDryRun(current, {
+        id: parseOption(args, '--id'),
+        actor: parseOption(args, '--actor'),
+        claimed_at: parseOption(args, '--claimed-at'),
+        note: parseOption(args, '--note')
+      });
+    } catch (error) {
+      json({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: error.message || String(error),
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const proposalErrors = validateWorkItems(proposal.proposed_ledger);
+    const ok = proposalErrors.length === 0;
+    json({
+      schema: 'agent-onboard-work-items-claim-result-001',
+      status: ok ? 'ok' : 'error',
+      command_family: 'work-items',
+      command,
+      file,
+      mode,
+      writes_performed: false,
+      counts_before: workItemCounts(current),
+      counts_after: workItemCounts(proposal.proposed_ledger),
+      claimed: proposal.claimed,
+      proposed_ledger: proposal.proposed_ledger,
+      errors: proposalErrors,
+      boundary: {
+        installs_dependencies: false,
+        runs_build_test_deploy: false,
+        publishes_or_pushes: false,
+        modifies_source_files: false,
+        modifies_work_items_file: false,
+        modifies_only_canonical_work_items_file: false
+      }
+    });
+    return ok ? 0 : 1;
+  }
   if (args.includes('--append')) {
     const dry = args.includes('--dry-run');
     const write = args.includes('--write');
@@ -1084,7 +1225,7 @@ function runWorkItems(args) {
     });
     return ok ? 0 : 1;
   }
-  throw new Error('work-items requires --schema, --template, --validate-template, --init --dry-run|--write [--force], --validate [file], or --list [file], or --append --dry-run|--write --id <public-work-item-id> --title <title>');
+  throw new Error('work-items requires --schema, --template, --validate-template, --init --dry-run|--write [--force], --validate [file], or --list [file], or --append --dry-run|--write --id <public-work-item-id> --title <title>, or --claim --dry-run --id <public-work-item-id> --actor <actor>');
 }
 
 function runAgents(args) {
@@ -1222,7 +1363,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_work_item_append_write_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_work_item_claim_dry_run_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
@@ -1254,6 +1395,7 @@ module.exports = {
   validateWorkItems,
   validateWorkItemsGraph,
   appendWorkItemDryRun,
+  claimWorkItemDryRun,
   workItemsTemplate,
   initWriteSet,
   planWrites,

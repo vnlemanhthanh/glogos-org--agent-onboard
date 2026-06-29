@@ -41,8 +41,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.10');
-  assert.strictEqual(output.release_line, 'public_work_item_append_write_gate');
+  assert.strictEqual(output.version, '0.0.11');
+  assert.strictEqual(output.release_line, 'public_work_item_claim_dry_run_gate');
 }
 
 {
@@ -235,6 +235,57 @@ function cliTargetConfigForTest(dir) {
   const persisted = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
   assert.strictEqual(persisted.work_items.length, 1);
   assert.strictEqual(persisted.work_items[0].title, 'First');
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  readJsonOutput(run(['work-items', '--append', '--write', '--id', id, '--title', 'Claim seed'], { cwd: dir }));
+  const result = run([
+    'work-items', '--claim', '--dry-run',
+    '--id', id,
+    '--actor', 'public-actor',
+    '--claimed-at', '2026-01-01T00:00:00.000Z',
+    '--note', 'dry-run only'
+  ], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.mode, 'dry-run');
+  assert.strictEqual(output.writes_performed, false);
+  assert.strictEqual(output.boundary.modifies_work_items_file, false);
+  assert.strictEqual(output.claimed.work_item_id, id);
+  assert.strictEqual(output.claimed.actor, 'public-actor');
+  assert.strictEqual(output.proposed_ledger.work_items[0].status, 'claimed');
+  assert.strictEqual(output.proposed_ledger.work_items[0].claim.actor, 'public-actor');
+  const persisted = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
+  assert.strictEqual(persisted.work_items[0].status, 'open');
+  assert.ok(!Object.prototype.hasOwnProperty.call(persisted.work_items[0], 'claim'));
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  readJsonOutput(run(['work-items', '--append', '--write', '--id', id, '--title', 'Claim seed'], { cwd: dir }));
+  const first = readJsonOutput(run(['work-items', '--claim', '--dry-run', '--id', id, '--actor', 'public-actor'], { cwd: dir }));
+  fs.writeFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), JSON.stringify(first.proposed_ledger, null, 2) + '\n');
+  const second = run(['work-items', '--claim', '--dry-run', '--id', id, '--actor', 'other-actor'], { cwd: dir });
+  const output = readJsonFailure(second);
+  assert.strictEqual(output.status, 'error');
+  assert.strictEqual(output.writes_performed, false);
+  assert.ok(output.reason.includes('already claimed'));
+}
+
+{
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 1].join('');
+  const result = run(['work-items', '--claim', '--dry-run', '--id', id, '--actor', 'public-actor'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(output.status, 'error');
+  assert.strictEqual(output.writes_performed, false);
+  assert.ok(output.reason.includes('existing'));
 }
 
 {
