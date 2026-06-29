@@ -1,0 +1,57 @@
+{
+  "schema": "agent-onboard-target-work-items-001",
+  "package_name": "agent-onboard",
+  "vocabulary": {
+    "program": {
+      "prefix": "P",
+      "name": "Program",
+      "description": "A top-level line of coordinated work inside a target repo."
+    },
+    "stage": {
+      "prefix": "S",
+      "name": "Stage",
+      "description": "A phase within a program."
+    },
+    "milestone": {
+      "prefix": "M",
+      "name": "Milestone",
+      "description": "A bounded delivery checkpoint within a stage."
+    },
+    "work_item": {
+      "prefix": "W",
+      "name": "Work Item",
+      "description": "A concrete unit of agent-addressable work within a milestone."
+    }
+  },
+  "programs": [
+    {
+      "id": "P1",
+      "title": "Public source dogfood program",
+      "status": "open"
+    }
+  ],
+  "stages": [
+    {
+      "id": "P1S1",
+      "program_id": "P1",
+      "title": "Public source participation stage",
+      "status": "open"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "P1S1M1",
+      "stage_id": "P1S1",
+      "title": "Public self-dogfood baseline milestone",
+      "status": "open"
+    }
+  ],
+  "work_items": [
+    {
+      "id": "P1S1M1W1",
+      "milestone_id": "P1S1M1",
+      "title": "Public self-dogfood participation gate",
+      "status": "open"
+    }
+  ]
+}

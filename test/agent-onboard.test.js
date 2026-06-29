@@ -41,8 +41,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.12');
-  assert.strictEqual(output.release_line, 'public_artifact_messaging_boundary_gate');
+  assert.strictEqual(output.version, '0.0.13');
+  assert.strictEqual(output.release_line, 'public_self_dogfood_participation_gate');
 }
 
 {
@@ -487,6 +487,59 @@ function cliTargetConfigForTest(dir) {
 
 
 {
+  const dir = tempRepo();
+  readJsonOutput(run(['work-items', '--init', '--write'], { cwd: dir }));
+  const id = ['P', 1, 'S', 1, 'M', 1, 'W', 2].join('');
+  readJsonOutput(run(['work-items', '--append', '--write', '--id', id, '--title', 'Claim write target'], { cwd: dir }));
+  const result = run(['work-items', '--claim', '--write', '--id', id, '--actor', 'test-agent', '--claimed-at', '2026-06-30T00:00:00.000Z'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.mode, 'write');
+  assert.strictEqual(output.writes_performed, true);
+  assert.strictEqual(output.boundary.modifies_work_items_file, true);
+  const persisted = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
+  assert.strictEqual(persisted.work_items[0].status, 'claimed');
+  assert.strictEqual(persisted.work_items[0].claim.actor, 'test-agent');
+}
+
+{
+  const rootLedger = JSON.parse(fs.readFileSync(path.join(ROOT, '.agent-onboard', 'work-items.json'), 'utf8'));
+  const errors = require('../cli/agent-onboard.js').validateWorkItems(rootLedger);
+  assert.deepStrictEqual(errors, []);
+  assert.strictEqual(rootLedger.work_items.length, 1);
+  assert.strictEqual(rootLedger.programs[0].id, ['P', 1].join(''));
+  assert.strictEqual(rootLedger.stages[0].id, ['P', 1, 'S', 1].join(''));
+  assert.strictEqual(rootLedger.milestones[0].id, ['P', 1, 'S', 1, 'M', 1].join(''));
+  assert.strictEqual(rootLedger.work_items[0].id, ['P', 1, 'S', 1, 'M', 1, 'W', 1].join(''));
+  assert.strictEqual(rootLedger.work_items[0].status, 'open');
+  assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
+  assert.ok(fs.existsSync(path.join(ROOT, 'agent-onboard.target.json')));
+  assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'project.json')));
+}
+
+{
+  const gitignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
+  assert.ok(!/^\.agent-onboard\/\s*$/m.test(gitignore));
+  assert.ok(/^!\.agent-onboard\/project\.json\s*$/m.test(gitignore));
+  assert.ok(/^!\.agent-onboard\/work-items\.json\s*$/m.test(gitignore));
+}
+
+{
+  const pack = spawnSync('npm', ['pack', '--dry-run', '--json'], { cwd: ROOT, encoding: 'utf8', shell: process.platform === 'win32' });
+  assert.strictEqual(pack.status, 0, pack.stderr || pack.stdout);
+  const parsed = JSON.parse(pack.stdout);
+  assert.strictEqual(parsed.length, 1);
+  const files = parsed[0].files.map((item) => item.path).sort();
+  assert.deepStrictEqual(files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
+  const forbiddenConcreteWorkItem = new RegExp('P\\d+S\\d+M\\d+W\\d+');
+  for (const rel of files) {
+    const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    assert.strictEqual(forbiddenConcreteWorkItem.test(text), false, `${rel} contains concrete work-item id`);
+  }
+}
+
+
+{
   const result = run(['guard', '--plan']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
@@ -578,7 +631,9 @@ function cliTargetConfigForTest(dir) {
     const text = fs.readFileSync(abs, 'utf8');
     if (text.includes(forbiddenKey)) violations.push(`${rel}: reserved implementation key token`);
     const match = forbiddenWorkItemPattern.exec(text);
-    if (match) violations.push(`${rel}: reserved concrete work-item token ${match[0]}`);
+    if (match && rel !== '.agent-onboard/work-items.json') {
+      violations.push(`${rel}: reserved concrete work-item token ${match[0]}`);
+    }
   }
   assert.deepStrictEqual(violations, []);
 }
@@ -604,6 +659,15 @@ function cliTargetConfigForTest(dir) {
     }
   }
   assert.deepStrictEqual(violations, []);
+}
+
+
+{
+  const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  assert.ok(readme.includes('work-items --claim --write --id <public-work-item-id> --actor <actor>'));
+  assert.ok(!readme.includes('This release does not add claim write'));
+  assert.ok(readme.includes('`0.0.11` adds public `work-items --claim --dry-run`'));
+  assert.ok(readme.includes('`0.0.13` adds source self-dogfood and agent participation support'));
 }
 
 console.log('agent-onboard tests passed');

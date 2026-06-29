@@ -932,11 +932,11 @@ function runWorkItems(args) {
   if (args.includes('--claim')) {
     const dry = args.includes('--dry-run');
     const write = args.includes('--write');
-    if (!dry) throw new Error('work-items --claim requires --dry-run');
-    if (write) throw new Error('work-items --claim does not expose --write in this release');
+    if (!write && !dry) throw new Error('work-items --claim requires --dry-run or --write');
+    if (write && dry) throw new Error('work-items --claim accepts only one of --dry-run or --write');
 
-    const mode = 'dry-run';
-    const command = 'agent-onboard work-items --claim --dry-run';
+    const mode = write ? 'write' : 'dry-run';
+    const command = `agent-onboard work-items --claim --${mode}`;
     const file = parseOption(args, '--file') || '.agent-onboard/work-items.json';
     const absolutePath = path.resolve(process.cwd(), file);
     if (!fs.existsSync(absolutePath)) {
@@ -994,6 +994,7 @@ function runWorkItems(args) {
 
     const proposalErrors = validateWorkItems(proposal.proposed_ledger);
     const ok = proposalErrors.length === 0;
+    if (write && ok) writeJson(absolutePath, proposal.proposed_ledger);
     json({
       schema: 'agent-onboard-work-items-claim-result-001',
       status: ok ? 'ok' : 'error',
@@ -1001,7 +1002,7 @@ function runWorkItems(args) {
       command,
       file,
       mode,
-      writes_performed: false,
+      writes_performed: write && ok,
       counts_before: workItemCounts(current),
       counts_after: workItemCounts(proposal.proposed_ledger),
       claimed: proposal.claimed,
@@ -1012,8 +1013,8 @@ function runWorkItems(args) {
         runs_build_test_deploy: false,
         publishes_or_pushes: false,
         modifies_source_files: false,
-        modifies_work_items_file: false,
-        modifies_only_canonical_work_items_file: false
+        modifies_work_items_file: write,
+        modifies_only_canonical_work_items_file: write
       }
     });
     return ok ? 0 : 1;
@@ -1225,7 +1226,7 @@ function runWorkItems(args) {
     });
     return ok ? 0 : 1;
   }
-  throw new Error('work-items requires --schema, --template, --validate-template, --init --dry-run|--write [--force], --validate [file], or --list [file], or --append --dry-run|--write --id <public-work-item-id> --title <title>, or --claim --dry-run --id <public-work-item-id> --actor <actor>');
+  throw new Error('work-items requires --schema, --template, --validate-template, --init --dry-run|--write [--force], --validate [file], or --list [file], or --append --dry-run|--write --id <public-work-item-id> --title <title>, or --claim --dry-run|--write --id <public-work-item-id> --actor <actor>');
 }
 
 function runAgents(args) {
@@ -1351,7 +1352,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -1363,7 +1364,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_artifact_messaging_boundary_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_self_dogfood_participation_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);

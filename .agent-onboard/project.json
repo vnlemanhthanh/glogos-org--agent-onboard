@@ -1,0 +1,13 @@
+{
+  "schema": "agent-onboard-target-runtime-project-001",
+  "package_name": "agent-onboard",
+  "target": {
+    "name": "agent-onboard",
+    "root": ".",
+    "kind": "node-cli-source-repository"
+  },
+  "authority": {
+    "level": "L1_read_only_preview",
+    "writes_require_explicit_write_flag": true
+  }
+}

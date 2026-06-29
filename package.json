@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -51,7 +51,12 @@
     "public-work-item-write",
     "work-item-claim",
     "work-item-claim-dry-run",
-    "public-work-item-claim"
+    "public-work-item-claim",
+    "self-dogfood",
+    "dogfood",
+    "agent-participation",
+    "work-item-claim-write",
+    "self-hosted-agent-workflow"
   ],
   "type": "commonjs",
   "engines": {

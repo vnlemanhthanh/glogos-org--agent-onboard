@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.12` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.13` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.12
+npm install --save-dev agent-onboard@~0.0.13
 ```
 
 Run without installing:
@@ -90,6 +90,7 @@ npx agent-onboard work-items --list [.agent-onboard/work-items.json]
 npx agent-onboard work-items --append --dry-run --id <public-work-item-id> --title <title>
 npx agent-onboard work-items --append --write --id <public-work-item-id> --title <title>
 npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
+npx agent-onboard work-items --claim --write --id <public-work-item-id> --actor <actor>
 npx agent-onboard target bootstrap --dry-run
 npx agent-onboard target bootstrap --write
 npx agent-onboard target-instance takeover --dry-run
@@ -227,7 +228,6 @@ Write a public work item into the target repo ledger:
 
 ```sh
 npx agent-onboard work-items --append --write --id <public-work-item-id> --title <title>
-npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
 ```
 
 The append command refuses missing ledgers, invalid ledgers, duplicate work-item IDs, and IDs outside the public P/S/M/W shape.
@@ -238,9 +238,21 @@ Preview a public claim without writing the ledger:
 npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --actor <actor>
 ```
 
-The claim dry-run command reads the existing ledger, validates it, verifies that the requested work item exists and is still open, and returns `counts_before`, `counts_after`, `claimed`, and `proposed_ledger`. It writes nothing. Optional metadata can be previewed with `--claimed-at <timestamp>` and `--note <note>`.
+Write a public claim into the canonical work-item ledger:
 
-This release does not add claim write, work-item closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
+```sh
+npx agent-onboard work-items --claim --write --id <public-work-item-id> --actor <actor>
+```
+
+The claim command reads the existing ledger, validates it, verifies that the requested work item exists and is still open, and returns `counts_before`, `counts_after`, `claimed`, and `proposed_ledger`. In dry-run mode it writes nothing. In write mode it writes only:
+
+```text
+.agent-onboard/work-items.json
+```
+
+Optional metadata can be supplied with `--claimed-at <timestamp>` and `--note <note>`. The claim command refuses missing ledgers, invalid ledgers, missing work-item IDs, closed work items, and already claimed work items.
+
+This release does not add work-item closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
 
 ## Boundary guard seed
 
@@ -336,9 +348,34 @@ This version does not:
 
 `0.0.10` adds public `work-items --append --write` for persisting a new work item to the canonical target repo ledger while still refusing missing ledgers, invalid ledgers, duplicate IDs, and non-public ID shapes.
 
+`0.0.11` adds public `work-items --claim --dry-run` for previewing a claim against an existing open public work item without mutating the ledger.
+
+`0.0.12` keeps the npm artifact compact while documenting the source-repository/public-package boundary more explicitly.
+
+`0.0.13` adds source self-dogfood and agent participation support: the source repository can carry `AGENTS.md`, `agent-onboard.target.json`, `.agent-onboard/project.json`, `.agent-onboard/work-items.json`, and public `work-items --claim --write` for explicit participation claims.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
+
+## Source self-dogfood and agent participation
+
+The source repository can carry its own public Agent-Onboard operating surface:
+
+- `AGENTS.md` gives human-readable rules for agents.
+- `agent-onboard.target.json` declares the target-repo boundary.
+- `.agent-onboard/project.json` records the target identity.
+- `.agent-onboard/work-items.json` stores the public work-item ledger.
+
+Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
+
+```sh
+npx agent-onboard@0.0.13 work-items --list
+npx agent-onboard@0.0.13 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.13 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+```
+
+The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.
 
 ## License
 

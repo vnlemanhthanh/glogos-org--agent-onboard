@@ -1,0 +1,40 @@
+{
+  "schema": "agent-onboard-target-config-001",
+  "control": {
+    "package_name": "agent-onboard",
+    "requested_mode": "target_dry_run",
+    "authority_level": "L1_read_only_preview"
+  },
+  "project": {
+    "name": "agent-onboard",
+    "kind": "node-cli-source-repository"
+  },
+  "boundaries": {
+    "writes_allowed": false,
+    "managed_project_commands_allowed": 0,
+    "create_agent_onboard_runtime_state": false,
+    "install_dependencies": false,
+    "run_build_test_deploy": false,
+    "publish_or_push": false
+  },
+  "surfaces": {
+    "include": [
+      "package.json",
+      "README.md",
+      "LICENSE",
+      "cli/agent-onboard.js",
+      "test/agent-onboard.test.js",
+      "AGENTS.md",
+      "agent-onboard.target.json",
+      ".agent-onboard/project.json",
+      ".agent-onboard/work-items.json"
+    ],
+    "exclude": [
+      "node_modules",
+      ".git",
+      "dist",
+      "build",
+      "coverage"
+    ]
+  }
+}

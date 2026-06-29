@@ -8,7 +8,11 @@ coverage/
 *.tgz
 
 # Runtime/local state
-.agent-onboard/
+# Keep canonical self-dogfood control files trackable in the source repo.
+.agent-onboard/*
+!.agent-onboard/
+!.agent-onboard/project.json
+!.agent-onboard/work-items.json
 .env
 .env.*
 
