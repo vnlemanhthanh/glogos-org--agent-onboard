@@ -56,8 +56,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.15');
-  assert.strictEqual(output.release_line, 'public_handoff_closure_evidence_gate');
+  assert.strictEqual(output.version, '0.0.16');
+  assert.strictEqual(output.release_line, 'public_source_closure_test_fixture_alignment_gate');
 }
 
 {
@@ -562,23 +562,77 @@ function cliTargetConfigForTest(dir) {
 }
 
 {
+
   const rootLedger = JSON.parse(fs.readFileSync(path.join(ROOT, '.agent-onboard', 'work-items.json'), 'utf8'));
+
   const errors = require('../cli/agent-onboard.js').validateWorkItems(rootLedger);
+
   assert.deepStrictEqual(errors, []);
-  assert.strictEqual(rootLedger.work_items.length, 3);
-  assert.strictEqual(rootLedger.programs[0].id, ['P', 1].join(''));
-  assert.strictEqual(rootLedger.stages[0].id, ['P', 1, 'S', 1].join(''));
-  assert.strictEqual(rootLedger.milestones[0].id, ['P', 1, 'S', 1, 'M', 1].join(''));
-  assert.strictEqual(rootLedger.work_items[0].id, ['P', 1, 'S', 1, 'M', 1, 'W', 1].join(''));
-  assert.strictEqual(rootLedger.work_items[0].status, 'closed');
-  assert.strictEqual(rootLedger.work_items[1].id, ['P', 1, 'S', 1, 'M', 1, 'W', 2].join(''));
-  assert.strictEqual(rootLedger.work_items[1].status, 'closed');
-  assert.strictEqual(rootLedger.work_items[1].closure.actor, 'release-maintainer');
-  assert.strictEqual(rootLedger.work_items[2].id, ['P', 1, 'S', 1, 'M', 1, 'W', 3].join(''));
-  assert.strictEqual(rootLedger.work_items[2].status, 'open');
+
+  const findById = (items, id) => items.find((item) => item.id === id);
+
+  const program = findById(rootLedger.programs, ['P', 1].join(''));
+
+  const stage = findById(rootLedger.stages, ['P', 1, 'S', 1].join(''));
+
+  const milestone = findById(rootLedger.milestones, ['P', 1, 'S', 1, 'M', 1].join(''));
+
+  const w1 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 1].join(''));
+
+  const w2 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 2].join(''));
+
+  const w3 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 3].join(''));
+
+  const w4 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 4].join(''));
+
+  const w5 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 5].join(''));
+
+  assert.ok(program);
+
+  assert.ok(stage);
+
+  assert.ok(milestone);
+
+  assert.ok(w1);
+
+  assert.strictEqual(w1.status, 'closed');
+
+  assert.ok(w2);
+
+  assert.strictEqual(w2.status, 'closed');
+
+  assert.strictEqual(w2.closure.actor, 'release-maintainer');
+
+  assert.ok(w3);
+
+  assert.strictEqual(w3.status, 'closed');
+
+  assert.strictEqual(w3.closure.actor, 'release-maintainer');
+
+  assert.match(w3.closure.summary, /agent-onboard@0\.0\.15/);
+
+  assert.ok(w4);
+
+  assert.strictEqual(w4.title, 'Public source closure test fixture alignment gate');
+
+  assert.strictEqual(w4.status, 'closed');
+
+  assert.strictEqual(w4.closure.actor, 'release-maintainer');
+
+  assert.match(w4.closure.summary, /agent-onboard@0\.0\.16/);
+
+  assert.ok(w5);
+
+  assert.strictEqual(w5.title, 'Public package publish verification gate');
+
+  assert.strictEqual(w5.status, 'open');
+
   assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
+
   assert.ok(fs.existsSync(path.join(ROOT, 'agent-onboard.target.json')));
+
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'project.json')));
+
 }
 
 {
@@ -739,6 +793,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('`0.0.13` adds source self-dogfood and agent participation support'));
   assert.ok(readme.includes('`0.0.14` adds the public source participation lifecycle gate'));
   assert.ok(readme.includes('`0.0.15` adds the public handoff and closure evidence gate'));
+
+  assert.ok(readme.includes('`0.0.16` aligns public source closure tests'));
   assert.ok(readme.includes('The claim response also returns `next_steps`'));
   assert.ok(readme.includes('The close command reads the existing ledger'));
 }

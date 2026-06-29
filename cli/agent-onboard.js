@@ -1567,7 +1567,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_handoff_closure_evidence_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_source_closure_test_fixture_alignment_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);

@@ -87,6 +87,66 @@
       "id": "P1S1M1W3",
       "milestone_id": "P1S1M1",
       "title": "Public handoff and closure evidence gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-29T20:34:00.889Z",
+        "summary": "Closed after publishing agent-onboard@0.0.15 with public handoff and closure evidence support; source fixture alignment follow-up is tracked by P1S1M1W4 and repaired in agent-onboard@0.0.16.",
+        "changed_files": [
+          "README.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm view agent-onboard version dist-tags",
+          "npm view agent-onboard@0.0.15 name version license bin repository",
+          "npx agent-onboard@0.0.15 status",
+          "npx agent-onboard@0.0.15 init --dry-run",
+          "npx agent-onboard@0.0.15 work-items --list"
+        ],
+        "checks_not_run": [],
+        "known_non_pass": [
+          "agent-onboard@0.0.15 source test fixture expected P1S1M1W3 to remain open after the work item was closed; repaired by P1S1M1W4 in agent-onboard@0.0.16.",
+          "npx agent-onboard@0.0.15 init --dry-run reports expected conflicts inside an already-onboarded source repo."
+        ]
+      }
+    },
+    {
+      "id": "P1S1M1W4",
+      "milestone_id": "P1S1M1",
+      "title": "Public source closure test fixture alignment gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-29T20:56:12.000Z",
+        "summary": "Closed after aligning the public source closure test fixture with the already-closed handoff evidence work item in agent-onboard@0.0.16.",
+        "changed_files": [
+          "README.md",
+          "test/agent-onboard.test.js",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js work-items --list",
+          "installed package smoke: agent-onboard status",
+          "installed package smoke: agent-onboard init --dry-run in empty target repo"
+        ],
+        "checks_not_run": [],
+        "known_non_pass": [
+          "agent-onboard init --dry-run reports expected conflicts inside an already-onboarded source repo."
+        ]
+      }
+    },
+    {
+      "id": "P1S1M1W5",
+      "milestone_id": "P1S1M1",
+      "title": "Public package publish verification gate",
       "status": "open"
     }
   ]
