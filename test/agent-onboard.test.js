@@ -36,8 +36,8 @@ function tempRepo() {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.3');
-  assert.strictEqual(output.release_line, 'public_target_config_init_surface');
+  assert.strictEqual(output.version, '0.0.4');
+  assert.strictEqual(output.release_line, 'public_agent_instructions_preview_surface');
 }
 
 {
@@ -53,6 +53,52 @@ function tempRepo() {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.target_config.project.name, 'target-fixture');
+  assert.ok(output.target_config.surfaces.include.includes('AGENTS.md'));
+}
+
+{
+  const dir = tempRepo();
+  const result = run(['agents', '--preview'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.mode, 'preview');
+  assert.strictEqual(output.writes_performed, false);
+  assert.strictEqual(output.canonical_file, 'AGENTS.md');
+  assert.ok(output.agents_md.includes('Forbidden by default'));
+  assert.ok(output.agents_md.includes('target-fixture'));
+  assert.ok(!fs.existsSync(path.join(dir, 'AGENTS.md')));
+}
+
+{
+  const dir = tempRepo();
+  const result = run(['agents', '--write'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.writes_performed, true);
+  assert.deepStrictEqual(output.conflicts, []);
+  const agents = fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8');
+  assert.ok(agents.includes('Agent-Onboard target repository rules'));
+  assert.ok(agents.includes('target-fixture'));
+}
+
+{
+  const dir = tempRepo();
+  fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# Existing instructions\n');
+  const result = run(['agents', '--write'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(output.status, 'error');
+  assert.deepStrictEqual(output.conflicts, ['AGENTS.md']);
+  assert.strictEqual(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8'), '# Existing instructions\n');
+}
+
+{
+  const dir = tempRepo();
+  fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# Existing instructions\n');
+  const result = run(['agents', '--write', '--force'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.deepStrictEqual(output.conflicts, []);
+  assert.ok(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8').includes('Agent-Onboard target repository rules'));
 }
 
 {
@@ -138,6 +184,7 @@ function tempRepo() {
   delete invalid.boundaries.writes_allowed;
   const errors = cli.validateTargetConfig(invalid);
   assert.ok(errors.some((error) => error.includes('writes_allowed')));
+  assert.ok(cli.agentsMdTemplate(tempRepo()).includes('AGENTS.md'));
 }
 
 console.log('agent-onboard tests passed');

@@ -2,22 +2,22 @@
 
 CLI for onboarding and managing target repositories.
 
-`agent-onboard` creates a small machine-readable control surface inside a target repo. In the current `0.0.x` line, that surface is a convention/spec plus a reference CLI generator. It is not a sandbox, filesystem wrapper, CI policy engine, or runtime enforcement layer.
+`agent-onboard` creates a small machine-readable and human-readable control surface inside a target repo. In the current `0.0.x` line, that surface is a convention/spec plus a reference CLI generator. It is not a sandbox, filesystem wrapper, CI policy engine, or runtime enforcement layer.
 
 The generated files are intended to be read by agents, wrappers, CI hooks, or future runtimes that choose to honor the declared boundaries.
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.3` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.4` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.3
+npm install --save-dev agent-onboard@~0.0.4
 ```
 
 Run without installing:
 
 ```sh
-npx agent-onboard@0.0.3 status
+npx agent-onboard@0.0.4 status
 ```
 
 ## Minimal target init
@@ -25,35 +25,63 @@ npx agent-onboard@0.0.3 status
 Preview the files that would be created:
 
 ```sh
-npx agent-onboard@0.0.3 init --dry-run
+npx agent-onboard@0.0.4 init --dry-run
 ```
 
 Write the minimal target state:
 
 ```sh
-npx agent-onboard@0.0.3 init --write
+npx agent-onboard@0.0.4 init --write
 ```
 
 `init --write` refuses to overwrite existing non-identical files. To intentionally replace existing target-state files:
 
 ```sh
-npx agent-onboard@0.0.3 init --write --force
+npx agent-onboard@0.0.4 init --write --force
+```
+
+## Agent instructions preview
+
+Preview the canonical agent instruction file:
+
+```sh
+npx agent-onboard@0.0.4 agents --preview
+```
+
+Write it to the target repo:
+
+```sh
+npx agent-onboard@0.0.4 agents --write
+```
+
+`agents --write` writes only:
+
+```text
+AGENTS.md
+```
+
+It refuses to overwrite an existing non-identical `AGENTS.md` unless `--force` is passed:
+
+```sh
+npx agent-onboard@0.0.4 agents --write --force
 ```
 
 ## Commands
 
 ```sh
-npx agent-onboard@0.0.3 status
-npx agent-onboard@0.0.3 init --dry-run
-npx agent-onboard@0.0.3 init --write
-npx agent-onboard@0.0.3 target-config --schema
-npx agent-onboard@0.0.3 target-config --template
-npx agent-onboard@0.0.3 target-config --validate-template
-npx agent-onboard@0.0.3 target-config --validate [agent-onboard.target.json]
-npx agent-onboard@0.0.3 target bootstrap --dry-run
-npx agent-onboard@0.0.3 target bootstrap --write
-npx agent-onboard@0.0.3 target-instance takeover --dry-run
-npx agent-onboard@0.0.3 target-instance takeover --write
+npx agent-onboard@0.0.4 status
+npx agent-onboard@0.0.4 init --dry-run
+npx agent-onboard@0.0.4 init --write
+npx agent-onboard@0.0.4 agents --preview
+npx agent-onboard@0.0.4 agents --write
+npx agent-onboard@0.0.4 target-config --schema
+npx agent-onboard@0.0.4 target-config --template
+npx agent-onboard@0.0.4 target-config --validate-template
+npx agent-onboard@0.0.4 target-config --validate [agent-onboard.target.json]
+npx agent-onboard@0.0.4 target bootstrap --dry-run
+npx agent-onboard@0.0.4 target bootstrap --write
+npx agent-onboard@0.0.4 target-instance takeover --dry-run
+npx agent-onboard@0.0.4 target-instance takeover --write
 ```
 
 After install, these command names are available:
@@ -66,7 +94,7 @@ create-agent-onboard status
 
 ## Files written
 
-Dry-run commands write nothing.
+Dry-run and preview commands write nothing.
 
 `init --write` writes the complete minimal public target state:
 
@@ -74,6 +102,12 @@ Dry-run commands write nothing.
 agent-onboard.target.json
 .agent-onboard/project.json
 .agent-onboard/work-items.json
+```
+
+`agents --write` writes the public agent instruction surface:
+
+```text
+AGENTS.md
 ```
 
 The older explicit subcommands remain available:
@@ -91,11 +125,13 @@ agent-onboard.target.json
 .agent-onboard/work-items.json
 ```
 
-## What the boundary file means
+## What the boundary files mean
 
 `agent-onboard.target.json` declares the target repo's intended operating boundaries, including write policy, dependency-install policy, build/test/deploy policy, publish/push policy, and managed surfaces.
 
-In the current `0.0.x` line, these fields are declarative. They do not block other tools by themselves. A separate agent runtime, wrapper, CI hook, or future `agent-onboard` component must read the file and enforce the declared policy.
+`AGENTS.md` gives agents a human-readable read order, default forbidden actions, dry-run-first operating mode, and reporting discipline.
+
+In the current `0.0.x` line, these fields and instructions are declarative. They do not block other tools by themselves. A separate agent runtime, wrapper, CI hook, or future `agent-onboard` component must read the files and enforce the declared policy.
 
 The generated config intentionally starts at:
 
@@ -105,7 +141,7 @@ authority_level: L1_read_only_preview
 writes_allowed: false
 ```
 
-Passing `--write` to this CLI only allows this CLI to write the initial target-state files. It does not raise the generated target authority level.
+Passing `--write` to this CLI only allows this CLI to write the requested public surface files. It does not raise the generated target authority level.
 
 ## Validation
 
@@ -123,9 +159,9 @@ This version does not:
 
 - install dependencies;
 - run builds, tests, deploys, publishes, or pushes;
-- modify source files;
+- modify source files except the requested generated public surface files;
 - write files unless `--write` is passed;
-- overwrite existing non-identical target-state files unless `--force` is passed;
+- overwrite existing non-identical target-state or agent-instruction files unless `--force` is passed;
 - enforce filesystem, network, shell, Git, or package-manager policy for other tools.
 
 ## File meanings
@@ -136,6 +172,8 @@ This version does not:
 
 `.agent-onboard/work-items.json` is the initial empty work-item ledger.
 
+`AGENTS.md` is the human-readable agent instruction surface for the target repo.
+
 ## Version line
 
 `0.0.1` is the first public package version.
@@ -143,6 +181,8 @@ This version does not:
 `0.0.2` adds public repository hygiene and npm/GitHub metadata while staying below the `0.1.0` boundary.
 
 `0.0.3` adds the public target config/init surface: top-level `init`, target config template printing, target config file validation, and default overwrite protection.
+
+`0.0.4` adds the public agent instructions / `AGENTS.md` preview surface with guarded write support.
 
 <!-- ## Star History
 

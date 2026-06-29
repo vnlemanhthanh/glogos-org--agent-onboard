@@ -5,6 +5,11 @@ const fs = require('fs');
 const path = require('path');
 const VERSION = require('../package.json').version;
 
+process.stdout.on('error', (error) => {
+  if (error && error.code === 'EPIPE') process.exit(0);
+  throw error;
+});
+
 const TARGET_CONFIG_SCHEMA = {
   schema: 'https://json-schema.org/draft/2020-12/schema',
   $id: 'agent-onboard-target-config-001',
@@ -63,6 +68,82 @@ const TARGET_CONFIG_SCHEMA = {
     }
   }
 };
+
+function agentsMdTemplate(cwd = process.cwd()) {
+  const [name, kind] = targetName(cwd);
+  return `# AGENTS.md
+
+## Agent-Onboard target repository rules
+
+This is a target repository for agent-assisted work. Agents should treat this file as the first human-readable operating guide and treat \`agent-onboard.target.json\` as the machine-readable boundary declaration when it exists.
+
+Target identity:
+
+- name: \`${name}\`
+- kind: \`${kind}\`
+- control package: \`agent-onboard\`
+
+## Read order
+
+Before proposing or making changes, read these files when present:
+
+1. \`AGENTS.md\`
+2. \`agent-onboard.target.json\`
+3. \`.agent-onboard/project.json\`
+4. \`.agent-onboard/work-items.json\`
+
+If \`node_modules\` is missing, do not assume the package is installed locally. Prefer \`npx agent-onboard@${VERSION} status\` or the package version requested by the repository owner.
+
+## Default boundary
+
+Forbidden by default unless the repository owner explicitly authorizes the action:
+
+- installing, removing, or upgrading dependencies;
+- running builds, tests, deploys, publishes, or pushes;
+- modifying source files outside the requested scope;
+- overwriting non-identical files;
+- creating or mutating runtime state under \`.agent-onboard/\` except through an explicit \`agent-onboard\` command or owner request;
+- treating declarative boundary files as proof that enforcement already exists.
+
+## Operating mode
+
+Start in read-only preview mode. Prefer a dry-run plan before writes. Use explicit write commands only when the owner requests them.
+
+When reporting work, distinguish clearly between:
+
+- files inspected;
+- files changed;
+- checks actually run;
+- checks not run;
+- known non-pass states.
+
+Do not claim a check passed unless it was actually executed in the current workspace.
+
+## Agent-Onboard commands
+
+Preview target initialization:
+
+\`\`\`sh
+npx agent-onboard@${VERSION} init --dry-run
+\`\`\`
+
+Preview this file:
+
+\`\`\`sh
+npx agent-onboard@${VERSION} agents --preview
+\`\`\`
+
+Write this file when explicitly requested:
+
+\`\`\`sh
+npx agent-onboard@${VERSION} agents --write
+\`\`\`
+
+## Scope note
+
+In the current \`0.0.x\` line, \`agent-onboard\` emits conventions and reference files. It does not sandbox other tools by itself and does not enforce filesystem, network, shell, Git, package-manager, CI, deployment, or publication policy for external tools.
+`;
+}
 
 function json(value) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
@@ -190,7 +271,8 @@ function targetConfigTemplate(cwd = process.cwd()) {
         'package.json',
         'agent-onboard.target.json',
         '.agent-onboard/project.json',
-        '.agent-onboard/work-items.json'
+        '.agent-onboard/work-items.json',
+        'AGENTS.md'
       ],
       exclude: ['node_modules', '.git', 'dist', 'build', '.venv', '.lake']
     }
@@ -257,6 +339,37 @@ function performPlannedWrites(plannedWrites) {
   }
 }
 
+function planTextWrites(writeSet, options = {}) {
+  const force = options.force === true;
+  return writeSet.map(([relativePath, content]) => {
+    const absolutePath = path.join(process.cwd(), relativePath);
+    const exists = fs.existsSync(absolutePath);
+    const current = exists ? fs.readFileSync(absolutePath, 'utf8') : null;
+    const identical = exists && current === content;
+    const conflict = exists && !identical && !force;
+    let action = 'create';
+    if (identical) action = 'keep';
+    else if (exists && force) action = 'overwrite';
+    else if (conflict) action = 'conflict';
+    return {
+      path: relativePath,
+      exists,
+      action,
+      safe_to_write: action !== 'conflict',
+      content
+    };
+  });
+}
+
+function performPlannedTextWrites(plannedWrites) {
+  for (const item of plannedWrites) {
+    if (item.action === 'create' || item.action === 'overwrite') {
+      fs.mkdirSync(path.dirname(path.join(process.cwd(), item.path)), { recursive: true });
+      fs.writeFileSync(path.join(process.cwd(), item.path), item.content);
+    }
+  }
+}
+
 function summarizePlan(plannedWrites) {
   return plannedWrites.map((item) => ({
     path: item.path,
@@ -312,6 +425,41 @@ function runTargetConfig(args) {
     return ok ? 0 : 1;
   }
   throw new Error('target-config requires --schema, --template, --validate-template, or --validate [file]');
+}
+
+function runAgents(args) {
+  const preview = args.includes('--preview');
+  const write = args.includes('--write');
+  const force = args.includes('--force');
+  if (!preview && !write) throw new Error('agents requires --preview or --write');
+  if (preview && write) throw new Error('agents accepts only one of --preview or --write');
+
+  const content = agentsMdTemplate();
+  const plannedWrites = planTextWrites([['AGENTS.md', content]], { force });
+  const conflicts = plannedWrites.filter((item) => item.action === 'conflict');
+  const ok = conflicts.length === 0;
+  if (write && ok) performPlannedTextWrites(plannedWrites);
+
+  json({
+    schema: 'agent-onboard-agents-result-001',
+    status: ok ? 'ok' : 'error',
+    command_family: 'agents',
+    canonical_file: 'AGENTS.md',
+    mode: write ? 'write' : 'preview',
+    force,
+    writes_performed: write && ok,
+    planned_writes: summarizePlan(plannedWrites),
+    conflicts: conflicts.map((item) => item.path),
+    agents_md: content,
+    boundary: {
+      installs_dependencies: false,
+      runs_build_test_deploy: false,
+      publishes_or_pushes: false,
+      modifies_source_files: write,
+      modifies_only_canonical_agents_file: write
+    }
+  });
+  return ok ? 0 : 1;
 }
 
 function runInit(args) {
@@ -402,7 +550,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -414,10 +562,11 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_target_config_init_surface' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_agent_instructions_preview_surface' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
+  if (cmd === 'agents') return runAgents(args);
   if (cmd === 'target-config') return runTargetConfig(args);
   if (cmd === 'target') {
     if (args[0] !== 'bootstrap') throw new Error('target supports only: bootstrap');
@@ -441,5 +590,6 @@ module.exports = {
   targetConfigTemplate,
   validateTargetConfig,
   initWriteSet,
-  planWrites
+  planWrites,
+  agentsMdTemplate
 };
