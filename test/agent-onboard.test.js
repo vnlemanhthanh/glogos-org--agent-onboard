@@ -22,8 +22,23 @@ function readJsonOutput(result) {
 }
 
 function readJsonFailure(result) {
-  assert.notStrictEqual(result.status, 0, result.stderr || result.stdout);
+  assert.notStrictEqual(result.status, 0, result.stderr || result.stdout || (result.error && result.error.message));
   return JSON.parse(result.stdout);
+}
+
+function runNpmPackDryRun() {
+  // Avoid child_process shell=true for Node 24 DEP0190, while still handling
+  // Windows npm.cmd correctly by invoking cmd.exe explicitly.
+  if (process.platform === 'win32') {
+    return spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm pack --dry-run --json'], {
+      cwd: ROOT,
+      encoding: 'utf8'
+    });
+  }
+  return spawnSync('npm', ['pack', '--dry-run', '--json'], {
+    cwd: ROOT,
+    encoding: 'utf8'
+  });
 }
 
 function tempRepo() {
@@ -530,9 +545,8 @@ function cliTargetConfigForTest(dir) {
 }
 
 {
-  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const pack = spawnSync(npmCommand, ['pack', '--dry-run', '--json'], { cwd: ROOT, encoding: 'utf8' });
-  assert.strictEqual(pack.status, 0, pack.stderr || pack.stdout);
+  const pack = runNpmPackDryRun();
+  assert.strictEqual(pack.status, 0, pack.stderr || pack.stdout || (pack.error && pack.error.message));
   const parsed = JSON.parse(pack.stdout);
   assert.strictEqual(parsed.length, 1);
   const files = parsed[0].files.map((item) => item.path).sort();
