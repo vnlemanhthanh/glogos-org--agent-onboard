@@ -41,12 +41,39 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.6');
-  assert.strictEqual(output.release_line, 'public_boundary_guard_hotfix');
+  assert.strictEqual(output.version, '0.0.7');
+  assert.strictEqual(output.release_line, 'public_psmw_work_item_ledger_seed');
 }
 
 {
   const result = run(['target-config', '--validate-template']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.validated, true);
+  assert.deepStrictEqual(output.errors, []);
+}
+
+{
+  const result = run(['work-items', '--schema']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.work_items_schema.$id, 'agent-onboard-target-work-items-001');
+}
+
+{
+  const result = run(['work-items', '--template']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.canonical_file, '.agent-onboard/work-items.json');
+  assert.strictEqual(output.work_items.vocabulary.program.prefix, 'P');
+  assert.deepStrictEqual(output.work_items.programs, []);
+  assert.deepStrictEqual(output.work_items.stages, []);
+  assert.deepStrictEqual(output.work_items.milestones, []);
+  assert.deepStrictEqual(output.work_items.work_items, []);
+}
+
+{
+  const result = run(['work-items', '--validate-template']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.validated, true);
@@ -126,6 +153,13 @@ function cliTargetConfigForTest(dir) {
   assert.ok(fs.existsSync(path.join(dir, 'agent-onboard.target.json')));
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'project.json')));
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'work-items.json')));
+  const workItems = JSON.parse(fs.readFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), 'utf8'));
+  assert.strictEqual(workItems.schema, 'agent-onboard-target-work-items-001');
+  assert.strictEqual(workItems.vocabulary.work_item.prefix, 'W');
+  assert.deepStrictEqual(workItems.programs, []);
+  assert.deepStrictEqual(workItems.stages, []);
+  assert.deepStrictEqual(workItems.milestones, []);
+  assert.deepStrictEqual(workItems.work_items, []);
   const targetConfig = JSON.parse(fs.readFileSync(path.join(dir, 'agent-onboard.target.json'), 'utf8'));
   assert.strictEqual(targetConfig.project.name, 'target-fixture');
   assert.strictEqual(targetConfig.control.requested_mode, 'target_dry_run');
@@ -134,6 +168,16 @@ function cliTargetConfigForTest(dir) {
   const validate = run(['target-config', '--validate'], { cwd: dir });
   const validation = readJsonOutput(validate);
   assert.strictEqual(validation.status, 'ok');
+
+  const validateWorkItems = run(['work-items', '--validate'], { cwd: dir });
+  const workItemsValidation = readJsonOutput(validateWorkItems);
+  assert.strictEqual(workItemsValidation.status, 'ok');
+  assert.strictEqual(workItemsValidation.counts.work_items, 0);
+
+  const listWorkItems = run(['work-items', '--list'], { cwd: dir });
+  const workItemsList = readJsonOutput(listWorkItems);
+  assert.strictEqual(workItemsList.status, 'ok');
+  assert.strictEqual(workItemsList.counts.programs, 0);
 }
 
 {
@@ -182,6 +226,45 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.writes_performed, true);
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'project.json')));
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'work-items.json')));
+}
+
+{
+  const dir = tempRepo();
+  const missing = run(['work-items', '--list'], { cwd: dir });
+  const output = readJsonFailure(missing);
+  assert.strictEqual(output.status, 'error');
+  assert.strictEqual(output.writes_performed, false);
+}
+
+{
+  const dir = tempRepo();
+  const ledger = require('../cli/agent-onboard.js').workItemsTemplate();
+  const validProgramId = ['P', 1].join('');
+  const validStageId = [validProgramId, 'S', 1].join('');
+  const validMilestoneId = [validStageId, 'M', 1].join('');
+  const validWorkItemId = [validMilestoneId, 'W', 1].join('');
+  ledger.programs.push({ id: validProgramId, title: 'Program seed', status: 'open' });
+  ledger.stages.push({ id: validStageId, program_id: validProgramId, title: 'Stage seed', status: 'open' });
+  ledger.milestones.push({ id: validMilestoneId, stage_id: validStageId, title: 'Milestone seed', status: 'open' });
+  ledger.work_items.push({ id: validWorkItemId, milestone_id: validMilestoneId, title: 'Work item seed', status: 'open' });
+  fs.mkdirSync(path.join(dir, '.agent-onboard'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), JSON.stringify(ledger, null, 2) + '\n');
+  const result = run(['work-items', '--list'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.counts.work_items, 1);
+}
+
+{
+  const dir = tempRepo();
+  const ledger = require('../cli/agent-onboard.js').workItemsTemplate();
+  ledger.work_items.push({ id: ['not', 'valid'].join('-'), milestone_id: ['also', 'bad'].join('-'), title: 'Invalid', status: 'open' });
+  fs.mkdirSync(path.join(dir, '.agent-onboard'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.agent-onboard', 'work-items.json'), JSON.stringify(ledger, null, 2) + '\n');
+  const result = run(['work-items', '--validate'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(output.status, 'error');
+  assert.ok(output.errors.some((error) => error.includes('expected pattern')));
 }
 
 

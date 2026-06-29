@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -36,7 +36,12 @@
     "agent-instructions",
     "agent-instructions-preview",
     "repository-instructions",
-    "glogos"
+    "glogos",
+    "psmw",
+    "program-stage-milestone-work-item",
+    "public-work-item-ledger",
+    "work-item-schema",
+    "agent-workflow-ledger"
   ],
   "type": "commonjs",
   "engines": {

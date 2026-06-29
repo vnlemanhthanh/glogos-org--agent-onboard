@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.6` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.7` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.6
+npm install --save-dev agent-onboard@~0.0.7
 ```
 
 Run without installing:
@@ -80,6 +80,11 @@ npx agent-onboard target-config --schema
 npx agent-onboard target-config --template
 npx agent-onboard target-config --validate-template
 npx agent-onboard target-config --validate [agent-onboard.target.json]
+npx agent-onboard work-items --schema
+npx agent-onboard work-items --template
+npx agent-onboard work-items --validate-template
+npx agent-onboard work-items --validate [.agent-onboard/work-items.json]
+npx agent-onboard work-items --list [.agent-onboard/work-items.json]
 npx agent-onboard target bootstrap --dry-run
 npx agent-onboard target bootstrap --write
 npx agent-onboard target-instance takeover --dry-run
@@ -126,6 +131,46 @@ agent-onboard.target.json
 .agent-onboard/project.json
 .agent-onboard/work-items.json
 ```
+
+## Public P/S/M/W work item ledger seed
+
+`agent-onboard` now exposes the public vocabulary used by `.agent-onboard/work-items.json`:
+
+```text
+P = Program
+S = Stage
+M = Milestone
+W = Work Item
+```
+
+The generated work-item ledger is intentionally empty at initialization. It establishes the public JSON shape without importing pre-existing target state, milestone history, or generated provenance.
+
+Inspect the embedded schema:
+
+```sh
+npx agent-onboard work-items --schema
+```
+
+Print the embedded template:
+
+```sh
+npx agent-onboard work-items --template
+```
+
+Validate the embedded template:
+
+```sh
+npx agent-onboard work-items --validate-template
+```
+
+Validate or list the target repo ledger after `init --write`:
+
+```sh
+npx agent-onboard work-items --validate
+npx agent-onboard work-items --list
+```
+
+This release does not add work-item creation, claiming, closing, admission, conflict detection, or milestone governance. Those remain outside the command surface until documented and exposed by explicit commands.
 
 ## Boundary guard seed
 
@@ -197,7 +242,7 @@ This version does not:
 
 `.agent-onboard/project.json` is the runtime identity of the target repo.
 
-`.agent-onboard/work-items.json` is the initial empty work-item ledger.
+`.agent-onboard/work-items.json` is the initial empty public P/S/M/W work-item ledger.
 
 `AGENTS.md` is the human-readable agent instruction surface for the target repo.
 
@@ -211,7 +256,9 @@ This version does not:
 
 `0.0.4` adds the public agent instructions / `AGENTS.md` preview surface with guarded write support.
 
-`0.0.6` is the public boundary guard hotfix: it keeps the `guard --plan` and `guard --check-boundary` surface while limiting public JSON output to documented fields.
+`0.0.6` is the boundary guard hotfix: it keeps the `guard --plan` and `guard --check-boundary` surface while keeping JSON output limited to documented fields.
+
+`0.0.7` adds the P/S/M/W vocabulary and work-item ledger schema/template/list/validation surface with documented JSON output.
 
 <!-- ## Star History
 

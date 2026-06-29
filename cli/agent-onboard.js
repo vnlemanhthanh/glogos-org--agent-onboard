@@ -70,6 +70,120 @@ const TARGET_CONFIG_SCHEMA = {
   }
 };
 
+const WORK_ITEMS_SCHEMA = {
+  schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: 'agent-onboard-target-work-items-001',
+  type: 'object',
+  required: ['schema', 'package_name', 'vocabulary', 'programs', 'stages', 'milestones', 'work_items'],
+  additionalProperties: false,
+  properties: {
+    schema: { const: 'agent-onboard-target-work-items-001' },
+    package_name: { const: 'agent-onboard' },
+    vocabulary: {
+      type: 'object',
+      required: ['program', 'stage', 'milestone', 'work_item'],
+      additionalProperties: false,
+      properties: {
+        program: {
+          type: 'object',
+          required: ['prefix', 'name', 'description'],
+          additionalProperties: false,
+          properties: {
+            prefix: { const: 'P' },
+            name: { const: 'Program' },
+            description: { type: 'string', minLength: 1 }
+          }
+        },
+        stage: {
+          type: 'object',
+          required: ['prefix', 'name', 'description'],
+          additionalProperties: false,
+          properties: {
+            prefix: { const: 'S' },
+            name: { const: 'Stage' },
+            description: { type: 'string', minLength: 1 }
+          }
+        },
+        milestone: {
+          type: 'object',
+          required: ['prefix', 'name', 'description'],
+          additionalProperties: false,
+          properties: {
+            prefix: { const: 'M' },
+            name: { const: 'Milestone' },
+            description: { type: 'string', minLength: 1 }
+          }
+        },
+        work_item: {
+          type: 'object',
+          required: ['prefix', 'name', 'description'],
+          additionalProperties: false,
+          properties: {
+            prefix: { const: 'W' },
+            name: { const: 'Work Item' },
+            description: { type: 'string', minLength: 1 }
+          }
+        }
+      }
+    },
+    programs: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'title', 'status'],
+        additionalProperties: false,
+        properties: {
+          id: { type: 'string', pattern: '^P[0-9]+$' },
+          title: { type: 'string', minLength: 1 },
+          status: { enum: ['open', 'closed'] }
+        }
+      }
+    },
+    stages: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'program_id', 'title', 'status'],
+        additionalProperties: false,
+        properties: {
+          id: { type: 'string', pattern: '^P[0-9]+S[0-9]+$' },
+          program_id: { type: 'string', pattern: '^P[0-9]+$' },
+          title: { type: 'string', minLength: 1 },
+          status: { enum: ['open', 'closed'] }
+        }
+      }
+    },
+    milestones: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'stage_id', 'title', 'status'],
+        additionalProperties: false,
+        properties: {
+          id: { type: 'string', pattern: '^P[0-9]+S[0-9]+M[0-9]+$' },
+          stage_id: { type: 'string', pattern: '^P[0-9]+S[0-9]+$' },
+          title: { type: 'string', minLength: 1 },
+          status: { enum: ['open', 'closed'] }
+        }
+      }
+    },
+    work_items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'milestone_id', 'title', 'status'],
+        additionalProperties: false,
+        properties: {
+          id: { type: 'string', pattern: '^P[0-9]+S[0-9]+M[0-9]+W[0-9]+$' },
+          milestone_id: { type: 'string', pattern: '^P[0-9]+S[0-9]+M[0-9]+$' },
+          title: { type: 'string', minLength: 1 },
+          status: { enum: ['open', 'closed'] }
+        }
+      }
+    }
+  }
+};
+
 const BOUNDARY_GUARD_CONTRACT = Object.freeze({
   schema: 'agent-onboard-public-boundary-guard-enforcement-seed-contract-001',
   title: 'Agent-Onboard Public Boundary Guard Enforcement Seed Gate',
@@ -145,6 +259,12 @@ npx agent-onboard@${VERSION} guard --check-boundary
 \`\`\`
 
 Treat a blocked guard result as a stop condition until the repository owner explicitly changes the boundary.
+
+Inspect the public work-item ledger when present:
+
+\`\`\`sh
+npx agent-onboard@${VERSION} work-items --list
+\`\`\`
 
 When reporting work, distinguish clearly between:
 
@@ -253,6 +373,9 @@ function validateJsonSchema(value, schema, pointer = '$') {
     if (schema.minLength !== undefined && value.length < schema.minLength) {
       errors.push(`${pointer}: expected minLength ${schema.minLength}`);
     }
+    if (schema.pattern !== undefined && !(new RegExp(schema.pattern)).test(value)) {
+      errors.push(`${pointer}: expected pattern ${schema.pattern}`);
+    }
   }
 
   if (schema.type === 'boolean' && typeof value !== 'boolean') {
@@ -274,6 +397,19 @@ function validateJsonSchema(value, schema, pointer = '$') {
 
 function validateTargetConfig(value) {
   return validateJsonSchema(value, TARGET_CONFIG_SCHEMA);
+}
+
+function validateWorkItems(value) {
+  return validateJsonSchema(value, WORK_ITEMS_SCHEMA);
+}
+
+function workItemCounts(value) {
+  return {
+    programs: Array.isArray(value.programs) ? value.programs.length : 0,
+    stages: Array.isArray(value.stages) ? value.stages.length : 0,
+    milestones: Array.isArray(value.milestones) ? value.milestones.length : 0,
+    work_items: Array.isArray(value.work_items) ? value.work_items.length : 0
+  };
 }
 
 function getPathValue(value, dottedPath) {
@@ -382,6 +518,31 @@ function workItemsTemplate() {
   return {
     schema: 'agent-onboard-target-work-items-001',
     package_name: 'agent-onboard',
+    vocabulary: {
+      program: {
+        prefix: 'P',
+        name: 'Program',
+        description: 'A top-level line of coordinated work inside a target repo.'
+      },
+      stage: {
+        prefix: 'S',
+        name: 'Stage',
+        description: 'A phase within a program.'
+      },
+      milestone: {
+        prefix: 'M',
+        name: 'Milestone',
+        description: 'A bounded delivery checkpoint within a stage.'
+      },
+      work_item: {
+        prefix: 'W',
+        name: 'Work Item',
+        description: 'A concrete unit of agent-addressable work within a milestone.'
+      }
+    },
+    programs: [],
+    stages: [],
+    milestones: [],
     work_items: []
   };
 }
@@ -591,6 +752,88 @@ function runTargetConfig(args) {
   throw new Error('target-config requires --schema, --template, --validate-template, or --validate [file]');
 }
 
+function runWorkItems(args) {
+  if (args.includes('--schema')) {
+    json({
+      schema: 'agent-onboard-work-items-schema-response-001',
+      status: 'ok',
+      work_items_schema: WORK_ITEMS_SCHEMA
+    });
+    return 0;
+  }
+  if (args.includes('--template')) {
+    json({
+      schema: 'agent-onboard-work-items-template-response-001',
+      status: 'ok',
+      canonical_file: '.agent-onboard/work-items.json',
+      work_items: workItemsTemplate()
+    });
+    return 0;
+  }
+  if (args.includes('--validate-template')) {
+    const errors = validateWorkItems(workItemsTemplate());
+    const ok = errors.length === 0;
+    json({
+      schema: 'agent-onboard-work-items-template-validation-001',
+      status: ok ? 'ok' : 'error',
+      template_source: 'embedded',
+      canonical_file: '.agent-onboard/work-items.json',
+      validated: true,
+      errors
+    });
+    return ok ? 0 : 1;
+  }
+  if (args.includes('--validate')) {
+    const index = args.indexOf('--validate');
+    const file = args[index + 1] && !args[index + 1].startsWith('-') ? args[index + 1] : '.agent-onboard/work-items.json';
+    const value = readJson(path.resolve(process.cwd(), file));
+    const errors = validateWorkItems(value);
+    const ok = errors.length === 0;
+    json({
+      schema: 'agent-onboard-work-items-file-validation-001',
+      status: ok ? 'ok' : 'error',
+      file,
+      validated: true,
+      counts: workItemCounts(value),
+      errors
+    });
+    return ok ? 0 : 1;
+  }
+  if (args.includes('--list')) {
+    const index = args.indexOf('--list');
+    const file = args[index + 1] && !args[index + 1].startsWith('-') ? args[index + 1] : '.agent-onboard/work-items.json';
+    const absolutePath = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(absolutePath)) {
+      json({
+        schema: 'agent-onboard-work-items-list-response-001',
+        status: 'error',
+        file,
+        reason: 'missing .agent-onboard/work-items.json in current target repo root',
+        writes_performed: false
+      });
+      return 1;
+    }
+    const value = readJson(absolutePath);
+    const errors = validateWorkItems(value);
+    const ok = errors.length === 0;
+    json({
+      schema: 'agent-onboard-work-items-list-response-001',
+      status: ok ? 'ok' : 'error',
+      file,
+      validated: true,
+      counts: workItemCounts(value),
+      programs: Array.isArray(value.programs) ? value.programs : [],
+      stages: Array.isArray(value.stages) ? value.stages : [],
+      milestones: Array.isArray(value.milestones) ? value.milestones : [],
+      work_items: Array.isArray(value.work_items) ? value.work_items : [],
+      errors,
+      writes_performed: false
+    });
+    return ok ? 0 : 1;
+  }
+  throw new Error('work-items requires --schema, --template, --validate-template, --validate [file], or --list [file]');
+}
+
 function runAgents(args) {
   const preview = args.includes('--preview');
   const write = args.includes('--write');
@@ -714,7 +957,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -726,13 +969,14 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_boundary_guard_hotfix' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_psmw_work_item_ledger_seed' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
   if (cmd === 'agents') return runAgents(args);
   if (cmd === 'guard') return runGuard(args);
   if (cmd === 'target-config') return runTargetConfig(args);
+  if (cmd === 'work-items') return runWorkItems(args);
   if (cmd === 'target') {
     if (args[0] !== 'bootstrap') throw new Error('target supports only: bootstrap');
     return runTargetBootstrap(args.slice(1));
@@ -754,6 +998,8 @@ module.exports = {
   main,
   targetConfigTemplate,
   validateTargetConfig,
+  validateWorkItems,
+  workItemsTemplate,
   initWriteSet,
   planWrites,
   agentsMdTemplate,
