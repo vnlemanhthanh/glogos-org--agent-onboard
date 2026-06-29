@@ -72,9 +72,13 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
+function stableJson(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
 function writeJson(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+  fs.writeFileSync(file, stableJson(value));
 }
 
 function isPlainObject(value) {
@@ -214,12 +218,69 @@ function workItemsTemplate() {
   };
 }
 
+function initWriteSet(cwd = process.cwd()) {
+  return [
+    ['agent-onboard.target.json', targetConfigTemplate(cwd)],
+    ['.agent-onboard/project.json', runtimeProjectTemplate(cwd)],
+    ['.agent-onboard/work-items.json', workItemsTemplate()]
+  ];
+}
+
+function planWrites(writeSet, options = {}) {
+  const force = options.force === true;
+  return writeSet.map(([relativePath, value]) => {
+    const absolutePath = path.join(process.cwd(), relativePath);
+    const desired = stableJson(value);
+    const exists = fs.existsSync(absolutePath);
+    const current = exists ? fs.readFileSync(absolutePath, 'utf8') : null;
+    const identical = exists && current === desired;
+    const conflict = exists && !identical && !force;
+    let action = 'create';
+    if (identical) action = 'keep';
+    else if (exists && force) action = 'overwrite';
+    else if (conflict) action = 'conflict';
+    return {
+      path: relativePath,
+      exists,
+      action,
+      safe_to_write: action !== 'conflict',
+      value
+    };
+  });
+}
+
+function performPlannedWrites(plannedWrites) {
+  for (const item of plannedWrites) {
+    if (item.action === 'create' || item.action === 'overwrite') {
+      writeJson(path.join(process.cwd(), item.path), item.value);
+    }
+  }
+}
+
+function summarizePlan(plannedWrites) {
+  return plannedWrites.map((item) => ({
+    path: item.path,
+    exists: item.exists,
+    action: item.action,
+    safe_to_write: item.safe_to_write
+  }));
+}
+
 function runTargetConfig(args) {
   if (args.includes('--schema')) {
     json({
       schema: 'agent-onboard-target-config-schema-response-001',
       status: 'ok',
       target_config_schema: TARGET_CONFIG_SCHEMA
+    });
+    return 0;
+  }
+  if (args.includes('--template')) {
+    json({
+      schema: 'agent-onboard-target-config-template-response-001',
+      status: 'ok',
+      canonical_config_file: 'agent-onboard.target.json',
+      target_config: targetConfigTemplate()
     });
     return 0;
   }
@@ -236,51 +297,112 @@ function runTargetConfig(args) {
     });
     return ok ? 0 : 1;
   }
-  throw new Error('target-config requires --schema or --validate-template');
+  if (args.includes('--validate')) {
+    const index = args.indexOf('--validate');
+    const file = args[index + 1] && !args[index + 1].startsWith('-') ? args[index + 1] : 'agent-onboard.target.json';
+    const errors = validateTargetConfig(readJson(path.resolve(process.cwd(), file)));
+    const ok = errors.length === 0;
+    json({
+      schema: 'agent-onboard-target-config-file-validation-001',
+      status: ok ? 'ok' : 'error',
+      file,
+      validated: true,
+      errors
+    });
+    return ok ? 0 : 1;
+  }
+  throw new Error('target-config requires --schema, --template, --validate-template, or --validate [file]');
+}
+
+function runInit(args) {
+  const write = args.includes('--write');
+  const dry = args.includes('--dry-run');
+  const force = args.includes('--force');
+  if (!write && !dry) throw new Error('init requires --dry-run or --write');
+  if (write && dry) throw new Error('init accepts only one of --dry-run or --write');
+
+  const plannedWrites = planWrites(initWriteSet(), { force });
+  const conflicts = plannedWrites.filter((item) => item.action === 'conflict');
+  const ok = conflicts.length === 0;
+
+  if (write && ok) performPlannedWrites(plannedWrites);
+
+  json({
+    schema: 'agent-onboard-init-result-001',
+    status: ok ? 'ok' : 'error',
+    command_family: 'init',
+    mode: write ? 'write' : 'dry-run',
+    force,
+    writes_performed: write && ok,
+    planned_writes: summarizePlan(plannedWrites),
+    conflicts: conflicts.map((item) => item.path),
+    boundary: {
+      installs_dependencies: false,
+      runs_build_test_deploy: false,
+      publishes_or_pushes: false,
+      modifies_source_files: false
+    }
+  });
+  return ok ? 0 : 1;
 }
 
 function runTargetBootstrap(args) {
   const write = args.includes('--write');
   const dry = args.includes('--dry-run');
+  const force = args.includes('--force');
   if (!write && !dry) throw new Error('target bootstrap requires --dry-run or --write');
+  if (write && dry) throw new Error('target bootstrap accepts only one of --dry-run or --write');
 
-  const plannedWrites = ['agent-onboard.target.json'];
-  if (write) writeJson(path.join(process.cwd(), 'agent-onboard.target.json'), targetConfigTemplate());
+  const plannedWrites = planWrites([['agent-onboard.target.json', targetConfigTemplate()]], { force });
+  const conflicts = plannedWrites.filter((item) => item.action === 'conflict');
+  const ok = conflicts.length === 0;
+  if (write && ok) performPlannedWrites(plannedWrites);
+
   json({
     schema: 'agent-onboard-target-bootstrap-result-001',
-    status: 'ok',
+    status: ok ? 'ok' : 'error',
     command_family: 'target',
     mode: write ? 'write' : 'dry-run',
-    writes_performed: write,
-    planned_writes: plannedWrites,
+    force,
+    writes_performed: write && ok,
+    planned_writes: summarizePlan(plannedWrites),
+    conflicts: conflicts.map((item) => item.path),
     skipped_optional_writes: ['package.json']
   });
-  return 0;
+  return ok ? 0 : 1;
 }
 
 function runTargetInstance(args) {
   if (args[0] !== 'takeover') throw new Error('target-instance supports only: takeover');
   const write = args.includes('--write');
   const dry = args.includes('--dry-run');
+  const force = args.includes('--force');
   if (!write && !dry) throw new Error('target-instance takeover requires --dry-run or --write');
+  if (write && dry) throw new Error('target-instance takeover accepts only one of --dry-run or --write');
 
-  if (write) {
-    writeJson(path.join(process.cwd(), '.agent-onboard/project.json'), runtimeProjectTemplate());
-    writeJson(path.join(process.cwd(), '.agent-onboard/work-items.json'), workItemsTemplate());
-  }
+  const plannedWrites = planWrites([
+    ['.agent-onboard/project.json', runtimeProjectTemplate()],
+    ['.agent-onboard/work-items.json', workItemsTemplate()]
+  ], { force });
+  const conflicts = plannedWrites.filter((item) => item.action === 'conflict');
+  const ok = conflicts.length === 0;
+  if (write && ok) performPlannedWrites(plannedWrites);
+
   json({
     schema: 'agent-onboard-target-instance-takeover-result-001',
-    status: 'ok',
+    status: ok ? 'ok' : 'error',
     command_family: 'target-instance',
     mode: write ? 'write' : 'dry-run',
-    writes_performed: write,
-    planned_writes: ['.agent-onboard/project.json', '.agent-onboard/work-items.json']
+    force,
+    writes_performed: write && ok,
+    planned_writes: summarizePlan(plannedWrites),
+    conflicts: conflicts.map((item) => item.path)
   });
-  return 0;
+  return ok ? 0 : 1;
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard target-config --schema\nagent-onboard target-config --validate-template\nagent-onboard target bootstrap --dry-run|--write\nagent-onboard target-instance takeover --dry-run|--write\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -292,9 +414,10 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_target_convention_genesis' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_target_config_init_surface' });
     return 0;
   }
+  if (cmd === 'init') return runInit(args);
   if (cmd === 'target-config') return runTargetConfig(args);
   if (cmd === 'target') {
     if (args[0] !== 'bootstrap') throw new Error('target supports only: bootstrap');
@@ -316,5 +439,7 @@ if (require.main === module) {
 module.exports = {
   main,
   targetConfigTemplate,
-  validateTargetConfig
+  validateTargetConfig,
+  initWriteSet,
+  planWrites
 };
