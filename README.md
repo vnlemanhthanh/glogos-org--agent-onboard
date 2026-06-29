@@ -8,16 +8,16 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.4` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.5` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.4
+npm install --save-dev agent-onboard@~0.0.5
 ```
 
 Run without installing:
 
 ```sh
-npx agent-onboard@0.0.4 status
+npx agent-onboard status
 ```
 
 ## Minimal target init
@@ -25,19 +25,19 @@ npx agent-onboard@0.0.4 status
 Preview the files that would be created:
 
 ```sh
-npx agent-onboard@0.0.4 init --dry-run
+npx agent-onboard init --dry-run
 ```
 
 Write the minimal target state:
 
 ```sh
-npx agent-onboard@0.0.4 init --write
+npx agent-onboard init --write
 ```
 
 `init --write` refuses to overwrite existing non-identical files. To intentionally replace existing target-state files:
 
 ```sh
-npx agent-onboard@0.0.4 init --write --force
+npx agent-onboard init --write --force
 ```
 
 ## Agent instructions preview
@@ -45,13 +45,13 @@ npx agent-onboard@0.0.4 init --write --force
 Preview the canonical agent instruction file:
 
 ```sh
-npx agent-onboard@0.0.4 agents --preview
+npx agent-onboard agents --preview
 ```
 
 Write it to the target repo:
 
 ```sh
-npx agent-onboard@0.0.4 agents --write
+npx agent-onboard agents --write
 ```
 
 `agents --write` writes only:
@@ -63,25 +63,27 @@ AGENTS.md
 It refuses to overwrite an existing non-identical `AGENTS.md` unless `--force` is passed:
 
 ```sh
-npx agent-onboard@0.0.4 agents --write --force
+npx agent-onboard agents --write --force
 ```
 
 ## Commands
 
 ```sh
-npx agent-onboard@0.0.4 status
-npx agent-onboard@0.0.4 init --dry-run
-npx agent-onboard@0.0.4 init --write
-npx agent-onboard@0.0.4 agents --preview
-npx agent-onboard@0.0.4 agents --write
-npx agent-onboard@0.0.4 target-config --schema
-npx agent-onboard@0.0.4 target-config --template
-npx agent-onboard@0.0.4 target-config --validate-template
-npx agent-onboard@0.0.4 target-config --validate [agent-onboard.target.json]
-npx agent-onboard@0.0.4 target bootstrap --dry-run
-npx agent-onboard@0.0.4 target bootstrap --write
-npx agent-onboard@0.0.4 target-instance takeover --dry-run
-npx agent-onboard@0.0.4 target-instance takeover --write
+npx agent-onboard status
+npx agent-onboard init --dry-run
+npx agent-onboard init --write
+npx agent-onboard agents --preview
+npx agent-onboard agents --write
+npx agent-onboard guard --plan
+npx agent-onboard guard --check-boundary
+npx agent-onboard target-config --schema
+npx agent-onboard target-config --template
+npx agent-onboard target-config --validate-template
+npx agent-onboard target-config --validate [agent-onboard.target.json]
+npx agent-onboard target bootstrap --dry-run
+npx agent-onboard target bootstrap --write
+npx agent-onboard target-instance takeover --dry-run
+npx agent-onboard target-instance takeover --write
 ```
 
 After install, these command names are available:
@@ -124,6 +126,31 @@ agent-onboard.target.json
 .agent-onboard/project.json
 .agent-onboard/work-items.json
 ```
+
+## Boundary guard seed
+
+`agent-onboard guard --check-boundary` is the first narrow public enforcement seed. It reads `agent-onboard.target.json` from the current target repo root and exits non-zero when that declaration is not the default read-only dry-run boundary.
+
+It passes only when the target config keeps:
+
+```text
+requested_mode: target_dry_run
+authority_level: L1_read_only_preview
+writes_allowed: false
+managed_project_commands_allowed: 0
+create_agent_onboard_runtime_state: false
+install_dependencies: false
+run_build_test_deploy: false
+publish_or_push: false
+```
+
+Run it before dependency installs, build/test/deploy commands, publish/push operations, or broad write operations:
+
+```sh
+npx agent-onboard guard --check-boundary
+```
+
+This guard does not sandbox other tools and does not wrap shell commands. It only evaluates the declared boundary and fails closed when the target config is missing, invalid, or permissive.
 
 ## What the boundary files mean
 
@@ -183,6 +210,8 @@ This version does not:
 `0.0.3` adds the public target config/init surface: top-level `init`, target config template printing, target config file validation, and default overwrite protection.
 
 `0.0.4` adds the public agent instructions / `AGENTS.md` preview surface with guarded write support.
+
+`0.0.5` adds the public boundary guard enforcement seed: `guard --plan` and `guard --check-boundary`.
 
 <!-- ## Star History
 

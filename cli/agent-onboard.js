@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const VERSION = require('../package.json').version;
+const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -69,6 +70,35 @@ const TARGET_CONFIG_SCHEMA = {
   }
 };
 
+const BOUNDARY_GUARD_CONTRACT = Object.freeze({
+  schema: 'agent-onboard-public-boundary-guard-enforcement-seed-contract-001',
+  machine_identifier: 'P0S1M27W4',
+  title: 'Agent-Onboard Public Boundary Guard Enforcement Seed Gate',
+  package_name: 'agent-onboard',
+  command: 'agent-onboard guard --check-boundary',
+  canonical_target_config_file: TARGET_CONFIG_FILE,
+  enforcement_mode: 'fail_closed',
+  required_target_config_values: Object.freeze({
+    schema: 'agent-onboard-target-config-001',
+    'control.package_name': 'agent-onboard',
+    'control.requested_mode': 'target_dry_run',
+    'control.authority_level': 'L1_read_only_preview',
+    'boundaries.writes_allowed': false,
+    'boundaries.managed_project_commands_allowed': 0,
+    'boundaries.create_agent_onboard_runtime_state': false,
+    'boundaries.install_dependencies': false,
+    'boundaries.run_build_test_deploy': false,
+    'boundaries.publish_or_push': false
+  }),
+  forbidden_true_boundary_fields: Object.freeze([
+    'boundaries.writes_allowed',
+    'boundaries.create_agent_onboard_runtime_state',
+    'boundaries.install_dependencies',
+    'boundaries.run_build_test_deploy',
+    'boundaries.publish_or_push'
+  ])
+});
+
 function agentsMdTemplate(cwd = process.cwd()) {
   const [name, kind] = targetName(cwd);
   return `# AGENTS.md
@@ -108,6 +138,14 @@ Forbidden by default unless the repository owner explicitly authorizes the actio
 ## Operating mode
 
 Start in read-only preview mode. Prefer a dry-run plan before writes. Use explicit write commands only when the owner requests them.
+
+Before any dependency install, build, test, deploy, publish, push, or broad write operation, run the boundary check when \`agent-onboard.target.json\` is present:
+
+\`\`\`sh
+npx agent-onboard@${VERSION} guard --check-boundary
+\`\`\`
+
+Treat a blocked guard result as a stop condition until the repository owner explicitly changes the boundary.
 
 When reporting work, distinguish clearly between:
 
@@ -237,6 +275,56 @@ function validateJsonSchema(value, schema, pointer = '$') {
 
 function validateTargetConfig(value) {
   return validateJsonSchema(value, TARGET_CONFIG_SCHEMA);
+}
+
+function getPathValue(value, dottedPath) {
+  return dottedPath.split('.').reduce((cursor, part) => {
+    if (cursor && Object.prototype.hasOwnProperty.call(cursor, part)) return cursor[part];
+    return undefined;
+  }, value);
+}
+
+function evaluateTargetBoundaryConfig(config, contract = BOUNDARY_GUARD_CONTRACT) {
+  const violations = [];
+  for (const [fieldPath, expected] of Object.entries(contract.required_target_config_values)) {
+    const actual = getPathValue(config, fieldPath);
+    if (actual !== expected) violations.push({ path: fieldPath, expected, actual });
+  }
+  for (const fieldPath of contract.forbidden_true_boundary_fields) {
+    const actual = getPathValue(config, fieldPath);
+    if (actual === true && !violations.some((item) => item.path === fieldPath)) {
+      violations.push({ path: fieldPath, expected: false, actual });
+    }
+  }
+  return violations;
+}
+
+function noMutationBoundary() {
+  return {
+    writes_files: false,
+    writes_target_repository_state: false,
+    creates_agent_onboard_runtime_state: false,
+    installs_dependencies: false,
+    runs_build_test_deploy: false,
+    runs_managed_project_commands: false,
+    managed_project_commands_executed: false,
+    publishes_package: false,
+    git_mutation: false
+  };
+}
+
+function guardResultBase() {
+  return {
+    schema: 'agent-onboard-guard-boundary-check-result-001',
+    command_family: 'guard',
+    command: 'agent-onboard guard --check-boundary',
+    machine_identifier: BOUNDARY_GUARD_CONTRACT.machine_identifier,
+    package_name: BOUNDARY_GUARD_CONTRACT.package_name,
+    package_version: VERSION,
+    config_path: TARGET_CONFIG_FILE,
+    enforcement_mode: BOUNDARY_GUARD_CONTRACT.enforcement_mode,
+    ...noMutationBoundary()
+  };
 }
 
 function targetName(cwd) {
@@ -377,6 +465,85 @@ function summarizePlan(plannedWrites) {
     action: item.action,
     safe_to_write: item.safe_to_write
   }));
+}
+
+function runGuard(args) {
+  if (args.length === 1 && args[0] === '--plan') {
+    json({
+      schema: 'agent-onboard-guard-plan-001',
+      status: 'ok',
+      command_family: 'guard',
+      command: 'agent-onboard guard --plan',
+      admitted_command: 'agent-onboard guard --check-boundary',
+      canonical_config_file: TARGET_CONFIG_FILE,
+      machine_identifier: BOUNDARY_GUARD_CONTRACT.machine_identifier,
+      enforcement_mode: BOUNDARY_GUARD_CONTRACT.enforcement_mode,
+      required_target_config_values: BOUNDARY_GUARD_CONTRACT.required_target_config_values,
+      forbidden_true_boundary_fields: BOUNDARY_GUARD_CONTRACT.forbidden_true_boundary_fields,
+      reads_target_config: false,
+      ...noMutationBoundary()
+    });
+    return 0;
+  }
+  if (args.length !== 1 || args[0] !== '--check-boundary') {
+    json({
+      schema: 'agent-onboard-guard-command-error-001',
+      status: 'error',
+      command_family: 'guard',
+      message: 'guard requires --plan or --check-boundary',
+      ...noMutationBoundary()
+    });
+    return 1;
+  }
+
+  const configPath = path.join(process.cwd(), TARGET_CONFIG_FILE);
+  if (!fs.existsSync(configPath)) {
+    json({
+      ...guardResultBase(),
+      status: 'blocked',
+      reason: 'missing agent-onboard.target.json in current target repo root',
+      reads_target_config: false,
+      blocked_violation_count: 1,
+      violations: [{ path: TARGET_CONFIG_FILE, expected: 'present', actual: 'missing' }],
+      blocks_declared_violation: true
+    });
+    return 2;
+  }
+
+  let config;
+  try {
+    config = readJson(configPath);
+  } catch (error) {
+    json({
+      ...guardResultBase(),
+      status: 'blocked',
+      reason: 'invalid JSON in agent-onboard.target.json',
+      detail: error && error.message ? error.message : String(error),
+      reads_target_config: true,
+      blocked_violation_count: 1,
+      violations: [{ path: TARGET_CONFIG_FILE, expected: 'valid JSON', actual: 'invalid JSON' }],
+      blocks_declared_violation: true
+    });
+    return 2;
+  }
+
+  const schemaErrors = validateTargetConfig(config);
+  const schemaViolations = schemaErrors.map((message) => ({ path: 'schema-validation', expected: 'valid agent-onboard-target-config-001', actual: message }));
+  const boundaryViolations = evaluateTargetBoundaryConfig(config);
+  const violations = [...schemaViolations, ...boundaryViolations];
+  const passed = violations.length === 0;
+  json({
+    ...guardResultBase(),
+    status: passed ? 'pass' : 'blocked',
+    reason: passed ? 'target boundary is read-only and dry-run' : 'target boundary declaration permits an operation this public guard blocks',
+    reads_target_config: true,
+    validates_target_config_schema: true,
+    blocked_violation_count: violations.length,
+    violations,
+    blocks_declared_violation: !passed,
+    managed_project_commands_allowed_now: 0
+  });
+  return passed ? 0 : 2;
 }
 
 function runTargetConfig(args) {
@@ -562,11 +729,12 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_agent_instructions_preview_surface' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_boundary_guard_enforcement_seed' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
   if (cmd === 'agents') return runAgents(args);
+  if (cmd === 'guard') return runGuard(args);
   if (cmd === 'target-config') return runTargetConfig(args);
   if (cmd === 'target') {
     if (args[0] !== 'bootstrap') throw new Error('target supports only: bootstrap');
@@ -591,5 +759,6 @@ module.exports = {
   validateTargetConfig,
   initWriteSet,
   planWrites,
-  agentsMdTemplate
+  agentsMdTemplate,
+  evaluateTargetBoundaryConfig
 };

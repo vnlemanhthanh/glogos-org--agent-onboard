@@ -32,12 +32,17 @@ function tempRepo() {
   return dir;
 }
 
+function cliTargetConfigForTest(dir) {
+  const result = run(['target-config', '--template'], { cwd: dir });
+  return readJsonOutput(result).target_config;
+}
+
 {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.4');
-  assert.strictEqual(output.release_line, 'public_agent_instructions_preview_surface');
+  assert.strictEqual(output.version, '0.0.5');
+  assert.strictEqual(output.release_line, 'public_boundary_guard_enforcement_seed');
 }
 
 {
@@ -65,6 +70,7 @@ function tempRepo() {
   assert.strictEqual(output.writes_performed, false);
   assert.strictEqual(output.canonical_file, 'AGENTS.md');
   assert.ok(output.agents_md.includes('Forbidden by default'));
+  assert.ok(output.agents_md.includes('guard --check-boundary'));
   assert.ok(output.agents_md.includes('target-fixture'));
   assert.ok(!fs.existsSync(path.join(dir, 'AGENTS.md')));
 }
@@ -176,6 +182,64 @@ function tempRepo() {
   assert.strictEqual(output.writes_performed, true);
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'project.json')));
   assert.ok(fs.existsSync(path.join(dir, '.agent-onboard', 'work-items.json')));
+}
+
+
+{
+  const result = run(['guard', '--plan']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.admitted_command, 'agent-onboard guard --check-boundary');
+  assert.strictEqual(output.writes_files, false);
+}
+
+{
+  const dir = tempRepo();
+  const init = run(['init', '--write'], { cwd: dir });
+  readJsonOutput(init);
+  const result = run(['guard', '--check-boundary'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'pass');
+  assert.strictEqual(output.reads_target_config, true);
+  assert.strictEqual(output.blocked_violation_count, 0);
+  assert.strictEqual(output.writes_files, false);
+  assert.strictEqual(output.git_mutation, false);
+}
+
+{
+  const dir = tempRepo();
+  const result = run(['guard', '--check-boundary'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(result.status, 2);
+  assert.strictEqual(output.status, 'blocked');
+  assert.strictEqual(output.reason, 'missing agent-onboard.target.json in current target repo root');
+  assert.strictEqual(output.writes_files, false);
+}
+
+{
+  const dir = tempRepo();
+  const config = cliTargetConfigForTest(dir);
+  config.control.requested_mode = 'target_write';
+  config.boundaries.writes_allowed = true;
+  fs.writeFileSync(path.join(dir, 'agent-onboard.target.json'), JSON.stringify(config, null, 2) + '\n');
+  const result = run(['guard', '--check-boundary'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(result.status, 2);
+  assert.strictEqual(output.status, 'blocked');
+  assert.ok(output.violations.some((violation) => violation.path === 'control.requested_mode'));
+  assert.ok(output.violations.some((violation) => violation.path === 'boundaries.writes_allowed'));
+  assert.strictEqual(output.installs_dependencies, false);
+  assert.strictEqual(output.runs_managed_project_commands, false);
+}
+
+{
+  const dir = tempRepo();
+  fs.writeFileSync(path.join(dir, 'agent-onboard.target.json'), '{not-json}\n');
+  const result = run(['guard', '--check-boundary'], { cwd: dir });
+  const output = readJsonFailure(result);
+  assert.strictEqual(result.status, 2);
+  assert.strictEqual(output.status, 'blocked');
+  assert.strictEqual(output.reads_target_config, true);
 }
 
 {
