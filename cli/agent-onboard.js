@@ -72,7 +72,6 @@ const TARGET_CONFIG_SCHEMA = {
 
 const BOUNDARY_GUARD_CONTRACT = Object.freeze({
   schema: 'agent-onboard-public-boundary-guard-enforcement-seed-contract-001',
-  machine_identifier: 'P0S1M27W4',
   title: 'Agent-Onboard Public Boundary Guard Enforcement Seed Gate',
   package_name: 'agent-onboard',
   command: 'agent-onboard guard --check-boundary',
@@ -318,7 +317,6 @@ function guardResultBase() {
     schema: 'agent-onboard-guard-boundary-check-result-001',
     command_family: 'guard',
     command: 'agent-onboard guard --check-boundary',
-    machine_identifier: BOUNDARY_GUARD_CONTRACT.machine_identifier,
     package_name: BOUNDARY_GUARD_CONTRACT.package_name,
     package_version: VERSION,
     config_path: TARGET_CONFIG_FILE,
@@ -476,8 +474,7 @@ function runGuard(args) {
       command: 'agent-onboard guard --plan',
       admitted_command: 'agent-onboard guard --check-boundary',
       canonical_config_file: TARGET_CONFIG_FILE,
-      machine_identifier: BOUNDARY_GUARD_CONTRACT.machine_identifier,
-      enforcement_mode: BOUNDARY_GUARD_CONTRACT.enforcement_mode,
+        enforcement_mode: BOUNDARY_GUARD_CONTRACT.enforcement_mode,
       required_target_config_values: BOUNDARY_GUARD_CONTRACT.required_target_config_values,
       forbidden_true_boundary_fields: BOUNDARY_GUARD_CONTRACT.forbidden_true_boundary_fields,
       reads_target_config: false,
@@ -729,7 +726,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_boundary_guard_enforcement_seed' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_boundary_guard_hotfix' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);

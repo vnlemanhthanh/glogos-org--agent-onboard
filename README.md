@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.5` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.6` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.5
+npm install --save-dev agent-onboard@~0.0.6
 ```
 
 Run without installing:
@@ -211,7 +211,7 @@ This version does not:
 
 `0.0.4` adds the public agent instructions / `AGENTS.md` preview surface with guarded write support.
 
-`0.0.5` adds the public boundary guard enforcement seed: `guard --plan` and `guard --check-boundary`.
+`0.0.6` is the public boundary guard hotfix: it keeps the `guard --plan` and `guard --check-boundary` surface while limiting public JSON output to documented fields.
 
 <!-- ## Star History
 

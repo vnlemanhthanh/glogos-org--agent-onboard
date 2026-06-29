@@ -41,8 +41,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.5');
-  assert.strictEqual(output.release_line, 'public_boundary_guard_enforcement_seed');
+  assert.strictEqual(output.version, '0.0.6');
+  assert.strictEqual(output.release_line, 'public_boundary_guard_hotfix');
 }
 
 {
@@ -249,6 +249,37 @@ function cliTargetConfigForTest(dir) {
   const errors = cli.validateTargetConfig(invalid);
   assert.ok(errors.some((error) => error.includes('writes_allowed')));
   assert.ok(cli.agentsMdTemplate(tempRepo()).includes('AGENTS.md'));
+}
+
+
+{
+  const forbiddenKey = ['machine', 'identifier'].join('_');
+  const forbiddenWorkItemPattern = new RegExp('P\\d+S\\d+M\\d+W\\d+');
+  const ignoredDirs = new Set(['node_modules', '.git']);
+  const textExtensions = new Set(['', '.js', '.json', '.md', '.txt']);
+
+  function walk(dir) {
+    const entries = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (ignoredDirs.has(entry.name)) continue;
+      const abs = path.join(dir, entry.name);
+      if (entry.isDirectory()) entries.push(...walk(abs));
+      else entries.push(abs);
+    }
+    return entries;
+  }
+
+  const violations = [];
+  for (const abs of walk(ROOT)) {
+    const rel = path.relative(ROOT, abs).split(path.sep).join('/');
+    const ext = path.extname(rel);
+    if (!textExtensions.has(ext) && rel !== 'LICENSE') continue;
+    const text = fs.readFileSync(abs, 'utf8');
+    if (text.includes(forbiddenKey)) violations.push(`${rel}: reserved implementation key token`);
+    const match = forbiddenWorkItemPattern.exec(text);
+    if (match) violations.push(`${rel}: reserved concrete work-item token ${match[0]}`);
+  }
+  assert.deepStrictEqual(violations, []);
 }
 
 console.log('agent-onboard tests passed');
