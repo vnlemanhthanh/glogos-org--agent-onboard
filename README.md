@@ -2,16 +2,16 @@
 
 CLI for onboarding and managing target repositories.
 
-`agent-onboard` creates a small machine-readable control surface inside a target repo. In `0.0.1`, that surface is a convention/spec plus a reference CLI generator. It is not a sandbox, filesystem wrapper, CI policy engine, or runtime enforcement layer.
+`agent-onboard` creates a small machine-readable control surface inside a target repo. In the current `0.0.x` line, that surface is a convention/spec plus a reference CLI generator. It is not a sandbox, filesystem wrapper, CI policy engine, or runtime enforcement layer.
 
 The generated files are intended to be read by agents, wrappers, CI hooks, or future runtimes that choose to honor the declared boundaries.
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.1` so target repos can receive `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.2` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.1
+npm install --save-dev agent-onboard@~0.0.2
 ```
 
 Run without installing:
@@ -69,7 +69,7 @@ agent-onboard.target.json
 
 `agent-onboard.target.json` declares the target repo's intended operating boundaries, including write policy, dependency-install policy, build/test/deploy policy, publish/push policy, and managed surfaces.
 
-In `0.0.1`, these fields are declarative. They do not block other tools by themselves. A separate agent runtime, wrapper, CI hook, or future `agent-onboard` component must read the file and enforce the declared policy.
+In the current `0.0.x` line, these fields are declarative. They do not block other tools by themselves. A separate agent runtime, wrapper, CI hook, or future `agent-onboard` component must read the file and enforce the declared policy.
 
 The generated config intentionally starts at:
 
@@ -107,7 +107,7 @@ This version does not:
 
 ## Version line
 
-`0.0.1` is the first public package version. Later `0.0.x` versions may add safe fixes while staying below the `0.1.0` boundary.
+`0.0.1` is the first public package version. `0.0.2` adds public repository hygiene and npm/GitHub metadata while staying below the `0.1.0` boundary.
 
 <!-- ## Star History
 

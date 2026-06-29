@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Package/build output
+dist/
+build/
+coverage/
+*.tgz
+
+# Runtime/local state
+.agent-onboard/
+.env
+.env.*
+
+# Logs and caches
+*.log
+.npm/
+.cache/
+.tmp/
+tmp/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
