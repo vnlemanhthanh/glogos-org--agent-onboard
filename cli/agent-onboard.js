@@ -1363,7 +1363,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_work_item_claim_dry_run_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_artifact_messaging_boundary_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);

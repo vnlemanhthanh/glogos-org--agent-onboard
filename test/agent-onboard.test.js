@@ -41,8 +41,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.11');
-  assert.strictEqual(output.release_line, 'public_work_item_claim_dry_run_gate');
+  assert.strictEqual(output.version, '0.0.12');
+  assert.strictEqual(output.release_line, 'public_artifact_messaging_boundary_gate');
 }
 
 {
@@ -579,6 +579,29 @@ function cliTargetConfigForTest(dir) {
     if (text.includes(forbiddenKey)) violations.push(`${rel}: reserved implementation key token`);
     const match = forbiddenWorkItemPattern.exec(text);
     if (match) violations.push(`${rel}: reserved concrete work-item token ${match[0]}`);
+  }
+  assert.deepStrictEqual(violations, []);
+}
+
+
+{
+  const rx = (parts, flags = 'i') => new RegExp(parts.join(''), flags);
+  const forbiddenNarrativePatterns = [
+    rx(['pri', 'vate\\s*\\/\\s*pub', 'lic\\s+sp', 'lit']),
+    rx(['int', 'ernal\\s+li', 'ne']),
+    rx(['rese', 'arch\\s+li', 'ne']),
+    rx(['str', 'ipp?ed']),
+    rx(['sani', 'ti[sz]ed']),
+    rx(['\\b', 'le', 'ak(?:age|ed|s|ing)?\\b'])
+  ];
+  const scannedFiles = ['README.md', 'package.json', 'cli/agent-onboard.js'];
+  const violations = [];
+  for (const rel of scannedFiles) {
+    const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    for (let index = 0; index < forbiddenNarrativePatterns.length; index += 1) {
+      const match = forbiddenNarrativePatterns[index].exec(text);
+      if (match) violations.push(`${rel}: narrative-rule-${index + 1}: ${match[0]}`);
+    }
   }
   assert.deepStrictEqual(violations, []);
 }
