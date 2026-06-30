@@ -37,31 +37,37 @@ Use this source-repository lifecycle for public human/agent participation:
 Validate the public release contract and source/package surface before any package publish handoff:
 
 ```sh
-npx agent-onboard@0.0.19 release --check
+npx agent-onboard@0.0.20 release --check
 ```
 
 Inspect the normalized release contract:
 
 ```sh
-npx agent-onboard@0.0.19 release --contract
+npx agent-onboard@0.0.20 release --contract
 ```
 
 Inspect the release fixture matrix:
 
 ```sh
-npx agent-onboard@0.0.19 release --fixture
+npx agent-onboard@0.0.20 release --fixture
+```
+
+Run the installed package parity smoke:
+
+```sh
+npx agent-onboard@0.0.20 release --parity-smoke
 ```
 
 Inspect the public ledger:
 
 ```sh
-npx agent-onboard@0.0.19 work-items --list
+npx agent-onboard@0.0.20 work-items --list
 ```
 
 Claim an assigned work item only with an explicit write command:
 
 ```sh
-npx agent-onboard@0.0.19 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.20 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 After claiming, follow the `next_steps` returned by the CLI. Claiming is not admission to publish, push, install dependencies, or edit unrelated files.
@@ -69,7 +75,7 @@ After claiming, follow the `next_steps` returned by the CLI. Claiming is not adm
 Preview closure evidence before writing it:
 
 ```sh
-npx agent-onboard@0.0.19 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>
+npx agent-onboard@0.0.20 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>
 ```
 
 A closure must separate changed files, checks run, checks not run, and known non-pass states.

@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.19` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.20` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.19
+npm install --save-dev agent-onboard@~0.0.20
 ```
 
 Run without installing:
@@ -79,6 +79,7 @@ npx agent-onboard guard --check-boundary
 npx agent-onboard release --plan
 npx agent-onboard release --contract
 npx agent-onboard release --fixture
+npx agent-onboard release --parity-smoke
 npx agent-onboard release --check
 npx agent-onboard target-config --schema
 npx agent-onboard target-config --template
@@ -131,7 +132,15 @@ Print the release fixture matrix without mutating files, package state, or regis
 npx agent-onboard release --fixture
 ```
 
-The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, and reserved public artifact messaging tokens.
+The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, and projected installed-package parity smoke.
+
+Run the installed package parity smoke without executing package-manager, registry, Git, build, or temp-file write operations:
+
+```sh
+npx agent-onboard release --parity-smoke
+```
+
+The parity smoke checks that the source candidate release check passes, the projected npm package file set matches the contract, source-only context files stay out of the npm package, bin entrypoints are included in the projected package, and `package.json` version matches the runtime version.
 
 After install, these command names are available:
 
@@ -341,7 +350,7 @@ Claiming or closing a work item is not permission to publish, push, install depe
 
 If `agents --write` finds an existing non-identical `AGENTS.md`, it returns a conflict and writes nothing. That conflict is expected overwrite protection for target repos with their own agent instructions; merge manually or use `--force` only when the repository owner explicitly asks for replacement.
 
-The current release surface keeps work-item closing narrow and adds a release contract check for package and source contexts. Admission, conflict detection, and milestone governance remain outside the command surface until documented and exposed by explicit commands.
+The current release surface keeps work-item closing narrow and adds a release contract check plus installed-package parity smoke for package and source contexts. Admission, conflict detection, and milestone governance remain outside the command surface until documented and exposed by explicit commands.
 
 ## Boundary guard seed
 
@@ -455,6 +464,8 @@ This version does not:
 
 `0.0.19` adds a public package contract fixture matrix: `release --fixture` prints the fixture matrix, and source tests now cover installed-package pass, stale package version, npm pack allowlist drift, missing bin entrypoint, and public artifact messaging failure cases.
 
+`0.0.20` adds installed package parity smoke: `release --parity-smoke` validates the source candidate check, projected npm package file set, source-context exclusion, bin entrypoint inclusion, and package/runtime version parity without running package-manager, registry, Git, or build commands.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
@@ -471,9 +482,9 @@ The source repository can carry its own public Agent-Onboard operating surface:
 Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
 
 ```sh
-npx agent-onboard@0.0.19 work-items --list
-npx agent-onboard@0.0.19 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
-npx agent-onboard@0.0.19 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.20 work-items --list
+npx agent-onboard@0.0.20 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.20 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.

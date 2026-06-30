@@ -36,6 +36,12 @@
       "program_id": "P1",
       "title": "Public source participation stage",
       "status": "open"
+    },
+    {
+      "id": "P1S2",
+      "program_id": "P1",
+      "title": "Public target onboarding stage",
+      "status": "open"
     }
   ],
   "milestones": [
@@ -49,6 +55,12 @@
       "id": "P1S1M2",
       "stage_id": "P1S1",
       "title": "Public release contract milestone",
+      "status": "closed"
+    },
+    {
+      "id": "P1S2M1",
+      "stage_id": "P1S2",
+      "title": "Public target onboarding surface milestone",
       "status": "open"
     }
   ],
@@ -271,6 +283,47 @@
       "id": "P1S1M2W3",
       "milestone_id": "P1S1M2",
       "title": "Public installed package parity smoke gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding an installed package parity smoke surface in agent-onboard@0.0.20: release --parity-smoke verifies the source candidate release check, projected npm package file set, source-context exclusion from the package, bin entrypoint inclusion, and package/runtime version parity without executing package-manager, registry, Git, or build commands.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js release --plan",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --parity-smoke",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.20 status",
+          "npx agent-onboard@0.0.20 release --parity-smoke",
+          "npx agent-onboard@0.0.20 release --check"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S2M1W1",
+      "milestone_id": "P1S2M1",
+      "title": "Public target onboarding surface planning gate",
       "status": "open"
     }
   ]

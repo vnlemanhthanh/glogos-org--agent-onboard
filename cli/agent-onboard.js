@@ -238,13 +238,14 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-003',
+  schema: 'agent-onboard-public-release-contract-004',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
-  release_line: 'public_package_contract_fixture_gate',
+  release_line: 'public_installed_package_parity_smoke_gate',
   command: 'agent-onboard release --check',
   contract_command: 'agent-onboard release --contract',
   fixture_command: 'agent-onboard release --fixture',
+  parity_smoke_command: 'agent-onboard release --parity-smoke',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
     '.agent-onboard/project.json',
@@ -274,6 +275,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js status',
     'node cli/agent-onboard.js release --contract',
     'node cli/agent-onboard.js release --fixture',
+    'node cli/agent-onboard.js release --parity-smoke',
     'node cli/agent-onboard.js release --check',
     'node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json'
   ]),
@@ -283,6 +285,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> status',
     'npx agent-onboard@<version> release --contract',
     'npx agent-onboard@<version> release --fixture',
+    'npx agent-onboard@<version> release --parity-smoke',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run'
   ]),
@@ -297,7 +300,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
-  schema: 'agent-onboard-public-release-fixture-matrix-001',
+  schema: 'agent-onboard-public-release-fixture-matrix-002',
   title: 'Agent-Onboard Public Package Contract Fixture Matrix',
   package_name: 'agent-onboard',
   release_line: PUBLIC_RELEASE_CONTRACT.release_line,
@@ -335,6 +338,12 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
       id: 'public_artifact_messaging_contract',
       expected_status: 'error',
       detects: 'reserved public artifact messaging token in npm-packed files'
+    }),
+    Object.freeze({
+      id: 'projected_installed_package_parity_smoke',
+      expected_status: 'ok',
+      validates: Object.freeze(['source_candidate_release_check', 'expected_pack_files_present', 'source_context_excluded_from_pack', 'bin_entrypoints_in_pack', 'runtime_version_matches_package_json']),
+      boundary: 'no package-manager execution, no registry mutation, no Git mutation, no temp-file writes'
     })
   ]),
   boundary: Object.freeze({
@@ -1166,7 +1175,7 @@ function publicReleaseCheck(root = packageRoot()) {
   const sourceLedgerErrors = sourceLedger.present ? sourceLedger.errors.map((error) => `source ledger: ${error}`) : [];
   const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors];
   return {
-    schema: 'agent-onboard-public-release-check-result-003',
+    schema: 'agent-onboard-public-release-check-result-004',
     status: errors.length === 0 ? 'ok' : 'error',
     package_name: PUBLIC_RELEASE_CONTRACT.package_name,
     version: VERSION,
@@ -1202,10 +1211,80 @@ function publicReleaseCheck(root = packageRoot()) {
   };
 }
 
+function publicInstalledPackageParitySmoke(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const sourceCheck = publicReleaseCheck(root);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const projectedPackFiles = packageJsonProjectedPackFiles(pkg);
+  const missingExpectedFiles = expectedPackFiles.filter((rel) => !fs.existsSync(path.join(root, rel)));
+  const sourceContextFilesInPack = PUBLIC_RELEASE_CONTRACT.source_context_files.filter((rel) => expectedPackFiles.includes(rel));
+  const binEntryErrors = [];
+  for (const [name, rel] of Object.entries(PUBLIC_RELEASE_CONTRACT.required_package_json.bin)) {
+    if (!expectedPackFiles.includes(rel)) binEntryErrors.push(`${name} bin target ${rel} is not in the projected npm package files`);
+    if (!fs.existsSync(path.join(root, rel))) binEntryErrors.push(`${name} bin target ${rel} is missing from the candidate root`);
+  }
+
+  const parity = {
+    source_candidate_release_check: sourceCheck.status === 'ok',
+    projected_pack_files_match_contract: arrayEquals(projectedPackFiles, expectedPackFiles),
+    expected_pack_files_present: missingExpectedFiles.length === 0,
+    source_context_excluded_from_pack: sourceContextFilesInPack.length === 0,
+    installed_context_would_skip_source_ledger: !expectedPackFiles.includes('.agent-onboard/work-items.json'),
+    bin_entrypoints_in_pack: binEntryErrors.length === 0,
+    runtime_version_matches_package_json: pkg.version === VERSION
+  };
+
+  const errors = [];
+  if (!parity.source_candidate_release_check) errors.push('source candidate release check must pass before installed package parity smoke can pass');
+  if (!parity.projected_pack_files_match_contract) errors.push(`projected npm pack files must match ${expectedPackFiles.join(', ')}`);
+  for (const rel of missingExpectedFiles) errors.push(`expected npm package file is missing: ${rel}`);
+  for (const rel of sourceContextFilesInPack) errors.push(`source-only context file must not be projected into npm package: ${rel}`);
+  for (const error of binEntryErrors) errors.push(error);
+  if (!parity.runtime_version_matches_package_json) errors.push(`package.json#version must match runtime version ${VERSION}`);
+
+  return {
+    schema: 'agent-onboard-public-installed-package-parity-smoke-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+    version: VERSION,
+    release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_RELEASE_CONTRACT.parity_smoke_command,
+    package_root: root,
+    source_context: sourceContext(root),
+    source_release_check: {
+      status: sourceCheck.status,
+      validated: sourceCheck.validated,
+      errors: sourceCheck.errors
+    },
+    projected_installed_package: {
+      expected_pack_files: expectedPackFiles,
+      projected_pack_files: projectedPackFiles,
+      missing_expected_files: missingExpectedFiles,
+      source_context_files_excluded: PUBLIC_RELEASE_CONTRACT.source_context_files.filter((rel) => !expectedPackFiles.includes(rel)),
+      source_context_files_in_pack: sourceContextFilesInPack,
+      source_work_items_ledger_status_after_install: 'skipped'
+    },
+    parity,
+    boundary: {
+      writes_files: false,
+      creates_temp_files: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      network_registry_publish_required: false
+    },
+    errors
+  };
+}
+
 function runRelease(args) {
   if (args.length === 1 && args[0] === '--plan') {
     json({
-      schema: 'agent-onboard-public-release-plan-003',
+      schema: 'agent-onboard-public-release-plan-004',
       status: 'ok',
       package_name: PUBLIC_RELEASE_CONTRACT.package_name,
       version: VERSION,
@@ -1213,6 +1292,7 @@ function runRelease(args) {
       contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
       contract_command: PUBLIC_RELEASE_CONTRACT.contract_command,
       fixture_command: PUBLIC_RELEASE_CONTRACT.fixture_command,
+      parity_smoke_command: PUBLIC_RELEASE_CONTRACT.parity_smoke_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
@@ -1261,6 +1341,11 @@ function runRelease(args) {
     });
     return 0;
   }
+  if (args.length === 1 && args[0] === '--parity-smoke') {
+    const result = publicInstalledPackageParitySmoke();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicReleaseCheck();
     json(result);
@@ -1270,7 +1355,7 @@ function runRelease(args) {
     schema: 'agent-onboard-release-command-error-001',
     status: 'error',
     command_family: 'release',
-    message: 'release requires --plan, --contract, --fixture, or --check',
+    message: 'release requires --plan, --contract, --fixture, --parity-smoke, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -1923,7 +2008,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -1935,7 +2020,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_package_contract_fixture_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_installed_package_parity_smoke_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
@@ -1980,5 +2065,6 @@ module.exports = {
   sourceWorkItemsLedgerCheck,
   sourceContext,
   publicReleaseCheck,
+  publicInstalledPackageParitySmoke,
   PUBLIC_RELEASE_FIXTURE_MATRIX
 };
