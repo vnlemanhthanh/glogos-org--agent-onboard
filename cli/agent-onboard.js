@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_architecture_map_gate';
+const RELEASE_LINE = 'public_domain_service_facade_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -247,7 +247,7 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
   release_line: RELEASE_LINE,
   command: 'agent-onboard architecture --map',
   check_command: 'agent-onboard architecture --check',
-  purpose: 'Declare the stable public architecture kernel before source code is physically partitioned into domain modules.',
+  purpose: 'Declare the stable public architecture kernel, command-router boundary, and domain service facade boundary before source code is physically partitioned into domain modules.',
   canonical_domains: Object.freeze([
     Object.freeze({
       id: 'core',
@@ -301,7 +301,7 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
   ]),
   public_source_shape: Object.freeze({
     current_entrypoint: 'cli/agent-onboard.js',
-    physical_domain_split_status: 'planned_after_map',
+    physical_domain_split_status: 'domain_service_facade_boundary_admitted',
     source_can_grow_with_tests: true,
     npm_package_remains_compact: true,
     expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json'])
@@ -309,28 +309,109 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
   package_boundary: Object.freeze({
     architecture_map_command_writes_files: false,
     architecture_check_command_writes_files: false,
+    architecture_router_command_writes_files: false,
+    architecture_facades_command_writes_files: false,
+    command_router_dispatch_must_be_table_driven: true,
+    main_function_delegates_to_command_router: true,
+    command_router_delegates_to_domain_service_facades: true,
     package_allowlist_must_stay_compact: true,
     source_context_files_stay_out_of_npm_pack: true,
     physical_partition_not_required_for_this_gate: true
   }),
   next_candidate_gates: Object.freeze([
     Object.freeze({
-      title: 'Public command router boundary gate',
-      intent: 'Introduce a small router boundary while preserving the admitted CLI command surface.'
-    }),
-    Object.freeze({
-      title: 'Public domain service facade gate',
-      intent: 'Move command behavior behind named public domain facades without changing target repo files.'
-    }),
-    Object.freeze({
       title: 'Public authority first-read index gate',
       intent: 'Materialize the authority read order as a compact machine-readable public file.'
+    }),
+    Object.freeze({
+      title: 'Public target runtime namespace gate',
+      intent: 'Declare the canonical target runtime namespace after authority first-read ordering is admitted.'
     })
   ])
 });
 
+const PUBLIC_COMMAND_ROUTER = Object.freeze({
+  schema: 'agent-onboard-public-command-router-001',
+  title: 'Agent-Onboard Public Command Router Boundary',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --router',
+  check_command: 'agent-onboard architecture --check',
+  dispatch_mode: 'table_driven_top_level_router',
+  dispatcher: 'dispatchCommand',
+  entrypoint: 'cli/agent-onboard.js',
+  aliases: Object.freeze({
+    help: Object.freeze(['', 'help', '--help', '-h']),
+    version: Object.freeze(['version', '--version', '-v'])
+  }),
+  routes: Object.freeze([
+    Object.freeze({ command: 'help', domain: 'core', facade: 'coreService', handler: 'help', aliases: Object.freeze(['', 'help', '--help', '-h']), nested: false, writes_files: false }),
+    Object.freeze({ command: 'version', domain: 'core', facade: 'coreService', handler: 'printVersion', aliases: Object.freeze(['version', '--version', '-v']), nested: false, writes_files: false }),
+    Object.freeze({ command: 'status', domain: 'core', facade: 'coreService', handler: 'runStatus', aliases: Object.freeze([]), nested: false, writes_files: false }),
+    Object.freeze({ command: 'init', domain: 'target', facade: 'targetService', handler: 'runInit', aliases: Object.freeze([]), nested: false, writes_files: true }),
+    Object.freeze({ command: 'agents', domain: 'authority', facade: 'authorityService', handler: 'runAgents', aliases: Object.freeze([]), nested: false, writes_files: true }),
+    Object.freeze({ command: 'guard', domain: 'authority', facade: 'authorityService', handler: 'runGuard', aliases: Object.freeze([]), nested: false, writes_files: false }),
+    Object.freeze({ command: 'architecture', domain: 'core', facade: 'coreService', handler: 'runArchitecture', aliases: Object.freeze([]), nested: false, writes_files: false }),
+    Object.freeze({ command: 'release', domain: 'release_package', facade: 'releasePackageService', handler: 'runRelease', aliases: Object.freeze([]), nested: false, writes_files: false }),
+    Object.freeze({ command: 'target-config', domain: 'target', facade: 'targetService', handler: 'runTargetConfig', aliases: Object.freeze([]), nested: false, writes_files: false }),
+    Object.freeze({ command: 'work-items', domain: 'work_items', facade: 'workItemsService', handler: 'runWorkItems', aliases: Object.freeze([]), nested: false, writes_files: true }),
+    Object.freeze({ command: 'target', domain: 'target', facade: 'targetService', handler: 'runTargetCommand', aliases: Object.freeze([]), nested: true, nested_commands: Object.freeze(['onboarding', 'bootstrap']), writes_files: true }),
+    Object.freeze({ command: 'target-instance', domain: 'target', facade: 'targetService', handler: 'runTargetInstance', aliases: Object.freeze([]), nested: true, nested_commands: Object.freeze(['takeover']), writes_files: true })
+  ]),
+  boundary: Object.freeze({
+    router_command_writes_files: false,
+    router_command_writes_target_repository_state: false,
+    router_command_runs_package_manager: false,
+    router_command_publishes_package: false,
+    dispatch_table_contains_functions: false,
+    dispatch_table_declares_handler_names_only: true,
+    routes_declare_domain_service_facades: true,
+    no_dynamic_eval: true,
+    unsupported_commands_fail_closed: true,
+    nested_target_routes_are_explicit: true,
+    package_allowlist_unchanged: true
+  })
+});
+
+const PUBLIC_DOMAIN_SERVICE_FACADES = Object.freeze({
+  schema: 'agent-onboard-public-domain-service-facades-001',
+  title: 'Agent-Onboard Public Domain Service Facade Boundary',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --facades',
+  check_command: 'agent-onboard architecture --check',
+  purpose: 'Expose the admitted public domain service facade layer between the command router and state reader/writer boundaries without requiring a physical source module split.',
+  dispatch_flow: Object.freeze([
+    'dispatchCommand',
+    'COMMAND_ROUTE_HANDLERS',
+    'DOMAIN_SERVICE_FACADES',
+    'domain service method',
+    'state reader/writer boundary'
+  ]),
+  facades: Object.freeze([
+    Object.freeze({ id: 'core', service: 'coreService', owns_commands: Object.freeze(['help', 'version', 'status', 'architecture']), writes_files: false, state_writer: false }),
+    Object.freeze({ id: 'authority', service: 'authorityService', owns_commands: Object.freeze(['agents', 'guard']), writes_files: true, state_writer: true }),
+    Object.freeze({ id: 'work_items', service: 'workItemsService', owns_commands: Object.freeze(['work-items']), writes_files: true, state_writer: true }),
+    Object.freeze({ id: 'claims', service: 'claimsService', owns_commands: Object.freeze(['work-items --claim', 'work-items --close']), writes_files: true, state_writer: true, shares_ledger_with: 'work_items' }),
+    Object.freeze({ id: 'target', service: 'targetService', owns_commands: Object.freeze(['init', 'target-config', 'target onboarding', 'target bootstrap', 'target-instance takeover']), writes_files: true, state_writer: true }),
+    Object.freeze({ id: 'release_package', service: 'releasePackageService', owns_commands: Object.freeze(['release']), writes_files: false, state_writer: false })
+  ]),
+  boundary: Object.freeze({
+    facades_command_writes_files: false,
+    facades_command_writes_target_repository_state: false,
+    facades_command_runs_package_manager: false,
+    facades_command_publishes_package: false,
+    every_public_domain_has_one_facade: true,
+    every_command_route_declares_facade: true,
+    route_facade_ids_must_match_canonical_domains: true,
+    physical_partition_not_required_for_this_gate: true,
+    package_allowlist_unchanged: true
+  })
+});
+
+
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-010',
+  schema: 'agent-onboard-public-release-contract-012',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
   release_line: RELEASE_LINE,
@@ -343,6 +424,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   published_acceptance_command: 'agent-onboard release --published-acceptance',
   real_target_trial_command: 'agent-onboard release --real-target-trial',
   architecture_map_command: 'agent-onboard architecture --map',
+  architecture_router_command: 'agent-onboard architecture --router',
+  architecture_facades_command: 'agent-onboard architecture --facades',
   architecture_check_command: 'agent-onboard architecture --check',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
@@ -381,6 +464,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js release --published-acceptance',
     'node cli/agent-onboard.js release --real-target-trial',
     'node cli/agent-onboard.js architecture --map',
+    'node cli/agent-onboard.js architecture --router',
+    'node cli/agent-onboard.js architecture --facades',
     'node cli/agent-onboard.js architecture --check',
     'node cli/agent-onboard.js target onboarding --trial',
     'node cli/agent-onboard.js release --check',
@@ -398,6 +483,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> release --published-acceptance',
     'npx agent-onboard@<version> release --real-target-trial',
     'npx agent-onboard@<version> architecture --map',
+    'npx agent-onboard@<version> architecture --router',
+    'npx agent-onboard@<version> architecture --facades',
     'npx agent-onboard@<version> architecture --check',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run',
@@ -416,7 +503,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
-  schema: 'agent-onboard-public-release-fixture-matrix-006',
+  schema: 'agent-onboard-public-release-fixture-matrix-008',
   title: 'Agent-Onboard Public Package Contract Fixture Matrix',
   package_name: 'agent-onboard',
   release_line: PUBLIC_RELEASE_CONTRACT.release_line,
@@ -489,7 +576,19 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
       id: 'public_architecture_map',
       expected_status: 'ok',
       validates: Object.freeze(['six-domain public architecture kernel', 'runtime flow declaration', 'compact npm package boundary', 'no-write architecture command']),
-      boundary: 'architecture map and check are read-only; they do not move files, write source state, mutate Git, install dependencies, publish, or touch target repositories'
+      boundary: 'architecture map, router, and check are read-only; they do not move files, write source state, mutate Git, install dependencies, publish, or touch target repositories'
+    }),
+    Object.freeze({
+      id: 'public_command_router_boundary',
+      expected_status: 'ok',
+      validates: Object.freeze(['table-driven top-level command router', 'explicit command aliases', 'nested target route boundary', 'no-write router inspection command']),
+      boundary: 'architecture --router is read-only; dispatch remains inside the admitted CLI entrypoint and does not create files, install dependencies, publish, or mutate target repositories'
+    }),
+    Object.freeze({
+      id: 'public_domain_service_facades',
+      expected_status: 'ok',
+      validates: Object.freeze(['one facade per public domain', 'router routes declare service facade ownership', 'facade command is no-write', 'physical module split remains optional for this gate']),
+      boundary: 'architecture --facades is read-only; domain service facade admission does not create files, install dependencies, publish, mutate package root, or mutate target repositories'
     })
   ]),
   boundary: Object.freeze({
@@ -1790,6 +1889,165 @@ function sourceContext(root = packageRoot()) {
 }
 
 
+function publicCommandRouter(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const commands = PUBLIC_COMMAND_ROUTER.routes.map((route) => route.command);
+  return {
+    schema: 'agent-onboard-public-command-router-result-001',
+    status: 'ok',
+    package_name: PUBLIC_COMMAND_ROUTER.package_name,
+    version: VERSION,
+    release_line: PUBLIC_COMMAND_ROUTER.release_line,
+    command: PUBLIC_COMMAND_ROUTER.command,
+    check_command: PUBLIC_COMMAND_ROUTER.check_command,
+    package_root: root,
+    package_context: sourceContext(root).package_context,
+    package_json_version: pkg.version,
+    router: PUBLIC_COMMAND_ROUTER,
+    route_count: commands.length,
+    route_commands: commands,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function publicCommandRouterCheck(root = packageRoot()) {
+  const router = publicCommandRouter(root);
+  const expectedCommands = ['help', 'version', 'status', 'init', 'agents', 'guard', 'architecture', 'release', 'target-config', 'work-items', 'target', 'target-instance'];
+  const expectedDomains = PUBLIC_ARCHITECTURE_MAP.canonical_domains.map((domain) => domain.id);
+  const routeCommands = router.route_commands;
+  const routeDomains = router.router.routes.map((route) => route.domain);
+  const errors = [];
+  if (!arrayEquals(routeCommands, expectedCommands)) errors.push(`command router route order must be ${expectedCommands.join(', ')}`);
+  if (new Set(routeCommands).size !== routeCommands.length) errors.push('command router route commands must be unique');
+  for (const domain of routeDomains) {
+    if (!expectedDomains.includes(domain)) errors.push(`command router route domain is not canonical: ${domain}`);
+  }
+  if (router.router.dispatch_mode !== 'table_driven_top_level_router') errors.push('command router dispatch_mode must be table_driven_top_level_router');
+  if (router.router.dispatcher !== 'dispatchCommand') errors.push('command router dispatcher must be dispatchCommand');
+  if (router.router.boundary.router_command_writes_files !== false) errors.push('architecture router command must remain no-write');
+  if (router.router.boundary.unsupported_commands_fail_closed !== true) errors.push('unsupported commands must fail closed');
+  const targetRoute = router.router.routes.find((route) => route.command === 'target');
+  if (!targetRoute || !arrayEquals(targetRoute.nested_commands.slice(), ['onboarding', 'bootstrap'])) errors.push('target nested route boundary must declare onboarding and bootstrap');
+  return {
+    schema: 'agent-onboard-public-command-router-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_COMMAND_ROUTER.package_name,
+    version: VERSION,
+    release_line: PUBLIC_COMMAND_ROUTER.release_line,
+    command: PUBLIC_COMMAND_ROUTER.check_command,
+    package_root: root,
+    validated: {
+      route_count: router.route_count === expectedCommands.length,
+      route_order: arrayEquals(routeCommands, expectedCommands),
+      route_commands_unique: new Set(routeCommands).size === routeCommands.length,
+      canonical_route_domains: routeDomains.every((domain) => expectedDomains.includes(domain)),
+      route_facades_declared: router.router.routes.every((route) => typeof route.facade === 'string' && route.facade.length > 0),
+      table_driven_dispatch: router.router.dispatch_mode === 'table_driven_top_level_router',
+      dispatcher_boundary: router.router.dispatcher === 'dispatchCommand',
+      router_command_no_write: router.router.boundary.router_command_writes_files === false,
+      unsupported_commands_fail_closed: router.router.boundary.unsupported_commands_fail_closed === true,
+      nested_target_routes_explicit: !!targetRoute && arrayEquals(targetRoute.nested_commands.slice(), ['onboarding', 'bootstrap'])
+    },
+    expected_route_commands: expectedCommands,
+    route_commands: routeCommands,
+    route_domains: routeDomains,
+    route_facades: router.router.routes.map((route) => route.facade),
+    boundary: router.boundary,
+    errors
+  };
+}
+
+function publicDomainServiceFacades(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const facadeIds = PUBLIC_DOMAIN_SERVICE_FACADES.facades.map((facade) => facade.id);
+  return {
+    schema: 'agent-onboard-public-domain-service-facades-result-001',
+    status: 'ok',
+    package_name: PUBLIC_DOMAIN_SERVICE_FACADES.package_name,
+    version: VERSION,
+    release_line: PUBLIC_DOMAIN_SERVICE_FACADES.release_line,
+    command: PUBLIC_DOMAIN_SERVICE_FACADES.command,
+    check_command: PUBLIC_DOMAIN_SERVICE_FACADES.check_command,
+    package_root: root,
+    package_context: sourceContext(root).package_context,
+    package_json_version: pkg.version,
+    facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+    facade_ids: facadeIds,
+    service_names: PUBLIC_DOMAIN_SERVICE_FACADES.facades.map((facade) => facade.service),
+    router_routes: PUBLIC_COMMAND_ROUTER.routes.map((route) => ({
+      command: route.command,
+      domain: route.domain,
+      facade: route.facade,
+      handler: route.handler,
+      writes_files: route.writes_files
+    })),
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function publicDomainServiceFacadesCheck(root = packageRoot()) {
+  const result = publicDomainServiceFacades(root);
+  const expectedDomains = PUBLIC_ARCHITECTURE_MAP.canonical_domains.map((domain) => domain.id);
+  const facadeIds = result.facade_ids;
+  const serviceNames = result.service_names;
+  const serviceByDomain = new Map(PUBLIC_DOMAIN_SERVICE_FACADES.facades.map((facade) => [facade.id, facade.service]));
+  const errors = [];
+  if (!arrayEquals(facadeIds, expectedDomains)) errors.push(`domain service facade order must be ${expectedDomains.join(', ')}`);
+  if (new Set(facadeIds).size !== facadeIds.length) errors.push('domain service facade ids must be unique');
+  if (new Set(serviceNames).size !== serviceNames.length) errors.push('domain service names must be unique');
+  if (result.facades.boundary.facades_command_writes_files !== false) errors.push('architecture facades command must remain no-write');
+  for (const route of result.router_routes) {
+    if (!route.facade) errors.push(`route ${route.command} must declare a domain service facade`);
+    if (!serviceByDomain.has(route.domain)) errors.push(`route ${route.command} domain is not backed by a public facade: ${route.domain}`);
+    if (serviceByDomain.has(route.domain) && route.facade !== serviceByDomain.get(route.domain)) errors.push(`route ${route.command} facade must be ${serviceByDomain.get(route.domain)}`);
+  }
+  return {
+    schema: 'agent-onboard-public-domain-service-facades-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_DOMAIN_SERVICE_FACADES.package_name,
+    version: VERSION,
+    release_line: PUBLIC_DOMAIN_SERVICE_FACADES.release_line,
+    command: PUBLIC_DOMAIN_SERVICE_FACADES.check_command,
+    package_root: root,
+    validated: {
+      facade_count: facadeIds.length === expectedDomains.length,
+      facade_order: arrayEquals(facadeIds, expectedDomains),
+      facade_ids_unique: new Set(facadeIds).size === facadeIds.length,
+      service_names_unique: new Set(serviceNames).size === serviceNames.length,
+      facades_command_no_write: result.facades.boundary.facades_command_writes_files === false,
+      every_route_declares_facade: result.router_routes.every((route) => typeof route.facade === 'string' && route.facade.length > 0),
+      route_facades_match_domains: result.router_routes.every((route) => serviceByDomain.has(route.domain) && route.facade === serviceByDomain.get(route.domain))
+    },
+    expected_domain_ids: expectedDomains,
+    facade_ids: facadeIds,
+    service_names: serviceNames,
+    router_routes: result.router_routes,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
 function publicArchitectureMap(root = packageRoot()) {
   const pkg = readJson(path.join(root, 'package.json'));
   return {
@@ -1804,6 +2062,8 @@ function publicArchitectureMap(root = packageRoot()) {
     package_context: sourceContext(root).package_context,
     package_json_version: pkg.version,
     map: PUBLIC_ARCHITECTURE_MAP,
+    command_router: PUBLIC_COMMAND_ROUTER,
+    domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
     current_runtime: {
       entrypoint: PUBLIC_ARCHITECTURE_MAP.public_source_shape.current_entrypoint,
       entrypoint_exists: fs.existsSync(path.join(root, PUBLIC_ARCHITECTURE_MAP.public_source_shape.current_entrypoint)),
@@ -1831,6 +2091,10 @@ function publicArchitectureCheck(root = packageRoot()) {
   const domainIds = map.map.canonical_domains.map((domain) => domain.id);
   const expectedPackFiles = map.map.public_source_shape.expected_pack_files.slice().sort();
   const projectedPackFiles = map.current_runtime.projected_pack_files;
+  const router = publicCommandRouterCheck(root);
+  const routerErrors = router.errors.map((error) => `command router: ${error}`);
+  const facades = publicDomainServiceFacadesCheck(root);
+  const facadeErrors = facades.errors.map((error) => `domain service facades: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -1839,6 +2103,9 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (!arrayEquals(projectedPackFiles, expectedPackFiles)) errors.push(`projected npm pack files must match architecture package boundary ${expectedPackFiles.join(', ')}`);
   if (map.map.package_boundary.architecture_map_command_writes_files !== false) errors.push('architecture map command must remain no-write');
   if (map.map.package_boundary.architecture_check_command_writes_files !== false) errors.push('architecture check command must remain no-write');
+  if (map.map.package_boundary.architecture_router_command_writes_files !== false) errors.push('architecture router command must remain no-write');
+  if (map.map.package_boundary.architecture_facades_command_writes_files !== false) errors.push('architecture facades command must remain no-write');
+  errors.push(...routerErrors, ...facadeErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -1853,11 +2120,15 @@ function publicArchitectureCheck(root = packageRoot()) {
       domain_ids_unique: new Set(domainIds).size === domainIds.length,
       runtime_entrypoint_present: map.current_runtime.entrypoint_exists,
       compact_package_boundary: arrayEquals(projectedPackFiles, expectedPackFiles),
-      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false
+      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false,
+      command_router_boundary: router.status === 'ok',
+      domain_service_facades: facades.status === 'ok'
     },
     domain_ids: domainIds,
     expected_pack_files: expectedPackFiles,
     projected_pack_files: projectedPackFiles,
+    command_router: router,
+    domain_service_facades: facades,
     boundary: map.boundary,
     errors
   };
@@ -1878,7 +2149,7 @@ function publicReleaseCheck(root = packageRoot()) {
   const architectureErrors = architecture.errors.map((error) => `architecture: ${error}`);
   const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors];
   return {
-    schema: 'agent-onboard-public-release-check-result-005',
+    schema: 'agent-onboard-public-release-check-result-007',
     status: errors.length === 0 ? 'ok' : 'error',
     package_name: PUBLIC_RELEASE_CONTRACT.package_name,
     version: VERSION,
@@ -1895,7 +2166,9 @@ function publicReleaseCheck(root = packageRoot()) {
       public_artifact_messaging: messagingErrors.length === 0,
       bin_entrypoints_exist: metadataErrors.filter((error) => error.includes('points to missing file')).length === 0,
       source_work_items_ledger: sourceLedger.validated,
-      public_architecture_map: architecture.status === 'ok'
+      public_architecture_map: architecture.status === 'ok',
+      public_command_router: architecture.command_router && architecture.command_router.status === 'ok',
+      public_domain_service_facades: architecture.domain_service_facades && architecture.domain_service_facades.status === 'ok'
     },
     expected_pack_files: expectedPackFiles,
     projected_pack_files: projectedPackFiles,
@@ -2109,6 +2382,8 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
     `npx agent-onboard@${version} release --published-acceptance`,
     `npx agent-onboard@${version} release --real-target-trial`,
     `npx agent-onboard@${version} architecture --map`,
+    `npx agent-onboard@${version} architecture --router`,
+    `npx agent-onboard@${version} architecture --facades`,
     `npx agent-onboard@${version} architecture --check`,
     `npx agent-onboard@${version} release --check`,
     `npx agent-onboard@${version} init --dry-run`,
@@ -2192,6 +2467,8 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
     `npx agent-onboard@${VERSION} release --published-acceptance`,
     `npx agent-onboard@${VERSION} release --real-target-trial`,
     `npx agent-onboard@${VERSION} architecture --map`,
+    `npx agent-onboard@${VERSION} architecture --router`,
+    `npx agent-onboard@${VERSION} architecture --facades`,
     `npx agent-onboard@${VERSION} architecture --check`,
     `npx agent-onboard@${VERSION} target onboarding --plan`,
     `npx agent-onboard@${VERSION} target onboarding --fixture`,
@@ -2283,6 +2560,14 @@ function runArchitecture(args) {
     json(publicArchitectureMap());
     return 0;
   }
+  if (args.length === 1 && args[0] === '--router') {
+    json(publicCommandRouter());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--facades') {
+    json(publicDomainServiceFacades());
+    return 0;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -2292,7 +2577,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map or --check',
+    message: 'architecture requires --map, --router, --facades, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -2316,11 +2601,15 @@ function runRelease(args) {
       published_acceptance_command: PUBLIC_RELEASE_CONTRACT.published_acceptance_command,
       real_target_trial_command: PUBLIC_RELEASE_CONTRACT.real_target_trial_command,
       architecture_map_command: PUBLIC_RELEASE_CONTRACT.architecture_map_command,
+      architecture_router_command: PUBLIC_RELEASE_CONTRACT.architecture_router_command,
+      architecture_facades_command: PUBLIC_RELEASE_CONTRACT.architecture_facades_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
+      command_router: PUBLIC_COMMAND_ROUTER,
+      domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       source_context: sourceContext(),
       post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
       boundary: {
@@ -2344,6 +2633,8 @@ function runRelease(args) {
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
+      command_router: PUBLIC_COMMAND_ROUTER,
+      domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       source_context: sourceContext(),
       writes_files: false,
       publishes_package: false,
@@ -2361,6 +2652,8 @@ function runRelease(args) {
       contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
+      command_router: PUBLIC_COMMAND_ROUTER,
+      domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       source_context: sourceContext(),
       writes_files: false,
       publishes_package: false,
@@ -3127,35 +3420,85 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard architecture --map|--check\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard architecture --map|--router|--facades|--check\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
+function printVersion() {
+  process.stdout.write(`${VERSION}\n`);
+  return 0;
+}
+
+function runStatus() {
+  json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: PUBLIC_RELEASE_CONTRACT.release_line });
+  return 0;
+}
+
+function runTargetCommand(args) {
+  if (args[0] === 'onboarding') return runTargetOnboarding(args.slice(1));
+  if (args[0] !== 'bootstrap') throw new Error('target supports only: onboarding --plan|--fixture|--trial [--target <path>]|--write [--force], bootstrap');
+  return runTargetBootstrap(args.slice(1));
+}
+
+const DOMAIN_SERVICE_FACADES = Object.freeze({
+  coreService: Object.freeze({
+    help,
+    printVersion,
+    runStatus,
+    runArchitecture
+  }),
+  authorityService: Object.freeze({
+    runAgents,
+    runGuard
+  }),
+  workItemsService: Object.freeze({
+    runWorkItems
+  }),
+  claimsService: Object.freeze({
+    runWorkItems
+  }),
+  targetService: Object.freeze({
+    runInit,
+    runTargetConfig,
+    runTargetCommand,
+    runTargetInstance
+  }),
+  releasePackageService: Object.freeze({
+    runRelease
+  })
+});
+
+const COMMAND_ROUTE_HANDLERS = Object.freeze({
+  help: DOMAIN_SERVICE_FACADES.coreService.help,
+  version: DOMAIN_SERVICE_FACADES.coreService.printVersion,
+  status: DOMAIN_SERVICE_FACADES.coreService.runStatus,
+  init: DOMAIN_SERVICE_FACADES.targetService.runInit,
+  agents: DOMAIN_SERVICE_FACADES.authorityService.runAgents,
+  guard: DOMAIN_SERVICE_FACADES.authorityService.runGuard,
+  architecture: DOMAIN_SERVICE_FACADES.coreService.runArchitecture,
+  release: DOMAIN_SERVICE_FACADES.releasePackageService.runRelease,
+  'target-config': DOMAIN_SERVICE_FACADES.targetService.runTargetConfig,
+  'work-items': DOMAIN_SERVICE_FACADES.workItemsService.runWorkItems,
+  target: DOMAIN_SERVICE_FACADES.targetService.runTargetCommand,
+  'target-instance': DOMAIN_SERVICE_FACADES.targetService.runTargetInstance
+});
+
+function normalizeCommand(cmd) {
+  if (!cmd || ['help', '--help', '-h'].includes(cmd)) return 'help';
+  if (['version', '--version', '-v'].includes(cmd)) return 'version';
+  return cmd;
+}
+
+function dispatchCommand(argv = []) {
+  const [rawCommand, ...args] = argv;
+  const command = normalizeCommand(rawCommand);
+  const handler = COMMAND_ROUTE_HANDLERS[command];
+  if (!handler) throw new Error(`unsupported command: ${rawCommand}`);
+  return handler(args);
+}
+
 function main(argv = process.argv) {
-  const [cmd, ...args] = argv.slice(2);
-  if (!cmd || ['help', '--help', '-h'].includes(cmd)) return help();
-  if (['version', '--version', '-v'].includes(cmd)) {
-    process.stdout.write(`${VERSION}\n`);
-    return 0;
-  }
-  if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: PUBLIC_RELEASE_CONTRACT.release_line });
-    return 0;
-  }
-  if (cmd === 'init') return runInit(args);
-  if (cmd === 'agents') return runAgents(args);
-  if (cmd === 'guard') return runGuard(args);
-  if (cmd === 'architecture') return runArchitecture(args);
-  if (cmd === 'release') return runRelease(args);
-  if (cmd === 'target-config') return runTargetConfig(args);
-  if (cmd === 'work-items') return runWorkItems(args);
-  if (cmd === 'target') {
-    if (args[0] === 'onboarding') return runTargetOnboarding(args.slice(1));
-    if (args[0] !== 'bootstrap') throw new Error('target supports only: onboarding --plan|--fixture|--trial [--target <path>]|--write [--force], bootstrap');
-    return runTargetBootstrap(args.slice(1));
-  }
-  if (cmd === 'target-instance') return runTargetInstance(args);
-  throw new Error(`unsupported command: ${cmd}`);
+  return dispatchCommand(argv.slice(2));
 }
 
 if (require.main === module) {
@@ -3187,6 +3530,8 @@ module.exports = {
   sourceContext,
   publicReleaseCheck,
   publicArchitectureMap,
+  publicCommandRouter,
+  publicCommandRouterCheck,
   publicArchitectureCheck,
   publicInstalledPackageParitySmoke,
   publicTargetOnboardingInstalledPackageSmoke,
@@ -3201,5 +3546,6 @@ module.exports = {
   TARGET_ONBOARDING_SURFACE_PLAN,
   TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX,
   PUBLIC_RELEASE_FIXTURE_MATRIX,
-  PUBLIC_ARCHITECTURE_MAP
+  PUBLIC_ARCHITECTURE_MAP,
+  PUBLIC_COMMAND_ROUTER
 };

@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.28",
+  "version": "0.0.30",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -130,7 +130,15 @@
     "domain-map",
     "domain-boundary",
     "command-router",
-    "public-runtime-architecture"
+    "public-runtime-architecture",
+    "router-boundary",
+    "command-router-boundary",
+    "architecture-router",
+    "domain-service",
+    "service-facade",
+    "domain-service-facade",
+    "public-domain-service",
+    "architecture-facade"
   ],
   "type": "commonjs",
   "engines": {

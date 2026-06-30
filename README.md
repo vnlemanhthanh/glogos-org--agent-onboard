@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.28` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.30` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.28
+npm install --save-dev agent-onboard@~0.0.30
 ```
 
 Run without installing:
@@ -98,6 +98,8 @@ npx agent-onboard agents --write
 npx agent-onboard guard --plan
 npx agent-onboard guard --check-boundary
 npx agent-onboard architecture --map
+npx agent-onboard architecture --router
+npx agent-onboard architecture --facades
 npx agent-onboard architecture --check
 npx agent-onboard release --plan
 npx agent-onboard release --contract
@@ -143,13 +145,19 @@ Print the public architecture kernel without moving files or writing state:
 npx agent-onboard architecture --map
 ```
 
-Validate that the public architecture map still declares the six canonical domains, preserves the compact npm package boundary, and keeps architecture commands read-only:
+Inspect the public command router boundary without moving files or writing state:
+
+```sh
+npx agent-onboard architecture --router
+```
+
+Validate that the public architecture map still declares the six canonical domains, preserves the compact npm package boundary, admits the command router and domain service facade boundaries, and keeps architecture commands read-only:
 
 ```sh
 npx agent-onboard architecture --check
 ```
 
-The public architecture kernel is: `core`, `authority`, `work_items`, `claims`, `target`, and `release_package`. The current package may still use one CLI entrypoint while the public source line prepares command-router and domain-facade gates.
+The public architecture kernel is: `core`, `authority`, `work_items`, `claims`, `target`, and `release_package`. `0.0.29` adds the public command router boundary gate. `0.0.30` adds the public domain service facade gate: top-level routes now declare their owning service facade, and `architecture --facades` reports the admitted facade layer while the published package still uses one compact CLI entrypoint.
 
 ## Public release verification
 
@@ -159,7 +167,7 @@ For a source release candidate, validate the package-owned release contract befo
 npx agent-onboard release --check
 ```
 
-The check validates package metadata, bin entrypoints, the projected npm pack allowlist, public artifact messaging, the public architecture map, and the source work-item ledger when that ledger is present. It does not publish, mutate registry state, install dependencies, or run Git operations. The response reports whether it is running in a source-repository context or an installed-package context, then includes local pre-publish commands and post-publish verification commands for the operator.
+The check validates package metadata, bin entrypoints, the projected npm pack allowlist, public artifact messaging, the public architecture map, the public command router, public domain service facades, and the source work-item ledger when that ledger is present. It does not publish, mutate registry state, install dependencies, or run Git operations. The response reports whether it is running in a source-repository context or an installed-package context, then includes local pre-publish commands and post-publish verification commands for the operator.
 
 Preview the release plan without running validation:
 
@@ -179,7 +187,7 @@ Print the release fixture matrix without mutating files, package state, or regis
 npx agent-onboard release --fixture
 ```
 
-The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, target onboarding installed-package smoke, target onboarding post-publish handoff, published package acceptance rehearsal, real target repo trial, and public architecture map.
+The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, target onboarding installed-package smoke, target onboarding post-publish handoff, published package acceptance rehearsal, real target repo trial, public architecture map, public command router boundary, and public domain service facade boundary.
 
 Run the installed package parity smoke without executing package-manager, registry, Git, build, or temp-file write operations:
 
@@ -203,7 +211,7 @@ Emit the post-publish verification handoff for the exact package version:
 npx agent-onboard release --post-publish-handoff
 ```
 
-The post-publish handoff emits the version-pinned npm view and npx commands an operator should run after publishing. It includes metadata verification, installed-package release contract and fixture checks, parity smoke, target onboarding smoke, published acceptance, real target trial, architecture map/check, release check, and target onboarding plan/fixture/trial checks. The command itself does not query the registry, publish, mutate registry state, install dependencies, run Git, or write target files.
+The post-publish handoff emits the version-pinned npm view and npx commands an operator should run after publishing. It includes metadata verification, installed-package release contract and fixture checks, parity smoke, target onboarding smoke, published acceptance, real target trial, architecture map/router/facades/check, release check, and target onboarding plan/fixture/trial checks. The command itself does not query the registry, publish, mutate registry state, install dependencies, run Git, or write target files.
 
 Run the published package acceptance check after publish with a version-pinned package, or locally as a source rehearsal before publish:
 
@@ -606,7 +614,9 @@ This version does not:
 
 `0.0.26` adds the public target onboarding published package acceptance gate: `release --published-acceptance` composes release check, post-publish handoff validation, parity smoke, target onboarding smoke, plan, and fixture validation so the version-pinned published package can be accepted after registry verification.
 
-`0.0.28` adds the public target onboarding real target repo trial gate: `target onboarding --trial [--target <path>]` performs a read-only onboarding readiness check against the current or explicit target path, and `release --real-target-trial` validates the same no-write behavior against a realistic temporary target repo.
+`0.0.29` adds the public command router boundary gate: `architecture --router` reports the admitted table-driven top-level command router, explicit aliases, nested target route boundary, and no-write router inspection contract.
+
+`0.0.30` adds the public domain service facade gate: `architecture --facades` reports the six admitted service facades, route-to-facade ownership, and the no-write facade inspection contract without requiring a physical source module split.
 
 <!-- ## Star History
 
@@ -624,9 +634,9 @@ The source repository can carry its own public Agent-Onboard operating surface:
 Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
 
 ```sh
-npx agent-onboard@0.0.28 work-items --list
-npx agent-onboard@0.0.28 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
-npx agent-onboard@0.0.28 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.30 work-items --list
+npx agent-onboard@0.0.30 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.30 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.

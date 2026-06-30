@@ -751,6 +751,90 @@
       "id": "P1S3M1W2",
       "milestone_id": "P1S3M1",
       "title": "Public command router boundary gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public command router boundary gate in agent-onboard@0.0.29. The gate introduces a table-driven top-level dispatch boundary, architecture --router inspection, command-router validation inside architecture --check and release --check, and keeps the npm package allowlist compact.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js architecture --map",
+          "node cli/agent-onboard.js architecture --router",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --post-publish-handoff",
+          "node cli/agent-onboard.js release --published-acceptance",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.29 architecture --router",
+          "npx agent-onboard@0.0.29 release --check"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W3",
+      "milestone_id": "P1S3M1",
+      "title": "Public domain service facade gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public domain service facade gate in agent-onboard@0.0.30. The gate introduces architecture --facades, declares one service facade per public architecture domain, routes top-level commands through DOMAIN_SERVICE_FACADES, validates facade ownership inside architecture --check and release --check, and preserves the compact npm package allowlist.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js architecture --map",
+          "node cli/agent-onboard.js architecture --router",
+          "node cli/agent-onboard.js architecture --facades",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --post-publish-handoff",
+          "node cli/agent-onboard.js release --published-acceptance",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.30 architecture --facades",
+          "npx agent-onboard@0.0.30 release --check"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W4",
+      "milestone_id": "P1S3M1",
+      "title": "Public authority first-read index gate",
       "status": "open"
     }
   ]
