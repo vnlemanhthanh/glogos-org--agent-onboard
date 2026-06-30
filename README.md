@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.24` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.25` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.24
+npm install --save-dev agent-onboard@~0.0.25
 ```
 
 Run without installing:
@@ -102,6 +102,7 @@ npx agent-onboard release --contract
 npx agent-onboard release --fixture
 npx agent-onboard release --parity-smoke
 npx agent-onboard release --target-onboarding-smoke
+npx agent-onboard release --post-publish-handoff
 npx agent-onboard release --check
 npx agent-onboard target-config --schema
 npx agent-onboard target-config --template
@@ -157,7 +158,7 @@ Print the release fixture matrix without mutating files, package state, or regis
 npx agent-onboard release --fixture
 ```
 
-The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, and target onboarding installed-package smoke.
+The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, target onboarding installed-package smoke, and target onboarding post-publish handoff.
 
 Run the installed package parity smoke without executing package-manager, registry, Git, build, or temp-file write operations:
 
@@ -174,6 +175,14 @@ npx agent-onboard release --target-onboarding-smoke
 ```
 
 The target onboarding smoke creates and removes a temporary target repo, runs the target onboarding plan and fixture, writes only the canonical onboarding files into that temporary target, and verifies the generated read-only boundary config. It does not mutate the package root, Git, registry, dependencies, build, deploy, publish, or push state.
+
+Emit the post-publish verification handoff for the exact package version:
+
+```sh
+npx agent-onboard release --post-publish-handoff
+```
+
+The post-publish handoff emits the version-pinned npm view and npx commands an operator should run after publishing. It includes metadata verification, installed-package release contract and fixture checks, parity smoke, target onboarding smoke, release check, and target onboarding plan/fixture checks. The command itself does not query the registry, publish, mutate registry state, install dependencies, run Git, or write target files.
 
 After install, these command names are available:
 
@@ -542,6 +551,8 @@ This version does not:
 
 `0.0.24` adds the public target onboarding installed-package smoke: `release --target-onboarding-smoke` exercises target onboarding plan, fixture, and explicit write behavior against a temporary target repo from the package runtime.
 
+`0.0.25` adds the public target onboarding post-publish verification handoff: `release --post-publish-handoff` emits version-pinned npm view and npx commands for operator verification after publish, including target onboarding plan, fixture, smoke, and release check coverage.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
@@ -558,9 +569,9 @@ The source repository can carry its own public Agent-Onboard operating surface:
 Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
 
 ```sh
-npx agent-onboard@0.0.24 work-items --list
-npx agent-onboard@0.0.24 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
-npx agent-onboard@0.0.24 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.25 work-items --list
+npx agent-onboard@0.0.25 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.25 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.
