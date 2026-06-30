@@ -238,10 +238,10 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-006',
+  schema: 'agent-onboard-public-release-contract-007',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
-  release_line: 'public_target_onboarding_dry_run_fixture_gate',
+  release_line: 'public_target_onboarding_explicit_write_boundary_gate',
   command: 'agent-onboard release --check',
   contract_command: 'agent-onboard release --contract',
   fixture_command: 'agent-onboard release --fixture',
@@ -352,8 +352,8 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
     Object.freeze({
       id: 'target_onboarding_dry_run_fixture_matrix',
       expected_status: 'ok',
-      validates: Object.freeze(['target onboarding plan no-write fixture', 'target bootstrap dry-run fixture', 'target instance takeover dry-run fixture', 'AGENTS.md preview fixture', 'conflict and force-preview fixtures']),
-      boundary: 'no target writes, no dependency install, no Git mutation, no publish or push'
+      validates: Object.freeze(['target onboarding plan no-write fixture', 'target bootstrap dry-run fixture', 'target instance takeover dry-run fixture', 'AGENTS.md preview fixture', 'aggregate explicit write projection', 'conflict and force-preview fixtures']),
+      boundary: 'fixture writes no files; explicit write command writes only canonical onboarding files when requested'
     })
   ]),
   boundary: Object.freeze({
@@ -407,16 +407,24 @@ const TARGET_ONBOARDING_SURFACE_PLAN = Object.freeze({
       writes_files: false
     }),
     Object.freeze({
+      id: 'write_explicit_full_onboarding',
+      command: 'agent-onboard target onboarding --write',
+      output: 'agent-onboard.target.json, .agent-onboard/project.json, .agent-onboard/work-items.json, and AGENTS.md when explicitly authorized',
+      writes_files: true
+    }),
+    Object.freeze({
       id: 'write_explicit_boundary_config',
       command: 'agent-onboard target bootstrap --write',
       output: 'agent-onboard.target.json when explicitly authorized',
-      writes_files: true
+      writes_files: true,
+      lower_level_command: true
     }),
     Object.freeze({
       id: 'write_explicit_runtime_state',
       command: 'agent-onboard target-instance takeover --write',
       output: '.agent-onboard/project.json and .agent-onboard/work-items.json when explicitly authorized',
-      writes_files: true
+      writes_files: true,
+      lower_level_command: true
     }),
     Object.freeze({
       id: 'verify_boundary',
@@ -435,19 +443,19 @@ const TARGET_ONBOARDING_SURFACE_PLAN = Object.freeze({
     force_overwrite_requires_explicit_force_flag: true
   }),
   next_candidate_gate: Object.freeze({
-    title: 'Public target onboarding explicit write boundary gate',
-    intent: 'Add regression coverage for explicit write behavior before broadening target onboarding writes.'
+    title: 'Public target onboarding installed package smoke gate',
+    intent: 'Verify target onboarding behavior from an installed package context after the explicit write boundary is in place.'
   })
 });
 
 
 const TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX = Object.freeze({
-  schema: 'agent-onboard-public-target-onboarding-dry-run-fixture-matrix-001',
-  title: 'Agent-Onboard Public Target Onboarding Dry-Run Fixture Matrix',
+  schema: 'agent-onboard-public-target-onboarding-fixture-matrix-002',
+  title: 'Agent-Onboard Public Target Onboarding Fixture Matrix',
   package_name: 'agent-onboard',
   release_line: PUBLIC_RELEASE_CONTRACT.release_line,
   command: 'agent-onboard target onboarding --fixture',
-  purpose: 'Declare no-write regression fixtures for target onboarding dry-run behavior before explicit write expansion.',
+  purpose: 'Declare no-write regression fixtures and explicit-write boundary projections for target onboarding behavior.',
   fixtures: Object.freeze([
     Object.freeze({
       id: 'target_onboarding_plan_no_write',
@@ -474,6 +482,12 @@ const TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX = Object.freeze({
       validates: Object.freeze(['AGENTS.md create plan', 'writes_performed false', 'canonical agent instructions preview'])
     }),
     Object.freeze({
+      id: 'target_onboarding_explicit_write_empty_target',
+      command: 'agent-onboard target onboarding --write',
+      expected_status: 'ok',
+      validates: Object.freeze(['explicit write flag required', 'aggregate canonical file set only', 'no dependency install', 'no Git mutation', 'no publish or push'])
+    }),
+    Object.freeze({
       id: 'target_bootstrap_conflict_dry_run',
       command: 'agent-onboard target bootstrap --dry-run',
       expected_status: 'error',
@@ -493,12 +507,13 @@ const TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX = Object.freeze({
     fixture_runs_build_test_deploy: false,
     fixture_publishes_or_pushes: false,
     validates_explicit_write_flag_boundary: true,
+    validates_aggregate_write_command: true,
     validates_conflict_detection: true,
     validates_force_preview_without_write: true
   }),
   next_candidate_gate: Object.freeze({
-    title: 'Public target onboarding explicit write boundary gate',
-    intent: 'Add regression coverage for explicit write behavior before broadening target onboarding writes.'
+    title: 'Public target onboarding installed package smoke gate',
+    intent: 'Verify target onboarding behavior from an installed package context after the explicit write boundary is in place.'
   })
 });
 
@@ -511,6 +526,7 @@ function targetOnboardingDryRunFixture(cwd = process.cwd()) {
     ['.agent-onboard/work-items.json', workItemsTemplate()]
   ], { force: false });
   const agentsPlan = planTextWritesForRoot(cwd, [['AGENTS.md', agentsMdTemplate(cwd)]], { force: false });
+  const onboardingWritePlan = planTargetOnboardingWritesForRoot(cwd, { force: false });
   return {
     schema: 'agent-onboard-public-target-onboarding-dry-run-fixture-result-001',
     status: 'ok',
@@ -540,6 +556,13 @@ function targetOnboardingDryRunFixture(cwd = process.cwd()) {
         planned_writes: summarizePlan(agentsPlan),
         conflicts: agentsPlan.filter((item) => item.action === 'conflict').map((item) => item.path)
       },
+      target_onboarding_explicit_write_projection: {
+        command: 'agent-onboard target onboarding --write',
+        writes_performed: false,
+        planned_writes: summarizePlan(onboardingWritePlan),
+        conflicts: onboardingWritePlan.filter((item) => item.action === 'conflict').map((item) => item.path),
+        would_write_only_canonical_files: true
+      },
       target_bootstrap_force_dry_run: {
         command: 'agent-onboard target bootstrap --dry-run --force',
         writes_performed: false,
@@ -554,10 +577,11 @@ function targetOnboardingDryRunFixture(cwd = process.cwd()) {
 
 function targetOnboardingSurfacePlan(cwd = process.cwd()) {
   const [name, kind] = targetName(cwd);
-  const plannedFiles = initWriteSet(cwd).map(([relativePath, value]) => ({
-    path: relativePath,
-    already_exists: fs.existsSync(path.join(cwd, relativePath)),
-    schema: value && value.schema ? value.schema : null
+  const plannedFiles = targetOnboardingWriteSet(cwd).map((item) => ({
+    path: item.path,
+    kind: item.kind,
+    already_exists: fs.existsSync(path.join(cwd, item.path)),
+    schema: item.schema || null
   }));
   return {
     schema: TARGET_ONBOARDING_SURFACE_PLAN.schema,
@@ -1175,6 +1199,75 @@ function initWriteSet(cwd = process.cwd()) {
     ['.agent-onboard/project.json', runtimeProjectTemplate(cwd)],
     ['.agent-onboard/work-items.json', workItemsTemplate()]
   ];
+}
+
+function targetOnboardingWriteSet(cwd = process.cwd()) {
+  return [
+    {
+      path: 'agent-onboard.target.json',
+      kind: 'json',
+      schema: 'agent-onboard-target-config-001',
+      value: targetConfigTemplate(cwd)
+    },
+    {
+      path: '.agent-onboard/project.json',
+      kind: 'json',
+      schema: 'agent-onboard-target-runtime-project-001',
+      value: runtimeProjectTemplate(cwd)
+    },
+    {
+      path: '.agent-onboard/work-items.json',
+      kind: 'json',
+      schema: 'agent-onboard-target-work-items-001',
+      value: workItemsTemplate()
+    },
+    {
+      path: 'AGENTS.md',
+      kind: 'text',
+      schema: null,
+      content: agentsMdTemplate(cwd)
+    }
+  ];
+}
+
+function planTargetOnboardingWritesForRoot(root, options = {}) {
+  const force = options.force === true;
+  return targetOnboardingWriteSet(root).map((entry) => {
+    const absolutePath = path.join(root, entry.path);
+    const desired = entry.kind === 'json' ? stableJson(entry.value) : entry.content;
+    const exists = fs.existsSync(absolutePath);
+    const current = exists ? fs.readFileSync(absolutePath, 'utf8') : null;
+    const identical = exists && current === desired;
+    const conflict = exists && !identical && !force;
+    let action = 'create';
+    if (identical) action = 'keep';
+    else if (exists && force) action = 'overwrite';
+    else if (conflict) action = 'conflict';
+    return {
+      path: entry.path,
+      kind: entry.kind,
+      schema: entry.schema,
+      exists,
+      action,
+      safe_to_write: action !== 'conflict',
+      value: entry.value,
+      content: entry.content
+    };
+  });
+}
+
+function planTargetOnboardingWrites(options = {}) {
+  return planTargetOnboardingWritesForRoot(process.cwd(), options);
+}
+
+function performTargetOnboardingWrites(plannedWrites, root = process.cwd()) {
+  for (const item of plannedWrites) {
+    if (item.action !== 'create' && item.action !== 'overwrite') continue;
+    const absolutePath = path.join(root, item.path);
+    fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+    if (item.kind === 'json') fs.writeFileSync(absolutePath, stableJson(item.value));
+    else fs.writeFileSync(absolutePath, item.content);
+  }
 }
 
 function planWritesForRoot(root, writeSet, options = {}) {
@@ -2181,9 +2274,61 @@ function runInit(args) {
 
 
 function runTargetOnboarding(args) {
-  if (args.length !== 1 || !['--plan', '--fixture'].includes(args[0])) throw new Error('target onboarding requires --plan or --fixture');
-  json(args[0] === '--plan' ? targetOnboardingSurfacePlan() : targetOnboardingDryRunFixture());
-  return 0;
+  const plan = args.includes('--plan');
+  const fixture = args.includes('--fixture');
+  const write = args.includes('--write');
+  const force = args.includes('--force');
+  const known = new Set(['--plan', '--fixture', '--write', '--force']);
+  const unknown = args.filter((arg) => !known.has(arg));
+  if (unknown.length > 0) throw new Error(`target onboarding does not support: ${unknown.join(', ')}`);
+  if ([plan, fixture, write].filter(Boolean).length !== 1) throw new Error('target onboarding requires exactly one of --plan, --fixture, or --write');
+  if (force && !write) throw new Error('target onboarding --force requires --write');
+  if (plan) {
+    json(targetOnboardingSurfacePlan());
+    return 0;
+  }
+  if (fixture) {
+    json(targetOnboardingDryRunFixture());
+    return 0;
+  }
+
+  const plannedWrites = planTargetOnboardingWrites({ force });
+  const conflicts = plannedWrites.filter((item) => item.action === 'conflict');
+  const ok = conflicts.length === 0;
+  if (ok) performTargetOnboardingWrites(plannedWrites);
+  const writtenFiles = ok ? plannedWrites.filter((item) => item.action === 'create' || item.action === 'overwrite').map((item) => item.path) : [];
+
+  json({
+    schema: 'agent-onboard-public-target-onboarding-explicit-write-result-001',
+    status: ok ? 'ok' : 'error',
+    package_name: 'agent-onboard',
+    version: VERSION,
+    release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+    command: force ? 'agent-onboard target onboarding --write --force' : 'agent-onboard target onboarding --write',
+    command_family: 'target onboarding',
+    mode: 'write',
+    force,
+    writes_performed: writtenFiles.length > 0,
+    written_files: writtenFiles,
+    planned_writes: summarizePlan(plannedWrites),
+    conflicts: conflicts.map((item) => item.path),
+    boundary: {
+      explicit_write_flag_required: true,
+      force_overwrite_requires_explicit_force_flag: true,
+      writes_only_canonical_target_onboarding_files: true,
+      canonical_files: TARGET_ONBOARDING_SURFACE_PLAN.canonical_files.slice(),
+      installs_dependencies: false,
+      runs_build_test_deploy: false,
+      publishes_or_pushes: false,
+      git_mutation: false
+    },
+    next_steps: ok ? [
+      'read AGENTS.md before continuing agent-assisted work',
+      'run agent-onboard guard --check-boundary after agent-onboard.target.json exists',
+      'use work-items --append/--claim only after the target owner assigns public work-item scope'
+    ] : []
+  });
+  return ok ? 0 : 1;
 }
 
 function runTargetBootstrap(args) {
@@ -2242,7 +2387,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -2254,7 +2399,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_target_onboarding_dry_run_fixture_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: PUBLIC_RELEASE_CONTRACT.release_line });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
@@ -2265,7 +2410,7 @@ function main(argv = process.argv) {
   if (cmd === 'work-items') return runWorkItems(args);
   if (cmd === 'target') {
     if (args[0] === 'onboarding') return runTargetOnboarding(args.slice(1));
-    if (args[0] !== 'bootstrap') throw new Error('target supports only: onboarding --plan|--fixture, bootstrap');
+    if (args[0] !== 'bootstrap') throw new Error('target supports only: onboarding --plan|--fixture|--write [--force], bootstrap');
     return runTargetBootstrap(args.slice(1));
   }
   if (cmd === 'target-instance') return runTargetInstance(args);
@@ -2303,6 +2448,8 @@ module.exports = {
   publicInstalledPackageParitySmoke,
   targetOnboardingSurfacePlan,
   targetOnboardingDryRunFixture,
+  targetOnboardingWriteSet,
+  planTargetOnboardingWritesForRoot,
   TARGET_ONBOARDING_SURFACE_PLAN,
   TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX,
   PUBLIC_RELEASE_FIXTURE_MATRIX

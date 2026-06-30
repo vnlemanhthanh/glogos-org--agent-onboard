@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.22` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.23` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.22
+npm install --save-dev agent-onboard@~0.0.23
 ```
 
 Run without installing:
@@ -29,7 +29,19 @@ npx agent-onboard target onboarding --plan
 npx agent-onboard target onboarding --fixture
 ```
 
-The plan is read-only. It declares the canonical target files, the preview commands, the explicit write commands, and the guard check that should be run after a read-only target boundary exists.
+The plan and fixture are read-only. They declare the canonical target files, the preview commands, the explicit write command, and the guard check that should be run after a read-only target boundary exists.
+
+Write the full canonical onboarding surface only after the target owner explicitly authorizes file creation:
+
+```sh
+npx agent-onboard target onboarding --write
+```
+
+`target onboarding --write` refuses to overwrite existing non-identical canonical files. To intentionally replace them:
+
+```sh
+npx agent-onboard target onboarding --write --force
+```
 
 Preview the files that would be created:
 
@@ -109,6 +121,7 @@ npx agent-onboard work-items --close --dry-run --id <public-work-item-id> --acto
 npx agent-onboard work-items --close --write --id <public-work-item-id> --actor <actor> --summary <summary>
 npx agent-onboard target onboarding --plan
 npx agent-onboard target onboarding --fixture
+npx agent-onboard target onboarding --write
 npx agent-onboard target bootstrap --dry-run
 npx agent-onboard target bootstrap --write
 npx agent-onboard target-instance takeover --dry-run
@@ -170,19 +183,36 @@ npx agent-onboard target onboarding --plan
 npx agent-onboard target onboarding --fixture
 ```
 
-The plan reports the target identity inferred from the current directory, the canonical files, the read-only preview phases, the explicit write phases, and the no-mutation boundary for the plan command itself. It is the first command to run when deciding how to onboard a target repo.
+The plan reports the target identity inferred from the current directory, the canonical files, the read-only preview phases, the aggregate explicit write phase, lower-level write phases, and the no-mutation boundary for the plan command itself. It is the first command to run when deciding how to onboard a target repo.
 
-Print the public target onboarding dry-run fixture matrix without writing files:
+Print the public target onboarding fixture matrix without writing files:
 
 ```sh
 npx agent-onboard target onboarding --fixture
 ```
 
-The fixture matrix covers the read-only plan, target bootstrap dry-run, target instance takeover dry-run, AGENTS.md preview, conflict detection, and force-preview/no-write behavior.
+The fixture matrix covers the read-only plan, target bootstrap dry-run, target instance takeover dry-run, AGENTS.md preview, aggregate explicit-write projection, conflict detection, and force-preview/no-write behavior.
+
+Write the aggregate canonical onboarding surface with one explicit command:
+
+```sh
+npx agent-onboard target onboarding --write
+```
+
+This writes only the canonical onboarding files, never installs dependencies, never runs build/test/deploy commands, never publishes or pushes, and never mutates Git state. It refuses divergent existing files unless `--force` is passed.
 
 ## Files written
 
 Dry-run and preview commands write nothing.
+
+`target onboarding --write` writes the full canonical onboarding surface:
+
+```text
+agent-onboard.target.json
+.agent-onboard/project.json
+.agent-onboard/work-items.json
+AGENTS.md
+```
 
 `init --write` writes the complete minimal public target state:
 
@@ -498,6 +528,7 @@ This version does not:
 
 `0.0.21` adds the public target onboarding surface plan: `target onboarding --plan` prints the target onboarding sequence, canonical files, explicit write boundaries, and next candidate gate without mutating the target repo.
 `0.0.22` adds the public target onboarding dry-run fixture matrix: `target onboarding --fixture` declares no-write regression fixtures for target bootstrap dry-run, target instance takeover dry-run, AGENTS.md preview, conflict detection, and force-preview behavior.
+`0.0.23` adds the public target onboarding explicit write boundary: `target onboarding --write` writes the aggregate canonical onboarding surface only when explicitly requested and refuses divergent files unless `--force` is provided.
 
 <!-- ## Star History
 
@@ -515,9 +546,9 @@ The source repository can carry its own public Agent-Onboard operating surface:
 Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
 
 ```sh
-npx agent-onboard@0.0.22 work-items --list
-npx agent-onboard@0.0.22 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
-npx agent-onboard@0.0.22 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.23 work-items --list
+npx agent-onboard@0.0.23 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.23 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.

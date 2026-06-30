@@ -56,8 +56,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
 }
 
 {
@@ -65,11 +65,11 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-plan-005');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
   assert.strictEqual(output.boundary.publishes_package, false);
-  assert.ok(output.post_publish_verification_commands.some((command) => command.includes('agent-onboard@0.0.22')));
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-006');
+  assert.ok(output.post_publish_verification_commands.some((command) => command.includes('agent-onboard@0.0.23')));
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-007');
   assert.strictEqual(output.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -80,9 +80,9 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-contract-response-001');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
-  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-006');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
+  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-007');
   assert.strictEqual(output.contract.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.contract.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.contract.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -95,9 +95,9 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-fixture-response-001');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-006');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-007');
   assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-release-fixture-matrix-004');
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'stale_package_version_contract'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'pack_allowlist_drift_contract'));
@@ -112,8 +112,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-installed-package-parity-smoke-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
   assert.strictEqual(output.command, 'agent-onboard release --parity-smoke');
   assert.strictEqual(output.parity.source_candidate_release_check, true);
   assert.strictEqual(output.parity.source_context_excluded_from_pack, true);
@@ -128,14 +128,15 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-check-result-005');
-  assert.strictEqual(output.version, '0.0.22');
+  assert.strictEqual(output.version, '0.0.23');
   assert.strictEqual(output.validated.package_metadata, true);
   assert.strictEqual(output.validated.projected_pack_allowlist, true);
   assert.strictEqual(output.validated.public_artifact_messaging, true);
   assert.strictEqual(output.validated.source_work_items_ledger, true);
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.strictEqual(output.source_work_items_ledger.present, true);
-  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public target onboarding explicit write boundary gate'));
+  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public target onboarding installed package smoke gate'));
+  assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public target onboarding explicit write boundary gate'));
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public target onboarding surface planning gate'));
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public installed package parity smoke gate'));
   assert.deepStrictEqual(output.expected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
@@ -150,8 +151,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-surface-plan-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
   assert.strictEqual(output.command, 'agent-onboard target onboarding --plan');
   assert.strictEqual(output.target.name, 'target-fixture');
   assert.ok(output.canonical_files.includes('agent-onboard.target.json'));
@@ -163,7 +164,9 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.phases.some((phase) => phase.command === 'agent-onboard target bootstrap --write'));
   assert.strictEqual(output.boundary.plan_writes_files, false);
   assert.strictEqual(output.boundary.write_commands_require_explicit_write_flag, true);
-  assert.strictEqual(output.planned_files.length, 3);
+  assert.ok(output.phases.some((phase) => phase.command === 'agent-onboard target onboarding --write'));
+  assert.strictEqual(output.planned_files.length, 4);
+  assert.deepStrictEqual(output.planned_files.map((item) => item.path), ['agent-onboard.target.json', '.agent-onboard/project.json', '.agent-onboard/work-items.json', 'AGENTS.md']);
 }
 
 {
@@ -172,17 +175,20 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-dry-run-fixture-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.22');
-  assert.strictEqual(output.release_line, 'public_target_onboarding_dry_run_fixture_gate');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.release_line, 'public_target_onboarding_explicit_write_boundary_gate');
   assert.strictEqual(output.command, 'agent-onboard target onboarding --fixture');
-  assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-target-onboarding-dry-run-fixture-matrix-001');
+  assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-target-onboarding-fixture-matrix-002');
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'target_bootstrap_dry_run_empty_target'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'target_bootstrap_conflict_dry_run'));
+  assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'target_onboarding_explicit_write_empty_target'));
   assert.strictEqual(output.boundary.fixture_writes_files, false);
   assert.strictEqual(output.boundary.validates_force_preview_without_write, true);
   assert.deepStrictEqual(output.observed_target_projection.target_bootstrap_dry_run.planned_writes.map((item) => item.action), ['create']);
   assert.deepStrictEqual(output.observed_target_projection.target_instance_takeover_dry_run.planned_writes.map((item) => item.action), ['create', 'create']);
   assert.deepStrictEqual(output.observed_target_projection.agents_preview.planned_writes.map((item) => item.action), ['create']);
+  assert.deepStrictEqual(output.observed_target_projection.target_onboarding_explicit_write_projection.planned_writes.map((item) => item.action), ['create', 'create', 'create', 'create']);
+  assert.strictEqual(output.observed_target_projection.target_onboarding_explicit_write_projection.writes_performed, false);
   assert.deepStrictEqual(output.observed_target_projection.target_bootstrap_force_dry_run.planned_writes.map((item) => item.action), ['create']);
   assert.strictEqual(fs.existsSync(path.join(dir, 'agent-onboard.target.json')), false);
   assert.strictEqual(fs.existsSync(path.join(dir, '.agent-onboard', 'project.json')), false);
@@ -229,6 +235,47 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(agentsOutput.writes_performed, false);
   assert.deepStrictEqual(agentsOutput.planned_writes.map((item) => item.path), ['AGENTS.md']);
   assert.strictEqual(fs.existsSync(path.join(dir, 'AGENTS.md')), false);
+}
+
+{
+  const dir = tempRepo();
+  const result = run(['target', 'onboarding', '--write'], { cwd: dir });
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-explicit-write-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, '0.0.23');
+  assert.strictEqual(output.mode, 'write');
+  assert.strictEqual(output.force, false);
+  assert.strictEqual(output.writes_performed, true);
+  assert.deepStrictEqual(output.written_files, ['agent-onboard.target.json', '.agent-onboard/project.json', '.agent-onboard/work-items.json', 'AGENTS.md']);
+  assert.deepStrictEqual(output.planned_writes.map((item) => item.action), ['create', 'create', 'create', 'create']);
+  assert.strictEqual(output.boundary.explicit_write_flag_required, true);
+  assert.strictEqual(output.boundary.writes_only_canonical_target_onboarding_files, true);
+  assert.strictEqual(output.boundary.git_mutation, false);
+  assert.strictEqual(fs.existsSync(path.join(dir, 'agent-onboard.target.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(dir, '.agent-onboard', 'project.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(dir, '.agent-onboard', 'work-items.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(dir, 'AGENTS.md')), true);
+}
+
+{
+  const dir = tempRepo();
+  fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# custom instructions\n');
+  const conflict = run(['target', 'onboarding', '--write'], { cwd: dir });
+  const conflictOutput = readJsonFailure(conflict);
+  assert.strictEqual(conflictOutput.status, 'error');
+  assert.deepStrictEqual(conflictOutput.conflicts, ['AGENTS.md']);
+  assert.strictEqual(conflictOutput.writes_performed, false);
+  assert.strictEqual(fs.existsSync(path.join(dir, 'agent-onboard.target.json')), false);
+  assert.strictEqual(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8'), '# custom instructions\n');
+
+  const force = run(['target', 'onboarding', '--write', '--force'], { cwd: dir });
+  const forceOutput = readJsonOutput(force);
+  assert.strictEqual(forceOutput.status, 'ok');
+  assert.strictEqual(forceOutput.force, true);
+  assert.ok(forceOutput.written_files.includes('AGENTS.md'));
+  assert.deepStrictEqual(forceOutput.planned_writes.map((item) => item.action), ['create', 'create', 'create', 'overwrite']);
+  assert.ok(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8').includes('Agent-Onboard target repository rules'));
 }
 
 {
@@ -776,6 +823,8 @@ function cliTargetConfigForTest(dir) {
 
   const s2m1w3 = findById(rootLedger.work_items, ['P', 1, 'S', 2, 'M', 1, 'W', 3].join(''));
 
+  const s2m1w4 = findById(rootLedger.work_items, ['P', 1, 'S', 2, 'M', 1, 'W', 4].join(''));
+
   assert.ok(program);
 
   assert.ok(stage);
@@ -889,7 +938,17 @@ function cliTargetConfigForTest(dir) {
 
   assert.strictEqual(s2m1w3.title, 'Public target onboarding explicit write boundary gate');
 
-  assert.strictEqual(s2m1w3.status, 'open');
+  assert.strictEqual(s2m1w3.status, 'closed');
+
+  assert.strictEqual(s2m1w3.closure.actor, 'release-maintainer');
+
+  assert.match(s2m1w3.closure.summary, /agent-onboard@0\.0\.23/);
+
+  assert.ok(s2m1w4);
+
+  assert.strictEqual(s2m1w4.title, 'Public target onboarding installed package smoke gate');
+
+  assert.strictEqual(s2m1w4.status, 'open');
 
   assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
 
@@ -1012,8 +1071,9 @@ function cliTargetConfigForTest(dir) {
   assert.ok(cli.PUBLIC_RELEASE_FIXTURE_MATRIX.fixtures.some((fixture) => fixture.id === 'target_onboarding_dry_run_fixture_matrix'));
   assert.strictEqual(cli.TARGET_ONBOARDING_SURFACE_PLAN.schema, 'agent-onboard-public-target-onboarding-surface-plan-001');
   assert.strictEqual(cli.targetOnboardingSurfacePlan(tempRepo()).status, 'ok');
-  assert.strictEqual(cli.TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX.schema, 'agent-onboard-public-target-onboarding-dry-run-fixture-matrix-001');
+  assert.strictEqual(cli.TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX.schema, 'agent-onboard-public-target-onboarding-fixture-matrix-002');
   assert.strictEqual(cli.targetOnboardingDryRunFixture(tempRepo()).status, 'ok');
+  assert.deepStrictEqual(cli.planTargetOnboardingWritesForRoot(tempRepo()).map((item) => item.path), ['agent-onboard.target.json', '.agent-onboard/project.json', '.agent-onboard/work-items.json', 'AGENTS.md']);
 
   function installedFixture(mutator) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-onboard-release-fixture-'));
@@ -1032,7 +1092,7 @@ function cliTargetConfigForTest(dir) {
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
   });
   assert.strictEqual(staleVersion.status, 'error');
-  assert.ok(staleVersion.errors.some((error) => error.includes('package.json#version must match runtime version 0.0.22')));
+  assert.ok(staleVersion.errors.some((error) => error.includes('package.json#version must match runtime version 0.0.23')));
 
   const packDrift = installedFixture((dir) => {
     const pkgPath = path.join(dir, 'package.json');
@@ -1131,6 +1191,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('`0.0.20` adds installed package parity smoke'));
   assert.ok(readme.includes('`0.0.21` adds the public target onboarding surface plan'));
   assert.ok(readme.includes('`0.0.22` adds the public target onboarding dry-run fixture matrix'));
+  assert.ok(readme.includes('`0.0.23` adds the public target onboarding explicit write boundary'));
+  assert.ok(readme.includes('npx agent-onboard target onboarding --write'));
   assert.ok(readme.includes('npx agent-onboard target onboarding --fixture'));
   assert.ok(readme.includes('npx agent-onboard target onboarding --plan'));
   assert.ok(readme.includes('The plan reports the target identity inferred from the current directory'));
@@ -1151,20 +1213,21 @@ function cliTargetConfigForTest(dir) {
   assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
   assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
   assert.ok(help.stdout.includes('release --plan|--contract|--fixture|--parity-smoke|--check'));
-  assert.ok(help.stdout.includes('target onboarding --plan|--fixture'));
+  assert.ok(help.stdout.includes('target onboarding --plan|--fixture|--write [--force]'));
 }
 
 {
   const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 work-items --list'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 release --check'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 release --contract'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 release --fixture'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 release --parity-smoke'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 target onboarding --plan'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.22 target onboarding --fixture'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 work-items --list'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 release --check'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 release --contract'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 release --fixture'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 release --parity-smoke'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 target onboarding --plan'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 target onboarding --fixture'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.23 target onboarding --write'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.19'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.18'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.17'));

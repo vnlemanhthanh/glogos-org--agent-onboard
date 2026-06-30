@@ -411,6 +411,53 @@
       "id": "P1S2M1W3",
       "milestone_id": "P1S2M1",
       "title": "Public target onboarding explicit write boundary gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public target onboarding explicit write boundary in agent-onboard@0.0.23: target onboarding --write now performs the aggregate canonical onboarding write only when explicitly requested, refuses divergent files unless --force is provided, and writes no dependencies, Git state, build outputs, registry state, or non-canonical files.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js target onboarding --plan",
+          "node cli/agent-onboard.js target onboarding --fixture",
+          "node cli/agent-onboard.js target onboarding --write in temporary target repo",
+          "node cli/agent-onboard.js target onboarding --write --force in temporary target repo",
+          "node cli/agent-onboard.js target bootstrap --dry-run in temporary target repo",
+          "node cli/agent-onboard.js target-instance takeover --dry-run in temporary target repo",
+          "node cli/agent-onboard.js agents --preview in temporary target repo",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --parity-smoke",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.23 status",
+          "npx agent-onboard@0.0.23 target onboarding --write",
+          "npx agent-onboard@0.0.23 release --check"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S2M1W4",
+      "milestone_id": "P1S2M1",
+      "title": "Public target onboarding installed package smoke gate",
       "status": "open"
     }
   ]
