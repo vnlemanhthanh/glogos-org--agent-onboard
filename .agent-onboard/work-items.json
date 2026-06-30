@@ -1956,6 +1956,47 @@
       "id": "P1S3M2W11",
       "milestone_id": "P1S3M2",
       "title": "Public claims domain source extraction installed fallback smoke gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Admitted the public claims domain source extraction installed fallback smoke gate, proving the compact installed package can omit src/domains/claims.js while the claims runtime bridge resolves through bundled_fallback, preserves the shared work-items ledger, excludes non-claim work-items commands, and keeps the npm package allowlist compact.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c src/domains/claims.js",
+          "node -c test/agent-onboard.test.js",
+          "node cli/agent-onboard.js architecture --claims-installed-fallback-smoke",
+          "node cli/agent-onboard.js architecture --claims-installed-fallback-check",
+          "node cli/agent-onboard.js architecture --claims-runtime-bridge-check",
+          "installed-context copy: node cli/agent-onboard.js architecture --claims-installed-fallback-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "npm test",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M2W12",
+      "milestone_id": "P1S3M2",
+      "title": "Public source-domain extraction stabilization closure review gate",
       "status": "open"
     }
   ]
