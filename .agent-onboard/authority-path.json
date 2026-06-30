@@ -1,7 +1,7 @@
 {
   "schema": "agent-onboard-authority-path-001",
   "package_name": "agent-onboard",
-  "release_line": "public_source_extraction_golden_output_freeze_gate",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
   "target": {
     "name": "agent-onboard",
     "root": ".",

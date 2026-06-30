@@ -33,6 +33,10 @@ Source partition and extraction gates:
 - node cli/agent-onboard.js architecture --adapter-check
 - node cli/agent-onboard.js architecture --first-slice
 - node cli/agent-onboard.js architecture --first-slice-check
+- node cli/agent-onboard.js architecture --bundle-parity
+- node cli/agent-onboard.js architecture --bundle-parity-check
+- node cli/agent-onboard.js architecture --runtime-bridge
+- node cli/agent-onboard.js architecture --runtime-bridge-check
 
 Package surface gate:
 - node cli/agent-onboard.js release --surface

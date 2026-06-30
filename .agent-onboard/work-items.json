@@ -1211,6 +1211,118 @@
       "id": "P1S3M1W13",
       "milestone_id": "P1S3M1",
       "title": "Public source module extraction bundle parity gate",
+      "status": "closed",
+      "closure": {
+        "actor": "ChatGPT",
+        "closed_at": "2026-06-30",
+        "summary": "Implemented public source module extraction bundle parity gate: added bundle parity metadata/check commands, a source-only parity artifact, source-slice versus bundled-CLI view validation, release/architecture integration, and compact package preservation.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          ".agent-onboard/source-module-extraction-bundle-parity.json",
+          ".agent-onboard/source-module-extraction-first-slice.json",
+          ".agent-onboard/source-module-extraction-adapter-boundary.json",
+          ".agent-onboard/source-extraction-golden-outputs.json",
+          ".agent-onboard/source-extraction-rehearsal.json",
+          ".agent-onboard/source-partition-plan.json",
+          ".agent-onboard/runtime-namespace.json",
+          ".agent-onboard/authority-path.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js architecture --bundle-parity",
+          "node cli/agent-onboard.js architecture --bundle-parity-check",
+          "node cli/agent-onboard.js architecture --first-slice-check",
+          "node cli/agent-onboard.js architecture --adapter-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --published-acceptance",
+          "node cli/agent-onboard.js release --post-publish-handoff",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js target onboarding --trial",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "ZIP extract smoke + npm test",
+          "ZIP extract smoke + architecture --bundle-parity-check",
+          "ZIP extract smoke + architecture --check",
+          "ZIP extract smoke + release --check",
+          "ZIP extract smoke + npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification with npm view / npx agent-onboard@<version>"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may warn about auth/registry in unauthenticated environments, but the dry-run exits 0 when package JSON is generated"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W14",
+      "milestone_id": "P1S3M1",
+      "title": "Public source module extraction runtime bridge gate",
+      "status": "closed",
+      "closure": {
+        "actor": "ChatGPT",
+        "closed_at": "2026-06-30T10:25:00Z",
+        "summary": "Implemented public source module extraction runtime bridge gate: added guarded runtime bridge metadata/check commands, source-only runtime bridge artifact, optional source-context module loading with installed-context bundled fallback, release/architecture integration, and compact package preservation.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          ".agent-onboard/source-module-extraction-runtime-bridge.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js architecture --runtime-bridge",
+          "node cli/agent-onboard.js architecture --runtime-bridge-check",
+          "node cli/agent-onboard.js architecture --bundle-parity-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --published-acceptance",
+          "node cli/agent-onboard.js release --post-publish-handoff",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js target onboarding --trial",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "ZIP extract smoke + npm test",
+          "ZIP extract smoke + architecture --runtime-bridge-check",
+          "ZIP extract smoke + architecture --check",
+          "ZIP extract smoke + release --check",
+          "ZIP extract smoke + npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification with npm view / npx agent-onboard@<version>"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may warn about auth/registry in unauthenticated environments, but the dry-run exits 0 when package JSON is generated"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W15",
+      "milestone_id": "P1S3M1",
+      "title": "Public source module extraction installed fallback smoke gate",
       "status": "open"
     }
   ]

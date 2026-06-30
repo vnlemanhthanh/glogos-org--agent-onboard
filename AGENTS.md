@@ -68,6 +68,10 @@ node cli/agent-onboard.js architecture --adapter-boundary
 node cli/agent-onboard.js architecture --adapter-check
 node cli/agent-onboard.js architecture --first-slice
 node cli/agent-onboard.js architecture --first-slice-check
+node cli/agent-onboard.js architecture --bundle-parity
+node cli/agent-onboard.js architecture --bundle-parity-check
+node cli/agent-onboard.js architecture --runtime-bridge
+node cli/agent-onboard.js architecture --runtime-bridge-check
 node cli/agent-onboard.js architecture --check
 ```
 
