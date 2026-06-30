@@ -95,10 +95,12 @@ Current transition state: architecture kernel milestone closed; next architectur
 
 Use `node cli/agent-onboard.js architecture --work-items-installed-fallback-smoke` and `node cli/agent-onboard.js architecture --work-items-installed-fallback-check` to verify that the source-only work-items module remains outside the npm package while installed context falls back to bundled CLI metadata. Claim and close behavior remain excluded from this slice.
 
-Public claims domain source extraction planning gate:
+Public claims domain source extraction first-slice gate:
 - node cli/agent-onboard.js architecture --claims-plan
 - node cli/agent-onboard.js architecture --claims-check
+- node cli/agent-onboard.js architecture --claims-first-slice
+- node cli/agent-onboard.js architecture --claims-first-slice-check
 - node cli/agent-onboard.js architecture --check
 - node cli/agent-onboard.js release --check
 
-Current transition state: work-items installed fallback is closed; claims-domain planning is closed; next executable gate is P1S3M2W8, the public claims domain source extraction first-slice gate. Do not create src/domains/claims.js before that follow-up gate.
+Current transition state: work-items installed fallback and claims-domain planning are closed; claims-domain first-slice is closed; next executable gate is P1S3M2W9, the public claims domain source extraction bundle parity gate. Keep src/domains/claims.js source-only and keep npm package files compact.

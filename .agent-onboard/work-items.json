@@ -1826,6 +1826,47 @@
       "id": "P1S3M2W8",
       "milestone_id": "P1S3M2",
       "title": "Public claims domain source extraction first-slice gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Created the public claims source-only first slice for claim/close metadata while preserving the shared work-items ledger, bundled CLI runtime, and compact npm package allowlist.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-claims-first-slice.json",
+          "src/domains/claims.js",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c src/domains/claims.js",
+          "node cli/agent-onboard.js architecture --claims-first-slice",
+          "node cli/agent-onboard.js architecture --claims-first-slice-check",
+          "node cli/agent-onboard.js architecture --claims-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --dry-run --json --ignore-scripts",
+          "npm publish --access public"
+        ],
+        "known_non_pass": [
+          "npm test was attempted after targeted test updates; it did not emit an assertion failure before the sandbox execution window timed out at 300s, so this handoff does not claim full-suite completion."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M2W9",
+      "milestone_id": "P1S3M2",
+      "title": "Public claims domain source extraction bundle parity gate",
       "status": "open"
     }
   ]

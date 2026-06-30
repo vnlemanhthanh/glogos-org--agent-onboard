@@ -1,0 +1,60 @@
+{
+  "schema": "agent-onboard-public-source-module-claims-first-slice-001",
+  "title": "Agent-Onboard Public Claims Domain Source Extraction First Slice",
+  "package_name": "agent-onboard",
+  "release_line": "public_claims_domain_source_extraction_first_slice_gate",
+  "command": "agent-onboard architecture --claims-first-slice",
+  "check_command": "agent-onboard architecture --claims-first-slice-check",
+  "first_slice_file": ".agent-onboard/source-module-extraction-claims-first-slice.json",
+  "source_module": "src/domains/claims.js",
+  "prerequisite_plan_file": ".agent-onboard/source-module-extraction-claims-plan.json",
+  "first_slice_status": "source_only_shadow_module_applied",
+  "extracted_domain": {
+    "id": "claims",
+    "facade": "claimsService",
+    "service": "claimsService",
+    "module": "src/domains/claims.js",
+    "shared_state_file": ".agent-onboard/work-items.json",
+    "runtime_dependency_status": "not_required_by_published_cli_runtime",
+    "extraction_scope": "claim and close command metadata, shared ledger write-boundary metadata, and closure handoff contract only; non-claim work-items behavior remains excluded"
+  },
+  "expected_module_export_names": [
+    "CLAIMS_DOMAIN_FIRST_SLICE",
+    "getClaimsDomainFirstSlice"
+  ],
+  "expected_owned_commands": [
+    "work-items --claim",
+    "work-items --close"
+  ],
+  "excluded_commands": [
+    "work-items --schema",
+    "work-items --template",
+    "work-items --validate-template",
+    "work-items --validate",
+    "work-items --list",
+    "work-items --init",
+    "work-items --append"
+  ],
+  "next_work_item_id": "P1S3M2W9",
+  "boundary": {
+    "claims_first_slice_command_writes_files": false,
+    "claims_first_slice_check_command_writes_files": false,
+    "creates_exactly_one_source_module": true,
+    "created_source_module": "src/domains/claims.js",
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "keeps_shared_work_items_ledger": true,
+    "excludes_non_claim_work_items_commands": true,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}

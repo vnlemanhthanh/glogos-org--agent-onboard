@@ -843,4 +843,15 @@ npx agent-onboard architecture --claims-plan
 npx agent-onboard architecture --claims-check
 ```
 
-This gate selects the `claims` domain for a future source-only `src/domains/claims.js` slice. It keeps `work-items --claim` and `work-items --close` runtime behavior in the bundled CLI for now, preserves the compact four-file npm package surface, and seeds the claims first-slice follow-up.
+This planning gate selected the `claims` domain for a source-only `src/domains/claims.js` slice while preserving the compact four-file npm package surface. The follow-up first-slice gate now creates the shadow claims module without moving the published claim/close runtime handlers.
+
+## Public claims domain source extraction first-slice gate
+
+Use these commands to inspect and validate the claims-domain first slice:
+
+```sh
+npx agent-onboard architecture --claims-first-slice
+npx agent-onboard architecture --claims-first-slice-check
+```
+
+This gate creates `src/domains/claims.js` as a source-only shadow metadata module for `work-items --claim` and `work-items --close`. The canonical claim and closure state remains in `.agent-onboard/work-items.json`, the bundled CLI runtime remains the published execution surface, and `package.json#files` stays compact.
