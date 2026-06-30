@@ -64,6 +64,8 @@ node cli/agent-onboard.js architecture --extraction-rehearsal
 node cli/agent-onboard.js architecture --extraction-check
 node cli/agent-onboard.js architecture --golden-outputs
 node cli/agent-onboard.js architecture --golden-check
+node cli/agent-onboard.js architecture --adapter-boundary
+node cli/agent-onboard.js architecture --adapter-check
 node cli/agent-onboard.js architecture --check
 ```
 

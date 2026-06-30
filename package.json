@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -171,7 +171,10 @@
     "golden-output-freeze",
     "version-single-source",
     "version-sprawl-check",
-    "package-version-single-source"
+    "package-version-single-source",
+    "adapter-boundary",
+    "source-module-extraction",
+    "cli-adapter"
   ],
   "type": "commonjs",
   "engines": {

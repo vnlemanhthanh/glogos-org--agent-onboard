@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_source_extraction_golden_output_freeze_gate';
+const EXPECTED_RELEASE_LINE = 'public_source_module_extraction_adapter_boundary_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 
 function run(args, opts = {}) {
@@ -102,7 +102,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
   assert.strictEqual(output.boundary.publishes_package, false);
   assert.ok(output.post_publish_verification_commands.some((command) => command.includes(`agent-onboard@${EXPECTED_VERSION}`)));
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-019');
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-020');
   assert.strictEqual(output.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -132,7 +132,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.schema, 'agent-onboard-public-release-contract-response-001');
   assert.strictEqual(output.version, EXPECTED_VERSION);
   assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
-  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-019');
+  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-020');
   assert.strictEqual(output.contract.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.contract.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.contract.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -166,7 +166,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.schema, 'agent-onboard-public-release-fixture-response-001');
   assert.strictEqual(output.version, EXPECTED_VERSION);
   assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-019');
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-020');
   assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-release-fixture-matrix-014');
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'stale_package_version_contract'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'pack_allowlist_drift_contract'));
@@ -185,6 +185,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_domain_module_partition_plan'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_domain_extraction_rehearsal'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_extraction_golden_output_freeze'));
+  assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_module_extraction_adapter_boundary'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_version_reference_policy'));
   assert.strictEqual(output.writes_files, false);
   assert.strictEqual(output.publishes_package, false);
@@ -201,8 +202,9 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.command, 'agent-onboard architecture --map');
   assert.strictEqual(output.map.public_source_shape.source_partition_plan_file, '.agent-onboard/source-partition-plan.json');
   assert.strictEqual(output.map.public_source_shape.source_extraction_rehearsal_file, '.agent-onboard/source-extraction-rehearsal.json');
-  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'source_extraction_golden_outputs_frozen_not_applied');
+  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'source_module_adapter_boundary_declared_not_applied');
   assert.strictEqual(output.map.public_source_shape.source_extraction_golden_outputs_file, '.agent-onboard/source-extraction-golden-outputs.json');
+  assert.strictEqual(output.map.public_source_shape.source_module_extraction_adapter_boundary_file, '.agent-onboard/source-module-extraction-adapter-boundary.json');
   assert.deepStrictEqual(output.map.canonical_domains.map((domain) => domain.id), ['core', 'authority', 'work_items', 'claims', 'target', 'release_package']);
   assert.deepStrictEqual(output.current_runtime.expected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
   assert.strictEqual(output.boundary.writes_files, false);
@@ -555,7 +557,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.validated.source_work_items_ledger, true);
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.strictEqual(output.source_work_items_ledger.present, true);
-  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public source module extraction adapter boundary gate'));
+  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public source module extraction first slice gate'));
   assert.ok(output.validated.public_package_surface_preservation);
   assert.ok(output.validated.public_installed_parity_architecture_smoke);
   assert.ok(output.validated.public_architecture_map);
@@ -566,6 +568,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.validated.public_source_domain_module_partition_plan);
   assert.ok(output.validated.public_source_domain_extraction_rehearsal);
   assert.ok(output.validated.public_source_extraction_golden_output_freeze);
+  assert.ok(output.validated.public_source_module_extraction_adapter_boundary);
   assert.ok(output.validated.public_version_reference_policy);
   assert.strictEqual(output.public_architecture.status, 'ok');
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public installed parity architecture smoke gate'));
@@ -1570,7 +1573,15 @@ function cliTargetConfigForTest(dir) {
 
   assert.strictEqual(s3m1w11.title, 'Public source module extraction adapter boundary gate');
 
-  assert.strictEqual(s3m1w11.status, 'open');
+  assert.strictEqual(s3m1w11.status, 'closed');
+
+  const s3m1w12 = findById(rootLedger.work_items, ['P', 1, 'S', 3, 'M', 1, 'W', 12].join(''));
+
+  assert.ok(s3m1w12);
+
+  assert.strictEqual(s3m1w12.title, 'Public source module extraction first slice gate');
+
+  assert.strictEqual(s3m1w12.status, 'open');
 
   assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
 
@@ -1584,6 +1595,7 @@ function cliTargetConfigForTest(dir) {
 
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'source-partition-plan.json')));
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'source-extraction-rehearsal.json')));
+  assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'source-module-extraction-adapter-boundary.json')));
 
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'runtime-namespace.json')));
 
@@ -1925,9 +1937,12 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('`0.0.33` adds the public package surface preservation gate'));
   assert.ok(readme.includes('`0.0.34` adds the public installed parity architecture smoke gate'));
   assert.ok(readme.includes('`0.0.35` adds the public source domain module partition planning gate'));
+  assert.ok(readme.includes('This release adds the public source module extraction adapter boundary gate'));
   assert.ok(readme.includes('This release adds the public source extraction golden output freeze gate'));
   assert.ok(readme.includes('npx agent-onboard architecture --golden-outputs'));
   assert.ok(readme.includes('npx agent-onboard architecture --golden-check'));
+  assert.ok(readme.includes('npx agent-onboard architecture --adapter-boundary'));
+  assert.ok(readme.includes('npx agent-onboard architecture --adapter-check'));
   assert.ok(readme.includes('npx agent-onboard release --version-sprawl-check'));
   assert.ok(readme.includes('npx agent-onboard architecture --partition-plan'));
   assert.ok(readme.includes('npx agent-onboard architecture --partition-check'));
@@ -1968,7 +1983,7 @@ function cliTargetConfigForTest(dir) {
   const help = run(['--help']);
   assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
   assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
-  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--check'));
+  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--check'));
   assert.ok(help.stdout.includes('release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check'));
   assert.ok(help.stdout.includes('target runtime --namespace|--check'));
   assert.ok(help.stdout.includes('target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]'));
@@ -1986,6 +2001,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(agents.includes('node cli/agent-onboard.js architecture --partition-check'));
   assert.ok(agents.includes('node cli/agent-onboard.js architecture --golden-outputs'));
   assert.ok(agents.includes('node cli/agent-onboard.js architecture --golden-check'));
+  assert.ok(agents.includes('node cli/agent-onboard.js architecture --adapter-boundary'));
+  assert.ok(agents.includes('node cli/agent-onboard.js architecture --adapter-check'));
   assert.ok(agents.includes('node cli/agent-onboard.js architecture --check'));
 assert.ok(agents.includes('node cli/agent-onboard.js target runtime --namespace'));
 assert.ok(agents.includes('node cli/agent-onboard.js target runtime --check'));
