@@ -252,3 +252,18 @@ node cli/agent-onboard.js release --check
 ```
 
 The first-slice gate may create only `src/domains/claims.js` plus its source-only evidence artifact. It must not move the published `work-items --claim` or `work-items --close` runtime handlers, must keep `.agent-onboard/work-items.json` as the shared canonical ledger, and must keep the npm package allowlist compact.
+
+
+## Public claims domain source extraction bundle parity gate
+
+For this gate, run:
+
+```bash
+node cli/agent-onboard.js architecture --claims-bundle-parity
+node cli/agent-onboard.js architecture --claims-bundle-parity-check
+node cli/agent-onboard.js architecture --check
+node cli/agent-onboard.js release --surface-check
+node cli/agent-onboard.js release --check
+```
+
+The claims bundle parity gate may add only the source-only parity evidence artifact plus release/test/docs updates. It must not move the published `work-items --claim` or `work-items --close` handlers, must keep `.agent-onboard/work-items.json` as the shared canonical ledger, and must keep the npm package allowlist compact.

@@ -1867,6 +1867,49 @@
       "id": "P1S3M2W9",
       "milestone_id": "P1S3M2",
       "title": "Public claims domain source extraction bundle parity gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Admitted the public claims domain source extraction bundle parity gate, proving the source-only claims slice matches the bundled CLI claims view while preserving the shared work-items ledger and compact npm package allowlist.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-claims-bundle-parity.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c src/domains/claims.js",
+          "node cli/agent-onboard.js architecture --claims-bundle-parity",
+          "node cli/agent-onboard.js architecture --claims-bundle-parity-check",
+          "node cli/agent-onboard.js architecture --claims-first-slice-check",
+          "node cli/agent-onboard.js architecture --claims-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --dry-run --json --ignore-scripts",
+          "npm publish --access public"
+        ],
+        "known_non_pass": [
+          "npm test was attempted after updating test expectations; it emitted no assertion failure before the sandbox execution window timed out, so this handoff does not claim full-suite completion."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M2W10",
+      "milestone_id": "P1S3M2",
+      "title": "Public claims domain source extraction runtime bridge gate",
       "status": "open"
     }
   ]

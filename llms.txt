@@ -100,7 +100,9 @@ Public claims domain source extraction first-slice gate:
 - node cli/agent-onboard.js architecture --claims-check
 - node cli/agent-onboard.js architecture --claims-first-slice
 - node cli/agent-onboard.js architecture --claims-first-slice-check
+- node cli/agent-onboard.js architecture --claims-bundle-parity
+- node cli/agent-onboard.js architecture --claims-bundle-parity-check
 - node cli/agent-onboard.js architecture --check
 - node cli/agent-onboard.js release --check
 
-Current transition state: work-items installed fallback and claims-domain planning are closed; claims-domain first-slice is closed; next executable gate is P1S3M2W9, the public claims domain source extraction bundle parity gate. Keep src/domains/claims.js source-only and keep npm package files compact.
+Current transition state: work-items installed fallback, claims-domain planning, claims-domain first-slice, and claims-domain bundle parity are closed; next executable gate is P1S3M2W10, the public claims domain source extraction runtime bridge gate. Keep src/domains/claims.js source-only and keep npm package files compact.
