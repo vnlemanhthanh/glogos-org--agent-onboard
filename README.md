@@ -868,6 +868,10 @@ npx agent-onboard architecture --claims-runtime-bridge
 npx agent-onboard architecture --claims-runtime-bridge-check
 npx agent-onboard architecture --claims-installed-fallback-smoke
 npx agent-onboard architecture --claims-installed-fallback-check
+npx agent-onboard architecture --source-domain-closure-review
+npx agent-onboard architecture --source-domain-closure-check
 ```
 
 This gate proves `src/domains/claims.js` matches the bundled CLI claims-domain view for `work-items --claim` and `work-items --close`. It keeps the canonical claim/closure state in `.agent-onboard/work-items.json`, keeps non-claim work-items commands excluded from the claims slice, and does not expand `package.json#files`. The installed fallback smoke gate freezes the same boundary for the compact npm tarball: the source-only claims module is omitted, the claims runtime bridge resolves through bundled fallback metadata, and release checks still preserve the four-file package surface.
+
+Source-domain stabilization closure review: `architecture --source-domain-closure-review` reports M2 closure across work-items and claims extraction gates, and `architecture --source-domain-closure-check` validates the M2 closure plus M3 seed while keeping source modules outside the npm package.

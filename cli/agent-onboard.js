@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_claims_domain_source_extraction_installed_fallback_smoke_gate';
+const RELEASE_LINE = 'public_source_domain_extraction_stabilization_closure_review_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -301,7 +301,7 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
   ]),
   public_source_shape: Object.freeze({
     current_entrypoint: 'cli/agent-onboard.js',
-    physical_domain_split_status: 'claims_domain_source_extraction_installed_fallback_smoke_applied',
+    physical_domain_split_status: 'source_domain_extraction_stabilization_closure_review_applied',
     source_partition_plan_file: '.agent-onboard/source-partition-plan.json',
     source_extraction_rehearsal_file: '.agent-onboard/source-extraction-rehearsal.json',
     source_extraction_golden_outputs_file: '.agent-onboard/source-extraction-golden-outputs.json',
@@ -330,6 +330,7 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     claims_domain_source_extraction_bundle_parity_file: '.agent-onboard/source-module-extraction-claims-bundle-parity.json',
     claims_domain_source_extraction_runtime_bridge_file: '.agent-onboard/source-module-extraction-claims-runtime-bridge.json',
     claims_domain_source_extraction_installed_fallback_smoke_file: '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
+    source_domain_extraction_stabilization_closure_review_file: '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     claims_domain_source_extraction_module: 'src/domains/claims.js',
     claims_domain_source_extraction_planned_module: 'src/domains/claims.js',
     work_items_domain_source_extraction_module: 'src/domains/work-items.js',
@@ -397,6 +398,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     architecture_claims_runtime_bridge_check_command_writes_files: false,
     architecture_claims_installed_fallback_smoke_command_writes_files: false,
     architecture_claims_installed_fallback_check_command_writes_files: false,
+    architecture_source_domain_closure_review_command_writes_files: false,
+    architecture_source_domain_closure_check_command_writes_files: false,
     version_sprawl_check_command_writes_files: false,
     published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
@@ -652,6 +655,7 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-bundle-parity.json',
     '.agent-onboard/source-module-extraction-claims-runtime-bridge.json',
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
+    '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -1979,6 +1983,59 @@ const PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE = Object.f
 });
 
 
+
+const PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW = Object.freeze({
+  schema: 'agent-onboard-public-source-domain-extraction-stabilization-closure-review-001',
+  title: 'Agent-Onboard Public Source-Domain Extraction Stabilization Closure Review Gate',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --source-domain-closure-review',
+  check_command: 'agent-onboard architecture --source-domain-closure-check',
+  closure_review_file: '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
+  milestone_id: 'P1S3M2',
+  closed_milestone_id: 'P1S3M2',
+  opened_milestone_id: 'P1S3M3',
+  closure_work_item_id: ['P', 1, 'S', 3, 'M', 2, 'W', 12].join(''),
+  seed_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 1].join(''),
+  closure_status: 'p1s3m2_closed_p1s3m3_seeded',
+  required_closed_work_items: Object.freeze(Array.from({ length: 12 }, (_, index) => ['P', 1, 'S', 3, 'M', 2, 'W', index + 1].join(''))),
+  required_component_checks: Object.freeze([
+    'architecture --work-items-check',
+    'architecture --work-items-first-slice-check',
+    'architecture --work-items-bundle-parity-check',
+    'architecture --work-items-runtime-bridge-check',
+    'architecture --work-items-installed-fallback-check',
+    'architecture --claims-check',
+    'architecture --claims-first-slice-check',
+    'architecture --claims-bundle-parity-check',
+    'architecture --claims-runtime-bridge-check',
+    'architecture --claims-installed-fallback-check'
+  ]),
+  next_scope: Object.freeze([
+    Object.freeze({ id: ['P', 1, 'S', 3, 'M', 3, 'W', 1].join(''), title: 'Public target domain source extraction planning gate', expected_status: 'open' })
+  ]),
+  boundary: Object.freeze({
+    source_domain_closure_review_command_writes_files: false,
+    source_domain_closure_check_command_writes_files: false,
+    creates_source_modules: false,
+    moves_existing_source_files: false,
+    exports_source_module_as_public_api: false,
+    changes_public_cli_outputs: false,
+    changes_cli_runtime_dependency_graph: false,
+    package_allowlist_unchanged: true,
+    source_modules_remain_out_of_npm_pack: true,
+    writes_package_root: false,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
+  })
+});
+
+
 const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
   schema: 'agent-onboard-public-version-reference-policy-001',
   title: 'Agent-Onboard Public Version Reference Policy',
@@ -2017,6 +2074,7 @@ const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-bundle-parity.json',
     '.agent-onboard/source-module-extraction-claims-runtime-bridge.json',
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
+    '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2100,6 +2158,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_claims_runtime_bridge_check_command: 'agent-onboard architecture --claims-runtime-bridge-check',
   architecture_claims_installed_fallback_smoke_command: 'agent-onboard architecture --claims-installed-fallback-smoke',
   architecture_claims_installed_fallback_check_command: 'agent-onboard architecture --claims-installed-fallback-check',
+  architecture_source_domain_closure_review_command: 'agent-onboard architecture --source-domain-closure-review',
+  architecture_source_domain_closure_check_command: 'agent-onboard architecture --source-domain-closure-check',
   version_sprawl_check_command: 'agent-onboard release --version-sprawl-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
@@ -2140,6 +2200,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-bundle-parity.json',
     '.agent-onboard/source-module-extraction-claims-runtime-bridge.json',
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
+    '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -5743,7 +5804,7 @@ function publicArchitectureM1ClosureM2SeedCheck(root = packageRoot()) {
     if (!closedMilestone) errors.push(`${gate.closed_milestone_id} milestone must exist`);
     else if (closedMilestone.status !== 'closed') errors.push(`${gate.closed_milestone_id} milestone must be closed`);
     if (!openedMilestone) errors.push(`${gate.opened_milestone_id} milestone must exist`);
-    else if (openedMilestone.status !== 'open') errors.push(`${gate.opened_milestone_id} milestone must be open`);
+    else if (!['open', 'closed'].includes(openedMilestone.status)) errors.push(`${gate.opened_milestone_id} milestone must be open or closed`);
     if (result.work_items.m1_non_closed.length > 0) errors.push(`${gate.closed_milestone_id} must have no non-closed work items`);
     if (missingPrerequisites.length > 0) errors.push(`${gate.closed_milestone_id} is missing prerequisite work items: ${missingPrerequisites.join(', ')}`);
     if (unexpectedM1WorkItems.length > 0) errors.push(`${gate.closed_milestone_id} contains unplanned extension work items: ${unexpectedM1WorkItems.join(', ')}`);
@@ -5765,7 +5826,7 @@ function publicArchitectureM1ClosureM2SeedCheck(root = packageRoot()) {
       prerequisite_authority_runtime_bridge: result.prerequisite_authority_runtime_bridge.status === 'ok',
       m1_milestone_closed_or_installed_context_allowed: !sourceLedgerRequired || (closedMilestone && closedMilestone.status === 'closed'),
       m1_work_items_all_closed_or_installed_context_allowed: !sourceLedgerRequired || result.work_items.m1_non_closed.length === 0,
-      m2_milestone_open_or_installed_context_allowed: !sourceLedgerRequired || (openedMilestone && openedMilestone.status === 'open'),
+      m2_milestone_open_or_installed_context_allowed: !sourceLedgerRequired || (openedMilestone && ['open', 'closed'].includes(openedMilestone.status)),
       seed_work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (seedWorkItem && seedWorkItem.status === 'closed'),
       next_work_item_seeded_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && ['open', 'closed'].includes(nextWorkItem.status)),
       transition_file_present_or_installed_context_allowed: transitionFileStatus === 'present_validated' || transitionFileStatus === 'not_present_installed_context_allowed',
@@ -5907,7 +5968,7 @@ function publicWorkItemsDomainSourceExtractionPlanCheck(root = packageRoot()) {
   if (sourceLedgerRequired && !result.source_ledger_present) errors.push('.agent-onboard/work-items.json must be present in source repository context');
   if (result.source_ledger_present) {
     if (!result.milestone) errors.push(`${gate.milestone_id} milestone must exist`);
-    else if (result.milestone.status !== 'open') errors.push(`${gate.milestone_id} milestone must remain open`);
+    else if (!['open', 'closed'].includes(result.milestone.status)) errors.push(`${gate.milestone_id} milestone must remain open or closed`);
     if (!currentWorkItem) errors.push(`${gate.work_item_id} work item must exist`);
     else if (currentWorkItem.status !== 'closed') errors.push(`${gate.work_item_id} planning work item must be closed`);
     if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
@@ -6772,7 +6833,7 @@ function publicClaimsDomainSourceExtractionPlanCheck(root = packageRoot()) {
   if (sourceLedgerRequired && !result.source_ledger_present) errors.push('.agent-onboard/work-items.json must be present in source repository context');
   if (result.source_ledger_present) {
     if (!result.milestone) errors.push(`${gate.milestone_id} milestone must exist`);
-    else if (result.milestone.status !== 'open') errors.push(`${gate.milestone_id} milestone must remain open`);
+    else if (!['open', 'closed'].includes(result.milestone.status)) errors.push(`${gate.milestone_id} milestone must remain open or closed`);
     if (!currentWorkItem) errors.push(`${gate.work_item_id} work item must exist`);
     else if (currentWorkItem.status !== 'closed') errors.push(`${gate.work_item_id} claims planning work item must be closed`);
     if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
@@ -7558,6 +7619,183 @@ function publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root = pa
 }
 
 
+
+function publicSourceDomainExtractionStabilizationClosureReview(root = packageRoot()) {
+  const gate = PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW;
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const ledgerPath = path.join(root, '.agent-onboard', 'work-items.json');
+  let ledger = null;
+  if (fs.existsSync(ledgerPath)) {
+    try {
+      ledger = readJson(ledgerPath);
+    } catch {
+      ledger = null;
+    }
+  }
+  const milestones = ledger && Array.isArray(ledger.milestones) ? ledger.milestones : [];
+  const workItems = ledger && Array.isArray(ledger.work_items) ? ledger.work_items : [];
+  const m2WorkItems = workItems.filter((item) => item.milestone_id === gate.closed_milestone_id);
+  const requiredClosed = new Set(gate.required_closed_work_items);
+  const m2NonClosed = m2WorkItems.filter((item) => item.status !== 'closed').map((item) => ({ id: item.id, title: item.title, status: item.status }));
+  const missingRequired = gate.required_closed_work_items.filter((id) => !m2WorkItems.some((item) => item.id === id));
+  const unexpectedM2Items = m2WorkItems.filter((item) => !requiredClosed.has(item.id)).map((item) => item.id);
+  return {
+    schema: 'agent-onboard-public-source-domain-extraction-stabilization-closure-review-result-001',
+    status: 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    source_context: context,
+    package_json_version: pkg.version,
+    closure_review_file: gate.closure_review_file,
+    closure_review_file_present: fs.existsSync(path.join(root, gate.closure_review_file)),
+    milestone_transition: {
+      closed_milestone: milestones.find((item) => item.id === gate.closed_milestone_id) || null,
+      opened_milestone: milestones.find((item) => item.id === gate.opened_milestone_id) || null,
+      closure_work_item: workItems.find((item) => item.id === gate.closure_work_item_id) || null,
+      seed_work_item: workItems.find((item) => item.id === gate.seed_work_item_id) || null,
+      status: gate.closure_status
+    },
+    component_checks: {
+      work_items_plan: publicWorkItemsDomainSourceExtractionPlanCheck(root),
+      work_items_first_slice: publicWorkItemsDomainSourceExtractionFirstSliceCheck(root),
+      work_items_bundle_parity: publicWorkItemsDomainSourceExtractionBundleParityCheck(root),
+      work_items_runtime_bridge: publicWorkItemsDomainSourceExtractionRuntimeBridgeCheck(root),
+      work_items_installed_fallback: publicWorkItemsDomainSourceExtractionInstalledFallbackSmokeCheck(root),
+      claims_plan: publicClaimsDomainSourceExtractionPlanCheck(root),
+      claims_first_slice: publicClaimsDomainSourceExtractionFirstSliceCheck(root),
+      claims_bundle_parity: publicClaimsDomainSourceExtractionBundleParityCheck(root),
+      claims_runtime_bridge: publicClaimsDomainSourceExtractionRuntimeBridgeCheck(root),
+      claims_installed_fallback: publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root),
+      package_surface: publicPackageSurfaceCheck(root),
+      version_reference_policy: publicVersionReferencePolicyCheck(root)
+    },
+    source_ledger: {
+      present: fs.existsSync(ledgerPath),
+      m2_work_item_count: m2WorkItems.length,
+      required_closed_work_items: gate.required_closed_work_items.slice(),
+      missing_required_work_items: missingRequired,
+      non_closed_m2_work_items: m2NonClosed,
+      unexpected_m2_work_items: unexpectedM2Items
+    },
+    expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
+    closure_contract: gate,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicSourceDomainExtractionStabilizationClosureReviewCheck(root = packageRoot()) {
+  const result = publicSourceDomainExtractionStabilizationClosureReview(root);
+  const gate = PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW;
+  const sourceLedgerRequired = result.source_context.package_context === 'source_repository';
+  const errors = [];
+  const componentEntries = Object.entries(result.component_checks);
+  for (const [name, check] of componentEntries) {
+    if (!check || check.status !== 'ok') errors.push(...((check && check.errors) || [`${name} check failed`]).map((error) => `${name}: ${error}`));
+  }
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.boundary.source_domain_closure_review_command_writes_files !== false) errors.push('architecture --source-domain-closure-review must remain no-write');
+  if (gate.boundary.source_domain_closure_check_command_writes_files !== false) errors.push('architecture --source-domain-closure-check must remain no-write');
+  if (gate.boundary.package_allowlist_unchanged !== true) errors.push('source-domain closure review must preserve package allowlist');
+  if (gate.boundary.source_modules_remain_out_of_npm_pack !== true) errors.push('source-domain closure review must keep source modules out of npm pack');
+
+  const artifactPath = path.join(root, gate.closure_review_file);
+  let fileStatus = 'not_present_installed_context_allowed';
+  let fileSchema = null;
+  if (fs.existsSync(artifactPath)) {
+    try {
+      const artifact = readJson(artifactPath);
+      fileSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${gate.closure_review_file} schema must be ${gate.schema}`);
+      if (!artifact.milestone_transition || artifact.milestone_transition.closed_milestone_id !== gate.closed_milestone_id) errors.push(`${gate.closure_review_file} must close ${gate.closed_milestone_id}`);
+      if (!artifact.milestone_transition || artifact.milestone_transition.opened_milestone_id !== gate.opened_milestone_id) errors.push(`${gate.closure_review_file} must open ${gate.opened_milestone_id}`);
+      if (!artifact.milestone_transition || artifact.milestone_transition.closure_work_item_id !== gate.closure_work_item_id) errors.push(`${gate.closure_review_file} must identify ${gate.closure_work_item_id} as closure work item`);
+      if (!artifact.milestone_transition || artifact.milestone_transition.seed_work_item_id !== gate.seed_work_item_id) errors.push(`${gate.closure_review_file} must seed ${gate.seed_work_item_id}`);
+      if (!artifact.boundary || artifact.boundary.package_allowlist_unchanged !== true) errors.push(`${gate.closure_review_file} must preserve package_allowlist_unchanged`);
+      if (!artifact.boundary || artifact.boundary.source_modules_remain_out_of_npm_pack !== true) errors.push(`${gate.closure_review_file} must keep source modules out of npm pack`);
+      fileStatus = 'present_validated';
+    } catch (error) {
+      fileStatus = 'present_invalid_json';
+      errors.push(`${gate.closure_review_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (sourceLedgerRequired) {
+    fileStatus = 'missing_source_context';
+    errors.push(`${gate.closure_review_file} must exist in source repository context`);
+  }
+
+  const closedMilestone = result.milestone_transition.closed_milestone;
+  const openedMilestone = result.milestone_transition.opened_milestone;
+  const closureWorkItem = result.milestone_transition.closure_work_item;
+  const seedWorkItem = result.milestone_transition.seed_work_item;
+  if (sourceLedgerRequired) {
+    if (!closedMilestone) errors.push(`${gate.closed_milestone_id} milestone must exist`);
+    else if (closedMilestone.status !== 'closed') errors.push(`${gate.closed_milestone_id} milestone must be closed`);
+    if (!openedMilestone) errors.push(`${gate.opened_milestone_id} milestone must exist`);
+    else if (openedMilestone.status !== 'open') errors.push(`${gate.opened_milestone_id} milestone must be open`);
+    if (!closureWorkItem) errors.push(`${gate.closure_work_item_id} work item must exist`);
+    else if (closureWorkItem.status !== 'closed') errors.push(`${gate.closure_work_item_id} work item must be closed`);
+    if (!seedWorkItem) errors.push(`${gate.seed_work_item_id} work item must exist`);
+    else if (seedWorkItem.status !== 'open') errors.push(`${gate.seed_work_item_id} work item must be open`);
+    for (const id of result.source_ledger.missing_required_work_items) errors.push(`${gate.closed_milestone_id} is missing required work item ${id}`);
+    for (const item of result.source_ledger.non_closed_m2_work_items) errors.push(`${gate.closed_milestone_id} contains non-closed work item ${item.id}`);
+    for (const id of result.source_ledger.unexpected_m2_work_items) errors.push(`${gate.closed_milestone_id} contains unexpected work item ${id}`);
+  }
+  return {
+    schema: 'agent-onboard-public-source-domain-extraction-stabilization-closure-review-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    source_context: result.source_context,
+    validated: {
+      work_items_domain_closed: result.component_checks.work_items_installed_fallback.status === 'ok',
+      claims_domain_closed: result.component_checks.claims_installed_fallback.status === 'ok',
+      m2_milestone_closed_or_installed_context_allowed: !sourceLedgerRequired || (closedMilestone && closedMilestone.status === 'closed'),
+      m2_work_items_all_closed_or_installed_context_allowed: !sourceLedgerRequired || result.source_ledger.non_closed_m2_work_items.length === 0,
+      m3_milestone_seeded_open_or_installed_context_allowed: !sourceLedgerRequired || (openedMilestone && openedMilestone.status === 'open'),
+      m3_seed_work_item_open_or_installed_context_allowed: !sourceLedgerRequired || (seedWorkItem && seedWorkItem.status === 'open'),
+      closure_review_file_present_or_installed_context_allowed: fileStatus === 'present_validated' || fileStatus === 'not_present_installed_context_allowed',
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      source_modules_remain_out_of_pack: gate.boundary.source_modules_remain_out_of_npm_pack === true,
+      closure_review_commands_no_write: gate.boundary.source_domain_closure_review_command_writes_files === false && gate.boundary.source_domain_closure_check_command_writes_files === false
+    },
+    milestone_transition: result.milestone_transition,
+    source_closure_review_file: {
+      path: gate.closure_review_file,
+      present: fs.existsSync(artifactPath),
+      status: fileStatus,
+      schema: fileSchema,
+      source_context_required: sourceLedgerRequired
+    },
+    component_status: Object.fromEntries(componentEntries.map(([name, check]) => [name, check.status])),
+    source_ledger: result.source_ledger,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
 function publicArchitectureMap(root = packageRoot()) {
   const pkg = readJson(path.join(root, 'package.json'));
   return {
@@ -8298,6 +8536,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const claimsRuntimeBridgeErrors = claimsRuntimeBridge.errors.map((error) => `claims runtime bridge: ${error}`);
   const claimsInstalledFallback = publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root);
   const claimsInstalledFallbackErrors = claimsInstalledFallback.errors.map((error) => `claims installed fallback smoke: ${error}`);
+  const sourceDomainClosureReview = publicSourceDomainExtractionStabilizationClosureReviewCheck(root);
+  const sourceDomainClosureReviewErrors = sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -8354,12 +8594,14 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.architecture_claims_runtime_bridge_check_command_writes_files !== false) errors.push('architecture claims runtime bridge check command must remain no-write');
   if (map.map.package_boundary.architecture_claims_installed_fallback_smoke_command_writes_files !== false) errors.push('architecture claims installed fallback smoke command must remain no-write');
   if (map.map.package_boundary.architecture_claims_installed_fallback_check_command_writes_files !== false) errors.push('architecture claims installed fallback check command must remain no-write');
+  if (map.map.package_boundary.architecture_source_domain_closure_review_command_writes_files !== false) errors.push('architecture source-domain closure review command must remain no-write');
+  if (map.map.package_boundary.architecture_source_domain_closure_check_command_writes_files !== false) errors.push('architecture source-domain closure check command must remain no-write');
   if (map.map.package_boundary.version_sprawl_check_command_writes_files !== false) errors.push('version sprawl check command must remain no-write');
   if (map.map.package_boundary.authority_first_read_command_writes_files !== false) errors.push('authority first-read command must remain no-write');
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -8401,7 +8643,8 @@ function publicArchitectureCheck(root = packageRoot()) {
       claims_domain_source_extraction_first_slice: claimsFirstSlice.status === 'ok',
       claims_domain_source_extraction_bundle_parity: claimsBundleParity.status === 'ok',
       claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge.status === 'ok',
-      claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback.status === 'ok'
+      claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback.status === 'ok',
+      source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview.status === 'ok'
     },
     domain_ids: domainIds,
     expected_pack_files: expectedPackFiles,
@@ -8433,6 +8676,7 @@ function publicArchitectureCheck(root = packageRoot()) {
     claims_domain_source_extraction_bundle_parity: claimsBundleParity,
     claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
+    source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview,
     boundary: map.boundary,
     errors
   };
@@ -8583,8 +8827,10 @@ function publicReleaseCheck(root = packageRoot()) {
   const claimsRuntimeBridgeErrors = claimsRuntimeBridge.errors.map((error) => `claims runtime bridge: ${error}`);
   const claimsInstalledFallback = publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root);
   const claimsInstalledFallbackErrors = claimsInstalledFallback.errors.map((error) => `claims installed fallback smoke: ${error}`);
+  const sourceDomainClosureReview = publicSourceDomainExtractionStabilizationClosureReviewCheck(root);
+  const sourceDomainClosureReviewErrors = sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`);
   const architectureParityErrors = architectureParity.errors.map((error) => `installed architecture parity: ${error}`);
-  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...versionPolicyErrors];
+  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...versionPolicyErrors];
   return {
     schema: 'agent-onboard-public-release-check-result-013',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -8632,6 +8878,7 @@ function publicReleaseCheck(root = packageRoot()) {
       claims_domain_source_extraction_bundle_parity: claimsBundleParity.status === 'ok',
       claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge.status === 'ok',
       claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback.status === 'ok',
+      source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview.status === 'ok',
       public_version_reference_policy: versionPolicy.status === 'ok',
       public_package_surface_preservation: packageSurface.status === 'ok',
       public_installed_parity_architecture_smoke: architectureParity.status === 'ok'
@@ -8662,6 +8909,7 @@ function publicReleaseCheck(root = packageRoot()) {
     claims_domain_source_extraction_first_slice: claimsFirstSlice,
     claims_domain_source_extraction_bundle_parity: claimsBundleParity,
     claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge,
+    claims_domain_source_extraction_stabilization_closure_review: sourceDomainClosureReview,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     public_version_reference_policy: versionPolicy,
     public_package_surface_preservation: packageSurface,
@@ -8786,6 +9034,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const claimsBundleParity = publicClaimsDomainSourceExtractionBundleParityCheck(root);
   const claimsRuntimeBridge = publicClaimsDomainSourceExtractionRuntimeBridgeCheck(root);
   const claimsInstalledFallback = publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root);
+  const sourceDomainClosureReview = publicSourceDomainExtractionStabilizationClosureReviewCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
@@ -8811,6 +9060,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   if (claimsBundleParity.status !== 'ok') componentErrors.push(...claimsBundleParity.errors.map((error) => `claims bundle parity: ${error}`));
   if (claimsRuntimeBridge.status !== 'ok') componentErrors.push(...claimsRuntimeBridge.errors.map((error) => `claims runtime bridge: ${error}`));
   if (claimsInstalledFallback.status !== 'ok') componentErrors.push(...claimsInstalledFallback.errors.map((error) => `claims installed fallback smoke: ${error}`));
+  if (sourceDomainClosureReview.status !== 'ok') componentErrors.push(...sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -8844,6 +9094,8 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     claims_domain_source_extraction_first_slice_check: claimsFirstSlice.status === 'ok',
     claims_domain_source_extraction_bundle_parity_check: claimsBundleParity.status === 'ok',
     claims_domain_source_extraction_runtime_bridge_check: claimsRuntimeBridge.status === 'ok',
+    claims_domain_source_extraction_installed_fallback_smoke_check: claimsInstalledFallback.status === 'ok',
+    source_domain_extraction_stabilization_closure_review_check: sourceDomainClosureReview.status === 'ok',
     runtime_version_matches_package_json: pkg.version === VERSION
   };
 
@@ -8902,6 +9154,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
       claims_domain_source_extraction_bundle_parity_status: claimsBundleParity.status,
       claims_domain_source_extraction_runtime_bridge_status: claimsRuntimeBridge.status,
       claims_domain_source_extraction_installed_fallback_smoke_status: claimsInstalledFallback.status,
+      source_domain_extraction_stabilization_closure_review_status: sourceDomainClosureReview.status,
       package_context: context.package_context,
       source_context_files_present: context.source_context_files_present,
       source_context_files_missing: context.source_context_files_missing
@@ -8931,6 +9184,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     claims_domain_source_extraction_bundle_parity: claimsBundleParity,
     claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
+    source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview,
     boundary: {
       writes_files: false,
       writes_package_root: false,
@@ -9523,6 +9777,15 @@ function runArchitecture(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--source-domain-closure-review') {
+    json(publicSourceDomainExtractionStabilizationClosureReview());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--source-domain-closure-check') {
+    const result = publicSourceDomainExtractionStabilizationClosureReviewCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -9532,7 +9795,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -9625,6 +9888,8 @@ function runRelease(args) {
       architecture_claims_runtime_bridge_check_command: PUBLIC_RELEASE_CONTRACT.architecture_claims_runtime_bridge_check_command,
       architecture_claims_installed_fallback_smoke_command: PUBLIC_RELEASE_CONTRACT.architecture_claims_installed_fallback_smoke_command,
       architecture_claims_installed_fallback_check_command: PUBLIC_RELEASE_CONTRACT.architecture_claims_installed_fallback_check_command,
+      architecture_source_domain_closure_review_command: PUBLIC_RELEASE_CONTRACT.architecture_source_domain_closure_review_command,
+      architecture_source_domain_closure_check_command: PUBLIC_RELEASE_CONTRACT.architecture_source_domain_closure_check_command,
       version_sprawl_check_command: PUBLIC_RELEASE_CONTRACT.version_sprawl_check_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       authority_first_read_command: PUBLIC_RELEASE_CONTRACT.authority_first_read_command,
@@ -9658,6 +9923,7 @@ function runRelease(args) {
       source_module_extraction_claims_bundle_parity: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_BUNDLE_PARITY,
       source_module_extraction_claims_runtime_bridge: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_RUNTIME_BRIDGE,
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
+      source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -9707,6 +9973,7 @@ function runRelease(args) {
       source_module_extraction_claims_bundle_parity: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_BUNDLE_PARITY,
       source_module_extraction_claims_runtime_bridge: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_RUNTIME_BRIDGE,
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
+      source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -9750,6 +10017,7 @@ function runRelease(args) {
       source_module_extraction_claims_bundle_parity: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_BUNDLE_PARITY,
       source_module_extraction_claims_runtime_bridge: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_RUNTIME_BRIDGE,
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
+      source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -10541,7 +10809,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 

@@ -79,6 +79,12 @@
       "id": "P1S3M2",
       "stage_id": "P1S3",
       "title": "Public source-domain extraction stabilization milestone",
+      "status": "closed"
+    },
+    {
+      "id": "P1S3M3",
+      "stage_id": "P1S3",
+      "title": "Public target and release domain source extraction milestone",
       "status": "open"
     }
   ],
@@ -1997,6 +2003,54 @@
       "id": "P1S3M2W12",
       "milestone_id": "P1S3M2",
       "title": "Public source-domain extraction stabilization closure review gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by admitting the public source-domain extraction stabilization closure review gate: M2 now verifies work-items and claims domain source extraction from plan through installed fallback smoke, preserves the compact npm package allowlist, and seeds M3 for target/release domain source extraction without changing runtime behavior.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-domain-extraction-stabilization-closure-review.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c src/domains/work-items.js",
+          "node -c src/domains/claims.js",
+          "node cli/agent-onboard.js architecture --source-domain-closure-review",
+          "node cli/agent-onboard.js architecture --source-domain-closure-check",
+          "node cli/agent-onboard.js architecture --claims-installed-fallback-check",
+          "node cli/agent-onboard.js architecture --work-items-installed-fallback-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "installed tarball smoke: status, architecture --source-domain-closure-check, architecture --check, release --check",
+          "target onboarding trial smoke: rtk.zip extracted root, no-write status ok",
+          "target onboarding trial smoke: dco.zip extracted root, no-write status ok",
+          "target onboarding trial smoke: rak.zip extracted root, no-write status ok",
+          "target onboarding trial smoke: Agent-Monitor.zip extracted root, no-write status ok"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": [
+          "npm test was attempted after updating the full test suite expectations, but it did not complete within the sandbox execution window; no assertion failure was emitted before timeout. Targeted syntax, architecture, release, ledger, npm pack, and installed-tarball smoke checks passed."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M3W1",
+      "milestone_id": "P1S3M3",
+      "title": "Public target domain source extraction planning gate",
       "status": "open"
     }
   ]

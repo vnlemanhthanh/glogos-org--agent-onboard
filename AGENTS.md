@@ -265,6 +265,8 @@ node cli/agent-onboard.js architecture --claims-runtime-bridge
 node cli/agent-onboard.js architecture --claims-runtime-bridge-check
 node cli/agent-onboard.js architecture --claims-installed-fallback-smoke
 node cli/agent-onboard.js architecture --claims-installed-fallback-check
+node cli/agent-onboard.js architecture --source-domain-closure-review
+node cli/agent-onboard.js architecture --source-domain-closure-check
 node cli/agent-onboard.js architecture --check
 node cli/agent-onboard.js release --surface-check
 node cli/agent-onboard.js release --check
@@ -273,3 +275,5 @@ node cli/agent-onboard.js release --check
 The claims bundle parity gate may add only the source-only parity evidence artifact plus release/test/docs updates. It must not move the published `work-items --claim` or `work-items --close` handlers, must keep `.agent-onboard/work-items.json` as the shared canonical ledger, and must keep the npm package allowlist compact.
 
 Claims installed fallback smoke rule: `src/domains/claims.js` remains source-only and outside `package.json#files`; installed context must resolve claims metadata through bundled fallback while preserving the shared `.agent-onboard/work-items.json` authority and excluding non-claim work-items commands.
+
+Source-domain stabilization closure review: `architecture --source-domain-closure-review` reports M2 closure across work-items and claims extraction gates, and `architecture --source-domain-closure-check` validates the M2 closure plus M3 seed while keeping source modules outside the npm package.
