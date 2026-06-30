@@ -2,6 +2,7 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
@@ -238,14 +239,15 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-007',
+  schema: 'agent-onboard-public-release-contract-008',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
-  release_line: 'public_target_onboarding_explicit_write_boundary_gate',
+  release_line: 'public_target_onboarding_installed_package_smoke_gate',
   command: 'agent-onboard release --check',
   contract_command: 'agent-onboard release --contract',
   fixture_command: 'agent-onboard release --fixture',
   parity_smoke_command: 'agent-onboard release --parity-smoke',
+  target_onboarding_smoke_command: 'agent-onboard release --target-onboarding-smoke',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
     '.agent-onboard/project.json',
@@ -278,6 +280,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js release --contract',
     'node cli/agent-onboard.js release --fixture',
     'node cli/agent-onboard.js release --parity-smoke',
+    'node cli/agent-onboard.js release --target-onboarding-smoke',
     'node cli/agent-onboard.js release --check',
     'node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json'
   ]),
@@ -288,6 +291,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> release --contract',
     'npx agent-onboard@<version> release --fixture',
     'npx agent-onboard@<version> release --parity-smoke',
+    'npx agent-onboard@<version> release --target-onboarding-smoke',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run',
     'npx agent-onboard@<version> target onboarding --plan',
@@ -354,6 +358,12 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
       expected_status: 'ok',
       validates: Object.freeze(['target onboarding plan no-write fixture', 'target bootstrap dry-run fixture', 'target instance takeover dry-run fixture', 'AGENTS.md preview fixture', 'aggregate explicit write projection', 'conflict and force-preview fixtures']),
       boundary: 'fixture writes no files; explicit write command writes only canonical onboarding files when requested'
+    }),
+    Object.freeze({
+      id: 'target_onboarding_installed_package_smoke',
+      expected_status: 'ok',
+      validates: Object.freeze(['package release check in current package context', 'target onboarding plan from package runtime', 'target onboarding fixture from package runtime', 'explicit write into temporary target', 'canonical target files only']),
+      boundary: 'creates and removes a temporary target repository; does not mutate package root, Git, registry, dependencies, build, test, deploy, publish, or push state'
     })
   ]),
   boundary: Object.freeze({
@@ -443,8 +453,8 @@ const TARGET_ONBOARDING_SURFACE_PLAN = Object.freeze({
     force_overwrite_requires_explicit_force_flag: true
   }),
   next_candidate_gate: Object.freeze({
-    title: 'Public target onboarding installed package smoke gate',
-    intent: 'Verify target onboarding behavior from an installed package context after the explicit write boundary is in place.'
+    title: 'Public target onboarding post-publish verification handoff gate',
+    intent: 'Document and validate the operator handoff for post-publish target onboarding verification through npm/npx.'
   })
 });
 
@@ -512,8 +522,8 @@ const TARGET_ONBOARDING_DRY_RUN_FIXTURE_MATRIX = Object.freeze({
     validates_force_preview_without_write: true
   }),
   next_candidate_gate: Object.freeze({
-    title: 'Public target onboarding installed package smoke gate',
-    intent: 'Verify target onboarding behavior from an installed package context after the explicit write boundary is in place.'
+    title: 'Public target onboarding post-publish verification handoff gate',
+    intent: 'Document and validate the operator handoff for post-publish target onboarding verification through npm/npx.'
   })
 });
 
@@ -1349,6 +1359,19 @@ function summarizePlan(plannedWrites) {
   }));
 }
 
+function listRelativeFiles(root) {
+  const files = [];
+  function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const absolute = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(absolute);
+      else files.push(path.relative(root, absolute).split(path.sep).join('/'));
+    }
+  }
+  if (fs.existsSync(root)) walk(root);
+  return files.sort();
+}
+
 
 function packageRoot() {
   return path.resolve(__dirname, '..');
@@ -1601,6 +1624,114 @@ function publicInstalledPackageParitySmoke(root = packageRoot()) {
   };
 }
 
+
+function publicTargetOnboardingInstalledPackageSmoke(root = packageRoot()) {
+  const packageContext = sourceContext(root);
+  const releaseCheck = publicReleaseCheck(root);
+  const targetRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-onboard-target-installed-smoke-'));
+  let cleanupStatus = 'not_attempted';
+  let cleanupError = null;
+  const errors = [];
+  let plan = null;
+  let fixture = null;
+  let writePlan = [];
+  let writtenFiles = [];
+  let targetFiles = [];
+  let nonCanonicalCreatedFiles = [];
+  let boundaryViolations = [];
+
+  try {
+    fs.writeFileSync(path.join(targetRoot, 'package.json'), stableJson({ name: 'target-installed-smoke' }));
+    plan = targetOnboardingSurfacePlan(targetRoot);
+    fixture = targetOnboardingDryRunFixture(targetRoot);
+    writePlan = planTargetOnboardingWritesForRoot(targetRoot, { force: false });
+    const conflicts = writePlan.filter((item) => item.action === 'conflict');
+    if (conflicts.length > 0) errors.push(`target onboarding write smoke found conflicts: ${conflicts.map((item) => item.path).join(', ')}`);
+    else performTargetOnboardingWrites(writePlan, targetRoot);
+
+    targetFiles = listRelativeFiles(targetRoot);
+    const canonical = TARGET_ONBOARDING_SURFACE_PLAN.canonical_files.slice().sort();
+    writtenFiles = canonical.filter((rel) => fs.existsSync(path.join(targetRoot, rel))).sort();
+    nonCanonicalCreatedFiles = targetFiles.filter((rel) => rel !== 'package.json' && !canonical.includes(rel));
+    if (!arrayEquals(writtenFiles, canonical)) errors.push(`target onboarding write must create canonical files ${canonical.join(', ')}`);
+    if (nonCanonicalCreatedFiles.length > 0) errors.push(`target onboarding write created non-canonical files: ${nonCanonicalCreatedFiles.join(', ')}`);
+
+    const configPath = path.join(targetRoot, TARGET_CONFIG_FILE);
+    if (fs.existsSync(configPath)) {
+      boundaryViolations = evaluateTargetBoundaryConfig(readJson(configPath));
+      if (boundaryViolations.length > 0) errors.push('written target config violates read-only target boundary');
+    } else {
+      errors.push(`target onboarding write did not create ${TARGET_CONFIG_FILE}`);
+    }
+  } catch (error) {
+    errors.push(error && error.message ? error.message : String(error));
+  } finally {
+    try {
+      fs.rmSync(targetRoot, { recursive: true, force: true });
+      cleanupStatus = fs.existsSync(targetRoot) ? 'error' : 'ok';
+      if (cleanupStatus !== 'ok') cleanupError = 'temporary target root still exists after cleanup';
+    } catch (error) {
+      cleanupStatus = 'error';
+      cleanupError = error && error.message ? error.message : String(error);
+    }
+  }
+
+  if (releaseCheck.status !== 'ok') errors.push('package release check must pass before target onboarding installed package smoke can pass');
+  if (!plan || plan.status !== 'ok') errors.push('target onboarding plan smoke must pass');
+  if (!fixture || fixture.status !== 'ok') errors.push('target onboarding fixture smoke must pass');
+  if (cleanupStatus !== 'ok') errors.push(`temporary target cleanup failed: ${cleanupError || 'unknown cleanup error'}`);
+
+  const observed = {
+    package_context: packageContext.package_context,
+    source_context_files_present: packageContext.source_context_files_present,
+    release_check_status: releaseCheck.status,
+    target_onboarding_plan_status: plan ? plan.status : 'not_run',
+    target_onboarding_fixture_status: fixture ? fixture.status : 'not_run',
+    explicit_write_planned_actions: summarizePlan(writePlan),
+    written_files: writtenFiles,
+    target_files_before_cleanup: targetFiles,
+    non_canonical_created_files: nonCanonicalCreatedFiles,
+    target_boundary_violation_count: boundaryViolations.length,
+    cleanup_status: cleanupStatus
+  };
+
+  return {
+    schema: 'agent-onboard-public-target-onboarding-installed-package-smoke-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+    version: VERSION,
+    release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_RELEASE_CONTRACT.target_onboarding_smoke_command,
+    package_root: root,
+    observed,
+    validated: {
+      package_release_check: releaseCheck.status === 'ok',
+      source_or_installed_package_context: packageContext.package_context === 'source_repository' || packageContext.package_context === 'installed_package',
+      target_onboarding_plan: plan ? plan.status === 'ok' : false,
+      target_onboarding_fixture: fixture ? fixture.status === 'ok' : false,
+      explicit_write_performed_in_temporary_target: arrayEquals(writtenFiles, TARGET_ONBOARDING_SURFACE_PLAN.canonical_files.slice().sort()),
+      canonical_target_files_only: nonCanonicalCreatedFiles.length === 0,
+      target_boundary_config_passes: boundaryViolations.length === 0,
+      temporary_target_cleanup: cleanupStatus === 'ok'
+    },
+    boundary: {
+      writes_package_root: false,
+      writes_target_repository_state: false,
+      creates_temp_target_repository: true,
+      cleans_up_temp_target_repository: cleanupStatus === 'ok',
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      publishes_or_pushes: false
+    },
+    errors
+  };
+}
+
 function runRelease(args) {
   if (args.length === 1 && args[0] === '--plan') {
     json({
@@ -1613,6 +1744,7 @@ function runRelease(args) {
       contract_command: PUBLIC_RELEASE_CONTRACT.contract_command,
       fixture_command: PUBLIC_RELEASE_CONTRACT.fixture_command,
       parity_smoke_command: PUBLIC_RELEASE_CONTRACT.parity_smoke_command,
+      target_onboarding_smoke_command: PUBLIC_RELEASE_CONTRACT.target_onboarding_smoke_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
@@ -1666,6 +1798,11 @@ function runRelease(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--target-onboarding-smoke') {
+    const result = publicTargetOnboardingInstalledPackageSmoke();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicReleaseCheck();
     json(result);
@@ -1675,7 +1812,7 @@ function runRelease(args) {
     schema: 'agent-onboard-release-command-error-001',
     status: 'error',
     command_family: 'release',
-    message: 'release requires --plan, --contract, --fixture, --parity-smoke, or --check',
+    message: 'release requires --plan, --contract, --fixture, --parity-smoke, --target-onboarding-smoke, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -2387,7 +2524,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -2446,6 +2583,7 @@ module.exports = {
   sourceContext,
   publicReleaseCheck,
   publicInstalledPackageParitySmoke,
+  publicTargetOnboardingInstalledPackageSmoke,
   targetOnboardingSurfacePlan,
   targetOnboardingDryRunFixture,
   targetOnboardingWriteSet,

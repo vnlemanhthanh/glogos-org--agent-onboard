@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -102,7 +102,11 @@
     "explicit-write-boundary",
     "target-write-boundary",
     "onboarding-write",
-    "canonical-onboarding-files"
+    "canonical-onboarding-files",
+    "target-onboarding-smoke",
+    "installed-target-smoke",
+    "target-installed-package-smoke",
+    "target-onboarding-installed-smoke"
   ],
   "type": "commonjs",
   "engines": {
