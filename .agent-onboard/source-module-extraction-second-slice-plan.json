@@ -1,0 +1,33 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-second-slice-plan-001",
+  "package_name": "agent-onboard",
+  "package_version_source": "package.json#version",
+  "release_line": "public_source_module_extraction_second_slice_planning_gate",
+  "command": "agent-onboard architecture --second-slice-plan",
+  "check_command": "agent-onboard architecture --second-slice-check",
+  "second_slice_status": "planned_not_created",
+  "prerequisite_installed_fallback_smoke_file": ".agent-onboard/source-module-extraction-installed-fallback-smoke.json",
+  "planned_second_slice": {
+    "domain": "authority",
+    "facade": "authorityService",
+    "planned_module": "src/domains/authority.js",
+    "scope": "authority read-order and guard metadata only; write-capable agents command extraction remains excluded",
+    "source_module_created_by_this_gate": false,
+    "published_import_api": false
+  },
+  "gitignore_policy": {
+    "gitignore_file": ".gitignore",
+    "must_track_source_artifacts": true,
+    "must_not_ignore_src_domains": true,
+    "new_source_plan_unignored": ".agent-onboard/source-module-extraction-second-slice-plan.json"
+  },
+  "boundary": {
+    "second_slice_plan_command_writes_files": false,
+    "second_slice_check_command_writes_files": false,
+    "creates_source_module": false,
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "exports_source_module_as_public_api": false,
+    "package_allowlist_unchanged": true
+  }
+}

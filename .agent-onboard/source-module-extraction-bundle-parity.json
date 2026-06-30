@@ -1,0 +1,32 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-bundle-parity-001",
+  "package_name": "agent-onboard",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "package_version_source": "package.json#version",
+  "command": "agent-onboard architecture --bundle-parity",
+  "check_command": "agent-onboard architecture --bundle-parity-check",
+  "parity_status": "source_slice_matches_bundled_cli_view",
+  "source_module": "src/domains/core.js",
+  "bundled_view": {
+    "source_of_truth": "cli/agent-onboard.js bundled runtime metadata",
+    "public_bin_entrypoint": "cli/agent-onboard.js",
+    "published_package_file_count": 4
+  },
+  "parity_scope": [
+    "core domain id and facade match between source slice and bundled architecture map",
+    "core-owned command set matches bundled command router routes for the core domain",
+    "source module remains source-only and excluded from npm package allowlist",
+    "installed package context may omit source-only modules while bundled CLI checks still pass"
+  ],
+  "boundary": {
+    "bundle_parity_command_writes_files": false,
+    "bundle_parity_check_command_writes_files": false,
+    "creates_bundle_artifact": false,
+    "creates_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_runtime_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "package_allowlist_unchanged": true
+  }
+}

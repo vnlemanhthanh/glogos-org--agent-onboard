@@ -1,0 +1,41 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-first-slice-001",
+  "package_name": "agent-onboard",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "package_version_source": "package.json#version",
+  "command": "agent-onboard architecture --first-slice",
+  "check_command": "agent-onboard architecture --first-slice-check",
+  "first_slice_status": "source_only_shadow_module_applied",
+  "source_module": "src/domains/core.js",
+  "extracted_domain": {
+    "id": "core",
+    "facade": "coreService",
+    "service": "coreService",
+    "runtime_dependency_status": "not_required_by_published_cli_runtime",
+    "published_api_status": "not_public_import_api",
+    "owns_commands": [
+      "help",
+      "version",
+      "status",
+      "architecture"
+    ],
+    "writes_files": false,
+    "state_writer": false
+  },
+  "expected_module_export_names": [
+    "CORE_DOMAIN_FIRST_SLICE",
+    "getCoreDomainFirstSlice"
+  ],
+  "boundary": {
+    "first_slice_command_writes_files": false,
+    "first_slice_check_command_writes_files": false,
+    "creates_exactly_one_source_module": true,
+    "created_source_module": "src/domains/core.js",
+    "creates_non_core_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_runtime_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "package_allowlist_unchanged": true
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-adapter-boundary-001",
+  "title": "Agent-Onboard Public Source Module Extraction Adapter Boundary",
+  "package_name": "agent-onboard",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "command": "agent-onboard architecture --adapter-boundary",
+  "check_command": "agent-onboard architecture --adapter-check",
+  "boundary_file": ".agent-onboard/source-module-extraction-adapter-boundary.json",
+  "purpose": "Declare the stable adapter boundary that preserves cli/agent-onboard.js as the public runtime and npm bin target before physical source-domain modules are extracted.",
+  "prerequisite_golden_outputs_file": ".agent-onboard/source-extraction-golden-outputs.json",
+  "adapter_status": "declared_before_physical_extraction",
+  "published_adapter": {
+    "path": "cli/agent-onboard.js",
+    "role": "stable published CLI adapter and bundle boundary",
+    "remains_only_published_bin_target": true,
+    "delegates_to": [
+      "dispatchCommand",
+      "COMMAND_ROUTE_HANDLERS",
+      "DOMAIN_SERVICE_FACADES"
+    ]
+  },
+  "adapter_flow": [
+    "published bin entrypoint",
+    "CLI adapter boundary",
+    "table-driven command router",
+    "domain service facade",
+    "future source module or current bundled implementation",
+    "state reader/writer boundary"
+  ],
+  "adapter_units": [
+    {
+      "domain": "core",
+      "facade": "coreService",
+      "future_source_module": "src/domains/core.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    },
+    {
+      "domain": "authority",
+      "facade": "authorityService",
+      "future_source_module": "src/domains/authority.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    },
+    {
+      "domain": "work_items",
+      "facade": "workItemsService",
+      "future_source_module": "src/domains/work-items.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    },
+    {
+      "domain": "claims",
+      "facade": "claimsService",
+      "future_source_module": "src/domains/claims.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    },
+    {
+      "domain": "target",
+      "facade": "targetService",
+      "future_source_module": "src/domains/target.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    },
+    {
+      "domain": "release_package",
+      "facade": "releasePackageService",
+      "future_source_module": "src/domains/release-package.js",
+      "adapter_entrypoint": "cli/agent-onboard.js",
+      "runtime_export_status": "not_exported_as_public_api",
+      "extraction_mode": "adapter_boundary_only_no_module_created"
+    }
+  ],
+  "invariants": {
+    "golden_outputs_must_pass": true,
+    "cli_entrypoint_remains_published_bin_target": true,
+    "every_adapter_unit_maps_to_canonical_domain": true,
+    "every_adapter_unit_maps_to_facade": true,
+    "public_api_stays_cli_commands_not_source_imports": true,
+    "no_physical_module_created_by_this_gate": true,
+    "no_source_file_moved_by_this_gate": true,
+    "npm_package_allowlist_unchanged_for_this_gate": true,
+    "adapter_boundary_file_is_source_only": true
+  },
+  "boundary": {
+    "adapter_boundary_command_writes_files": false,
+    "adapter_check_command_writes_files": false,
+    "creates_source_modules": false,
+    "moves_source_files": false,
+    "changes_runtime_outputs": false,
+    "publishes_source_modules_as_public_api": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}

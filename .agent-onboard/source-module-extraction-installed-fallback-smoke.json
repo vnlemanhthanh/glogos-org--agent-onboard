@@ -1,0 +1,37 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-installed-fallback-smoke-001",
+  "package_name": "agent-onboard",
+  "package_version_source": "package.json#version",
+  "release_line": "public_source_module_extraction_installed_fallback_smoke_gate",
+  "source_module": "src/domains/core.js",
+  "prerequisite_runtime_bridge_file": ".agent-onboard/source-module-extraction-runtime-bridge.json",
+  "smoke_status": "installed_fallback_smoke_admitted",
+  "projected_installed_context": {
+    "package_context": "installed_package",
+    "source_module_present": false,
+    "runtime_bridge_resolution_mode": "bundled_fallback",
+    "source_module_must_remain_out_of_pack": true,
+    "release_check_skips_missing_source_ledger": true,
+    "architecture_checks_do_not_require_source_context_files": true
+  },
+  "expected_pack_files": [
+    "LICENSE",
+    "README.md",
+    "cli/agent-onboard.js",
+    "package.json"
+  ],
+  "commands": [
+    "agent-onboard architecture --installed-fallback-smoke",
+    "agent-onboard architecture --installed-fallback-check"
+  ],
+  "boundary": {
+    "writes_files": false,
+    "creates_temp_files": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  },
+  "work_item_source": ".agent-onboard/work-items.json"
+}

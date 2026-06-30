@@ -39,9 +39,15 @@ Source partition and extraction gates:
 - node cli/agent-onboard.js architecture --runtime-bridge-check
 - node cli/agent-onboard.js architecture --installed-fallback-smoke
 - node cli/agent-onboard.js architecture --installed-fallback-check
+- node cli/agent-onboard.js architecture --second-slice-plan
+- node cli/agent-onboard.js architecture --second-slice-check
 
 Package surface gate:
 - node cli/agent-onboard.js release --surface
 - node cli/agent-onboard.js release --surface-check
 - node cli/agent-onboard.js release --architecture-parity-smoke
 - node cli/agent-onboard.js release --version-sprawl-check
+
+Public source module extraction second slice first-slice gate:
+- node cli/agent-onboard.js architecture --second-slice-first-slice
+- node cli/agent-onboard.js architecture --second-slice-first-slice-check

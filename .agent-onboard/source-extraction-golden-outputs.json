@@ -1,0 +1,61 @@
+{
+  "schema": "agent-onboard-public-source-extraction-golden-output-freeze-001",
+  "title": "Agent-Onboard Public Source Extraction Golden Output Freeze",
+  "package_name": "agent-onboard",
+  "package_version_source": "package.json#version",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "command": "agent-onboard architecture --golden-outputs",
+  "check_command": "agent-onboard architecture --golden-check",
+  "freeze_status": "frozen_before_physical_extraction",
+  "purpose": "Freeze selected command-output contracts before physical source-domain extraction and prevent current patch-version literals from spreading through source docs/tests.",
+  "golden_commands": [
+    {
+      "command": "status"
+    },
+    {
+      "command": "architecture --map"
+    },
+    {
+      "command": "architecture --router"
+    },
+    {
+      "command": "architecture --facades"
+    },
+    {
+      "command": "architecture --partition-check"
+    },
+    {
+      "command": "architecture --extraction-check"
+    },
+    {
+      "command": "architecture --golden-check"
+    },
+    {
+      "command": "release --version-sprawl-check"
+    },
+    {
+      "command": "authority --check"
+    },
+    {
+      "command": "target runtime --check"
+    },
+    {
+      "command": "release --surface-check"
+    },
+    {
+      "command": "release --check"
+    }
+  ],
+  "version_policy": {
+    "single_source_of_truth": "package.json#version",
+    "source_docs_must_not_hardcode_current_patch_version": true,
+    "generated_post_publish_handoff_may_emit_version_pinned_commands": true
+  },
+  "boundary": {
+    "writes_files": false,
+    "creates_source_modules": false,
+    "moves_source_files": false,
+    "changes_runtime_outputs": false,
+    "package_allowlist_unchanged": true
+  }
+}

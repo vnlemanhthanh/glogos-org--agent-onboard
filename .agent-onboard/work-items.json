@@ -1363,6 +1363,94 @@
       "id": "P1S3M1W16",
       "milestone_id": "P1S3M1",
       "title": "Public source module extraction second slice planning gate",
+      "status": "closed",
+      "closure": {
+        "actor": "ChatGPT",
+        "closed_at": "2026-06-30T00:00:00+07:00",
+        "summary": "Planned the second source-module extraction slice for the authority domain, preserved compact installed-package fallback, and fixed .gitignore tracking for source-only architecture artifacts without creating the authority source module.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          ".gitignore",
+          ".agent-onboard/source-module-extraction-second-slice-plan.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js architecture --second-slice-plan",
+          "node cli/agent-onboard.js architecture --second-slice-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "ZIP extract smoke"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may emit auth/registry warnings in an unauthenticated environment, but it must not publish and should exit 0"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W17",
+      "milestone_id": "P1S3M1",
+      "title": "Public source module extraction second slice first-slice gate",
+      "status": "closed",
+      "closure": {
+        "actor": "assistant",
+        "closed_at": "2026-06-30T00:00:00Z",
+        "summary": "Created the authority source-only second slice module and admitted read-only second-slice first-slice architecture/release checks while preserving compact npm package surface.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "src/domains/authority.js",
+          "test/agent-onboard.test.js",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          ".gitignore",
+          ".agent-onboard/source-module-extraction-second-slice-first-slice.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js architecture --second-slice-first-slice",
+          "node cli/agent-onboard.js architecture --second-slice-first-slice-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "installed tarball smoke + architecture --second-slice-first-slice-check",
+          "ZIP extract smoke + npm test",
+          "ZIP extract smoke + architecture --second-slice-first-slice-check",
+          "ZIP extract smoke + release --check"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may warn when registry credentials are not available; no package was published by dry-run"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W18",
+      "milestone_id": "P1S3M1",
+      "title": "Public source module extraction authority bundle parity gate",
       "status": "open"
     }
   ]

@@ -1,0 +1,38 @@
+{
+  "schema": "agent-onboard-public-source-module-extraction-second-slice-first-slice-001",
+  "package_name": "agent-onboard",
+  "package_version_source": "package.json#version",
+  "release_line": "public_source_module_extraction_second_slice_first_slice_gate",
+  "command": "agent-onboard architecture --second-slice-first-slice",
+  "check_command": "agent-onboard architecture --second-slice-first-slice-check",
+  "second_slice_first_slice_status": "source_only_shadow_module_applied",
+  "prerequisite_second_slice_plan_file": ".agent-onboard/source-module-extraction-second-slice-plan.json",
+  "extracted_domain": {
+    "id": "authority",
+    "facade": "authorityService",
+    "module": "src/domains/authority.js",
+    "runtime_dependency_status": "not_required_by_published_cli_runtime",
+    "scope": "authority read-order, first-read, and guard metadata only; write-capable agents command extraction remains excluded"
+  },
+  "source_module": "src/domains/authority.js",
+  "source_module_status": "source_only_shadow_module",
+  "published_import_api": false,
+  "writes_files": false,
+  "state_writer": false,
+  "excluded_from_this_slice": [
+    "agents --write",
+    "agents --preview",
+    "runtime dependency on src/domains/authority.js from installed package"
+  ],
+  "boundary": {
+    "second_slice_first_slice_command_writes_files": false,
+    "second_slice_first_slice_check_command_writes_files": false,
+    "creates_exactly_one_source_module": true,
+    "created_source_module": "src/domains/authority.js",
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "package_allowlist_unchanged": true
+  }
+}

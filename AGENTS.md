@@ -74,6 +74,8 @@ node cli/agent-onboard.js architecture --runtime-bridge
 node cli/agent-onboard.js architecture --runtime-bridge-check
 node cli/agent-onboard.js architecture --installed-fallback-smoke
 node cli/agent-onboard.js architecture --installed-fallback-check
+node cli/agent-onboard.js architecture --second-slice-plan
+node cli/agent-onboard.js architecture --second-slice-check
 node cli/agent-onboard.js architecture --check
 ```
 
@@ -163,3 +165,14 @@ A closure must separate changed files, checks run, checks not run, and known non
 If a target repo already has a non-identical `AGENTS.md`, treat the conflict as expected overwrite protection. Do not force overwrite unless the repository owner explicitly requests it.
 
 Report changed files, checks run, checks not run, and known non-pass states separately.
+
+## Public source module extraction second slice first-slice gate
+
+Run these source checks before publishing this gate:
+
+```sh
+node cli/agent-onboard.js architecture --second-slice-first-slice
+node cli/agent-onboard.js architecture --second-slice-first-slice-check
+```
+
+The authority slice is source-only and is not a public import API.

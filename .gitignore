@@ -7,13 +7,34 @@ build/
 coverage/
 *.tgz
 
+# Local npm/tarball smoke workspaces
+.agent-onboard-pack-*
+agent-onboard-*.tgz
+
 # Runtime/local state
-# Keep canonical self-dogfood control files trackable in the source repo.
+# Keep canonical self-dogfood control and source-planning artifacts trackable in the source repo.
 .agent-onboard/*
 !.agent-onboard/
 !.agent-onboard/project.json
 !.agent-onboard/work-items.json
 !.agent-onboard/authority-path.json
+!.agent-onboard/runtime-namespace.json
+!.agent-onboard/source-partition-plan.json
+!.agent-onboard/source-extraction-rehearsal.json
+!.agent-onboard/source-extraction-golden-outputs.json
+!.agent-onboard/source-module-extraction-adapter-boundary.json
+!.agent-onboard/source-module-extraction-first-slice.json
+!.agent-onboard/source-module-extraction-bundle-parity.json
+!.agent-onboard/source-module-extraction-runtime-bridge.json
+!.agent-onboard/source-module-extraction-installed-fallback-smoke.json
+!.agent-onboard/source-module-extraction-second-slice-plan.json
+!.agent-onboard/source-module-extraction-second-slice-first-slice.json
+
+# Source modules are intentionally trackable while the npm package surface stays compact.
+!src/
+!src/domains/
+!src/domains/*.js
+
 .env
 .env.*
 

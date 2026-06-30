@@ -1,0 +1,73 @@
+{
+  "schema": "agent-onboard-target-runtime-namespace-001",
+  "package_name": "agent-onboard",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "target": {
+    "name": "agent-onboard",
+    "root": ".",
+    "kind": "node"
+  },
+  "command": "agent-onboard target runtime --namespace",
+  "check_command": "agent-onboard target runtime --check",
+  "namespace_root": ".agent-onboard",
+  "namespace_file": ".agent-onboard/runtime-namespace.json",
+  "canonical_runtime_files": [
+    {
+      "path": ".agent-onboard/runtime-namespace.json",
+      "domain": "target",
+      "role": "machine_readable_runtime_namespace",
+      "kind": "json",
+      "required": true,
+      "written_by": "target onboarding --write"
+    },
+    {
+      "path": ".agent-onboard/project.json",
+      "domain": "target",
+      "role": "target_runtime_project_identity",
+      "kind": "json",
+      "required": true,
+      "written_by": "init --write or target onboarding --write or target-instance takeover --write"
+    },
+    {
+      "path": ".agent-onboard/work-items.json",
+      "domain": "work_items",
+      "role": "public_work_item_ledger",
+      "kind": "json",
+      "required": true,
+      "written_by": "work-items --init --write or target onboarding --write or target-instance takeover --write"
+    },
+    {
+      "path": ".agent-onboard/authority-path.json",
+      "domain": "authority",
+      "role": "authority_first_read_index",
+      "kind": "json",
+      "required": true,
+      "written_by": "target onboarding --write"
+    }
+  ],
+  "top_level_authority_files": [
+    "AGENTS.md",
+    "llms.txt",
+    "agent-onboard.target.json"
+  ],
+  "reserved_future_files": [
+    {
+      "path": ".agent-onboard/claims.jsonl",
+      "domain": "claims",
+      "status": "reserved_not_written_by_this_gate"
+    },
+    {
+      "path": ".agent-onboard/events.jsonl",
+      "domain": "target",
+      "status": "reserved_not_written_by_this_gate"
+    }
+  ],
+  "boundary": {
+    "writes_require_explicit_write_flag": true,
+    "reserved_future_files_not_written_by_target_onboarding": true,
+    "dependency_install_requires_owner_authorization": true,
+    "build_test_deploy_requires_owner_authorization": true,
+    "publish_push_requires_owner_authorization": true
+  },
+  "package_version_source": "package.json#version"
+}

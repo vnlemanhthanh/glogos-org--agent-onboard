@@ -1,0 +1,134 @@
+{
+  "schema": "agent-onboard-public-source-domain-extraction-rehearsal-001",
+  "title": "Agent-Onboard Public Source Domain Extraction Rehearsal",
+  "package_name": "agent-onboard",
+  "release_line": "public_source_module_extraction_bundle_parity_gate",
+  "command": "agent-onboard architecture --extraction-rehearsal",
+  "check_command": "agent-onboard architecture --extraction-check",
+  "rehearsal_file": ".agent-onboard/source-extraction-rehearsal.json",
+  "purpose": "Rehearse source-domain extraction behind the admitted facades without moving source files, changing command outputs, or expanding the npm package surface.",
+  "prerequisite_plan_file": ".agent-onboard/source-partition-plan.json",
+  "rehearsal_status": "rehearsed_not_applied",
+  "entrypoint_preservation": {
+    "published_entrypoint": "cli/agent-onboard.js",
+    "entrypoint_remains_only_published_bin_target": true,
+    "physical_modules_created_by_this_gate": false,
+    "runtime_output_change_allowed": false,
+    "package_allowlist_change_allowed": false
+  },
+  "extraction_rehearsal_units": [
+    {
+      "domain": "core",
+      "facade": "coreService",
+      "rehearsal_module": "src/domains/core.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "bundled_into_cli_entrypoint_before_publish"
+    },
+    {
+      "domain": "authority",
+      "facade": "authorityService",
+      "rehearsal_module": "src/domains/authority.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "source_only_or_bundled_before_publish"
+    },
+    {
+      "domain": "work_items",
+      "facade": "workItemsService",
+      "rehearsal_module": "src/domains/work-items.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "source_only_or_bundled_before_publish"
+    },
+    {
+      "domain": "claims",
+      "facade": "claimsService",
+      "rehearsal_module": "src/domains/claims.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "source_only_or_bundled_before_publish"
+    },
+    {
+      "domain": "target",
+      "facade": "targetService",
+      "rehearsal_module": "src/domains/target.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "source_only_or_bundled_before_publish"
+    },
+    {
+      "domain": "release_package",
+      "facade": "releasePackageService",
+      "rehearsal_module": "src/domains/release-package.js",
+      "extraction_mode": "rehearsal_only_no_file_created",
+      "source_of_truth_before_application": "cli/agent-onboard.js",
+      "package_surface": "source_only_or_bundled_before_publish"
+    }
+  ],
+  "golden_output_scope": [
+    "status",
+    "architecture --map",
+    "architecture --router",
+    "architecture --facades",
+    "architecture --partition-check",
+    "architecture --extraction-check",
+    "authority --check",
+    "target runtime --check",
+    "release --surface-check",
+    "release --check"
+  ],
+  "application_sequence": [
+    {
+      "order": 1,
+      "gate": "rehearsal",
+      "action": "declare extraction units and no-behavior-change checks without creating modules"
+    },
+    {
+      "order": 2,
+      "gate": "golden-output-freeze",
+      "action": "freeze selected command outputs before any physical extraction"
+    },
+    {
+      "order": 3,
+      "gate": "source-module-application",
+      "action": "create source modules behind facades with CLI adapter preserved"
+    },
+    {
+      "order": 4,
+      "gate": "bundle-or-allowlist",
+      "action": "preserve compact npm surface by bundling or explicitly admitting additional files"
+    },
+    {
+      "order": 5,
+      "gate": "installed-parity",
+      "action": "prove source and installed package checks remain equivalent"
+    }
+  ],
+  "invariants": {
+    "partition_plan_must_pass": true,
+    "every_rehearsal_unit_maps_to_canonical_domain": true,
+    "every_rehearsal_unit_maps_to_facade": true,
+    "no_physical_module_created_by_this_gate": true,
+    "no_source_file_moved_by_this_gate": true,
+    "cli_entrypoint_remains_runtime_source_of_truth": true,
+    "npm_package_allowlist_unchanged_for_this_gate": true,
+    "rehearsal_file_is_source_only": true
+  },
+  "boundary": {
+    "extraction_rehearsal_command_writes_files": false,
+    "extraction_check_command_writes_files": false,
+    "creates_source_modules": false,
+    "moves_source_files": false,
+    "changes_runtime_outputs": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}
