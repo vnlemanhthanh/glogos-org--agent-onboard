@@ -565,6 +565,67 @@
       "id": "P1S2M1W6",
       "milestone_id": "P1S2M1",
       "title": "Public target onboarding published package acceptance gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public target onboarding published package acceptance gate in agent-onboard@0.0.26: release --published-acceptance composes release check, post-publish handoff validation, parity smoke, target onboarding smoke, plan, and fixture checks so the version-pinned published package can be accepted after registry verification without mutating package root, target repository state, Git, registry, dependencies, build, deploy, publish, or push state.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "npm pack --json in temporary pack directory",
+          "npm install local agent-onboard-0.0.26.tgz --no-save --ignore-scripts in temporary target repo",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js status",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js release --check",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js release --post-publish-handoff",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js release --published-acceptance",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js release --target-onboarding-smoke",
+          "installed package smoke: node node_modules/agent-onboard/cli/agent-onboard.js target onboarding --write",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js target onboarding --plan",
+          "node cli/agent-onboard.js target onboarding --fixture",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --parity-smoke",
+          "node cli/agent-onboard.js release --target-onboarding-smoke",
+          "node cli/agent-onboard.js release --post-publish-handoff",
+          "node cli/agent-onboard.js release --published-acceptance",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npm view agent-onboard@0.0.26 name version license bin repository",
+          "npx agent-onboard@0.0.26 status",
+          "npx agent-onboard@0.0.26 release --contract",
+          "npx agent-onboard@0.0.26 release --fixture",
+          "npx agent-onboard@0.0.26 release --parity-smoke",
+          "npx agent-onboard@0.0.26 release --target-onboarding-smoke",
+          "npx agent-onboard@0.0.26 release --post-publish-handoff",
+          "npx agent-onboard@0.0.26 release --published-acceptance",
+          "npx agent-onboard@0.0.26 release --check",
+          "npx agent-onboard@0.0.26 target onboarding --plan",
+          "npx agent-onboard@0.0.26 target onboarding --fixture"
+        ],
+        "known_non_pass": [
+          "Actual post-publish registry acceptance remains an operator check until this source candidate is published and verified from npm with version-pinned npx commands."
+        ]
+      }
+    },
+    {
+      "id": "P1S2M1W7",
+      "milestone_id": "P1S2M1",
+      "title": "Public target onboarding real target repo trial gate",
       "status": "open"
     }
   ]

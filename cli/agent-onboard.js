@@ -242,13 +242,14 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   schema: 'agent-onboard-public-release-contract-009',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
-  release_line: 'public_target_onboarding_post_publish_verification_handoff_gate',
+  release_line: 'public_target_onboarding_published_package_acceptance_gate',
   command: 'agent-onboard release --check',
   contract_command: 'agent-onboard release --contract',
   fixture_command: 'agent-onboard release --fixture',
   parity_smoke_command: 'agent-onboard release --parity-smoke',
   target_onboarding_smoke_command: 'agent-onboard release --target-onboarding-smoke',
   post_publish_handoff_command: 'agent-onboard release --post-publish-handoff',
+  published_acceptance_command: 'agent-onboard release --published-acceptance',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
     '.agent-onboard/project.json',
@@ -283,6 +284,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js release --parity-smoke',
     'node cli/agent-onboard.js release --target-onboarding-smoke',
     'node cli/agent-onboard.js release --post-publish-handoff',
+    'node cli/agent-onboard.js release --published-acceptance',
     'node cli/agent-onboard.js release --check',
     'node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json'
   ]),
@@ -295,6 +297,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> release --parity-smoke',
     'npx agent-onboard@<version> release --target-onboarding-smoke',
     'npx agent-onboard@<version> release --post-publish-handoff',
+    'npx agent-onboard@<version> release --published-acceptance',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run',
     'npx agent-onboard@<version> target onboarding --plan',
@@ -1753,6 +1756,7 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
     `npx agent-onboard@${version} release --parity-smoke`,
     `npx agent-onboard@${version} release --target-onboarding-smoke`,
     `npx agent-onboard@${version} release --post-publish-handoff`,
+    `npx agent-onboard@${version} release --published-acceptance`,
     `npx agent-onboard@${version} release --check`,
     `npx agent-onboard@${version} init --dry-run`,
     `npx agent-onboard@${version} target onboarding --plan`,
@@ -1784,6 +1788,7 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
       'version-pinned release fixture returns ok',
       'version-pinned parity smoke returns ok',
       'version-pinned target onboarding smoke returns ok',
+      'version-pinned published acceptance returns ok',
       'version-pinned release check returns ok',
       'version-pinned target onboarding plan and fixture return ok'
     ],
@@ -1793,6 +1798,7 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
       release_contract_and_fixture_pass: true,
       parity_and_target_onboarding_smokes_pass: true,
       release_check_passes_in_installed_package_context: true,
+      published_acceptance_passes_in_registry_package_context: true,
       target_onboarding_plan_and_fixture_pass_from_registry_package: true
     },
     next_candidate_gate: {
@@ -1815,6 +1821,99 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
   };
 }
 
+function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
+  const context = sourceContext(root);
+  const releaseCheck = publicReleaseCheck(root);
+  const handoff = publicTargetOnboardingPostPublishHandoff(root, VERSION);
+  const paritySmoke = publicInstalledPackageParitySmoke(root);
+  const targetSmoke = publicTargetOnboardingInstalledPackageSmoke(root);
+  const targetPlan = targetOnboardingSurfacePlan(root);
+  const targetFixture = targetOnboardingDryRunFixture(root);
+  const expectedPublishedCommand = `npx agent-onboard@${VERSION} release --published-acceptance`;
+  const expectedCommands = [
+    `npm view agent-onboard@${VERSION} name version license bin repository`,
+    `npx agent-onboard@${VERSION} status`,
+    `npx agent-onboard@${VERSION} release --check`,
+    `npx agent-onboard@${VERSION} release --published-acceptance`,
+    `npx agent-onboard@${VERSION} target onboarding --plan`,
+    `npx agent-onboard@${VERSION} target onboarding --fixture`
+  ];
+  const missingHandoffCommands = expectedCommands.filter((command) => !handoff.verification_commands.includes(command));
+  const errors = [];
+  if (releaseCheck.status !== 'ok') errors.push('release check must pass for published package acceptance');
+  if (handoff.status !== 'ok') errors.push('post-publish handoff must pass for published package acceptance');
+  if (paritySmoke.status !== 'ok') errors.push('parity smoke must pass for published package acceptance');
+  if (targetSmoke.status !== 'ok') errors.push('target onboarding smoke must pass for published package acceptance');
+  if (targetPlan.status !== 'ok') errors.push('target onboarding plan must pass for published package acceptance');
+  if (targetFixture.status !== 'ok') errors.push('target onboarding fixture must pass for published package acceptance');
+  for (const command of missingHandoffCommands) errors.push(`post-publish handoff is missing acceptance command: ${command}`);
+
+  const installedPackageContextAccepted = context.package_context === 'installed_package';
+  const sourceRepositoryRehearsal = context.package_context === 'source_repository';
+
+  return {
+    schema: 'agent-onboard-public-target-onboarding-published-package-acceptance-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+    version: VERSION,
+    release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_RELEASE_CONTRACT.published_acceptance_command,
+    package_root: root,
+    published_package: `agent-onboard@${VERSION}`,
+    expected_operator_command: expectedPublishedCommand,
+    source_context: context,
+    acceptance_mode: installedPackageContextAccepted ? 'published_or_installed_package_acceptance' : 'source_repository_rehearsal',
+    observed: {
+      release_check_status: releaseCheck.status,
+      post_publish_handoff_status: handoff.status,
+      parity_smoke_status: paritySmoke.status,
+      target_onboarding_smoke_status: targetSmoke.status,
+      target_onboarding_plan_status: targetPlan.status,
+      target_onboarding_fixture_status: targetFixture.status,
+      handoff_missing_acceptance_commands: missingHandoffCommands,
+      source_context_files_present: context.source_context_files_present,
+      source_work_items_ledger_present: releaseCheck.source_work_items_ledger.present,
+      source_work_items_ledger_status: releaseCheck.source_work_items_ledger.status
+    },
+    validated: {
+      release_check: releaseCheck.status === 'ok',
+      post_publish_handoff: handoff.status === 'ok',
+      parity_smoke: paritySmoke.status === 'ok',
+      target_onboarding_smoke: targetSmoke.status === 'ok',
+      target_onboarding_plan: targetPlan.status === 'ok',
+      target_onboarding_fixture: targetFixture.status === 'ok',
+      handoff_includes_published_acceptance_command: missingHandoffCommands.length === 0,
+      installed_package_context_when_run_from_npx: installedPackageContextAccepted,
+      source_repository_rehearsal: sourceRepositoryRehearsal
+    },
+    acceptance_criteria: {
+      run_after_publish_with_version_pinned_npx: expectedPublishedCommand,
+      npm_latest_dist_tag_checked_by_operator_handoff: true,
+      package_metadata_checked_by_operator_handoff: true,
+      version_pinned_release_check_passes: true,
+      version_pinned_published_acceptance_passes: true,
+      target_onboarding_plan_and_fixture_pass_from_published_package: true,
+      target_onboarding_smoke_passes_from_published_package: true,
+      no_source_ledger_required_in_installed_package_context: true
+    },
+    boundary: {
+      writes_package_root: false,
+      writes_target_repository_state: false,
+      creates_temp_target_repository: true,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      network_registry_publish_required: false,
+      network_registry_read_required_before_operator_acceptance: true
+    },
+    errors
+  };
+}
+
 function runRelease(args) {
   if (args.length === 1 && args[0] === '--plan') {
     json({
@@ -1829,6 +1928,7 @@ function runRelease(args) {
       parity_smoke_command: PUBLIC_RELEASE_CONTRACT.parity_smoke_command,
       target_onboarding_smoke_command: PUBLIC_RELEASE_CONTRACT.target_onboarding_smoke_command,
       post_publish_handoff_command: PUBLIC_RELEASE_CONTRACT.post_publish_handoff_command,
+      published_acceptance_command: PUBLIC_RELEASE_CONTRACT.published_acceptance_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
@@ -1892,6 +1992,11 @@ function runRelease(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--published-acceptance') {
+    const result = publicTargetOnboardingPublishedAcceptance();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicReleaseCheck();
     json(result);
@@ -1901,7 +2006,7 @@ function runRelease(args) {
     schema: 'agent-onboard-release-command-error-001',
     status: 'error',
     command_family: 'release',
-    message: 'release requires --plan, --contract, --fixture, --parity-smoke, --target-onboarding-smoke, --post-publish-handoff, or --check',
+    message: 'release requires --plan, --contract, --fixture, --parity-smoke, --target-onboarding-smoke, --post-publish-handoff, --published-acceptance, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -2613,7 +2718,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target onboarding --plan|--fixture|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
