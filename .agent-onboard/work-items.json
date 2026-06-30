@@ -921,6 +921,81 @@
       "id": "P1S3M1W6",
       "milestone_id": "P1S3M1",
       "title": "Public package surface preservation gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by preparing agent-onboard@0.0.33 with a public package surface preservation gate. The gate adds release --surface and release --surface-check, locks the projected npm package to the compact four-file surface, validates package.json files allowlist, confirms source-only context stays out of the npm pack projection, and integrates the package surface check into release --check.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js release --surface",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification with version-pinned npx commands"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may report registry authentication warnings in unauthenticated environments while still producing the dry-run package JSON"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W7",
+      "milestone_id": "P1S3M1",
+      "title": "Public installed parity architecture smoke gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by preparing agent-onboard@0.0.34 with a public installed parity architecture smoke gate. The gate adds release --architecture-parity-smoke, validates architecture/authority/target-runtime/package-surface checks in source and installed-like package contexts, and integrates the result into release --check and post-publish handoff commands.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          ".agent-onboard/authority-path.json",
+          ".agent-onboard/runtime-namespace.json",
+          ".agent-onboard/work-items.json",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --parity-smoke",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification with version-pinned npx commands"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may report registry authentication warnings in unauthenticated environments while still producing the dry-run package JSON"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W8",
+      "milestone_id": "P1S3M1",
+      "title": "Public source domain module partition planning gate",
       "status": "open"
     }
   ]

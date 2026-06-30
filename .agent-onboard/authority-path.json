@@ -1,8 +1,8 @@
 {
   "schema": "agent-onboard-authority-path-001",
   "package_name": "agent-onboard",
-  "package_version": "0.0.32",
-  "release_line": "public_target_runtime_namespace_gate",
+  "package_version": "0.0.34",
+  "release_line": "public_installed_parity_architecture_smoke_gate",
   "target": {
     "name": "agent-onboard",
     "root": ".",

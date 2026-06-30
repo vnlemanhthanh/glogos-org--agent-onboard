@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.32",
+  "version": "0.0.34",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -150,7 +150,11 @@
     "runtime-namespace",
     "target-runtime-namespace",
     "agent-onboard-runtime",
-    "runtime-namespace-check"
+    "runtime-namespace-check",
+    "architecture-parity-smoke",
+    "installed-architecture-parity",
+    "public-architecture-parity",
+    "release-architecture-parity"
   ],
   "type": "commonjs",
   "engines": {

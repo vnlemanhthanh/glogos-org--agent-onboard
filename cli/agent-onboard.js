@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_target_runtime_namespace_gate';
+const RELEASE_LINE = 'public_installed_parity_architecture_smoke_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -288,7 +288,7 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
       id: 'release_package',
       title: 'Release and npm package domain',
       owns: Object.freeze(['release contract', 'fixture matrix', 'npm pack allowlist', 'package parity smoke', 'post-publish handoff']),
-      public_surface: Object.freeze(['release --plan', 'release --contract', 'release --fixture', 'release --parity-smoke', 'release --target-onboarding-smoke', 'release --post-publish-handoff', 'release --published-acceptance', 'release --real-target-trial', 'release --check']),
+      public_surface: Object.freeze(['release --plan', 'release --contract', 'release --fixture', 'release --surface', 'release --surface-check', 'release --parity-smoke', 'release --architecture-parity-smoke', 'release --target-onboarding-smoke', 'release --post-publish-handoff', 'release --published-acceptance', 'release --real-target-trial', 'release --check']),
       state_files: Object.freeze(['package.json', 'README.md', 'LICENSE', 'cli/agent-onboard.js'])
     })
   ]),
@@ -315,6 +315,10 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     authority_check_command_writes_files: false,
     target_runtime_namespace_command_writes_files: false,
     target_runtime_check_command_writes_files: false,
+    package_surface_command_writes_files: false,
+    package_surface_check_command_writes_files: false,
+    architecture_parity_smoke_command_writes_files: false,
+    published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
     main_function_delegates_to_command_router: true,
     command_router_delegates_to_domain_service_facades: true,
@@ -330,6 +334,10 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     Object.freeze({
       title: 'Public package surface preservation gate',
       intent: 'Preserve compact npm package output while the public source architecture grows.'
+    }),
+    Object.freeze({
+      title: 'Public installed parity architecture smoke gate',
+      intent: 'Verify the compact installed package still exposes the admitted architecture checks after publish.'
     })
   ])
 });
@@ -500,8 +508,85 @@ const PUBLIC_TARGET_RUNTIME_NAMESPACE = Object.freeze({
   })
 });
 
+
+const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
+  schema: 'agent-onboard-public-package-surface-preservation-001',
+  title: 'Agent-Onboard Public Package Surface Preservation',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard release --surface',
+  check_command: 'agent-onboard release --surface-check',
+  purpose: 'Preserve the compact four-file npm package surface while the public source repository grows authority, runtime, ledger, and test artifacts.',
+  expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
+  required_package_json_files: Object.freeze(['cli/agent-onboard.js', 'README.md', 'LICENSE']),
+  source_only_files: Object.freeze([
+    'AGENTS.md',
+    'llms.txt',
+    'agent-onboard.target.json',
+    '.agent-onboard/project.json',
+    '.agent-onboard/work-items.json',
+    '.agent-onboard/authority-path.json',
+    '.agent-onboard/runtime-namespace.json',
+    'test/agent-onboard.test.js'
+  ]),
+  installed_context_policy: Object.freeze({
+    source_context_files_required_in_source_repo: true,
+    source_context_files_must_be_absent_from_npm_pack: true,
+    source_work_item_ledger_may_be_absent_after_install: true,
+    installed_package_release_check_must_skip_missing_source_ledger: true
+  }),
+  boundary: Object.freeze({
+    surface_command_writes_files: false,
+    check_command_writes_files: false,
+    writes_package_root: false,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false,
+    package_allowlist_unchanged: true,
+    source_context_files_stay_out_of_npm_pack: true
+  })
+});
+
+
+const PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE = Object.freeze({
+  schema: 'agent-onboard-public-installed-parity-architecture-smoke-001',
+  title: 'Agent-Onboard Public Installed Parity Architecture Smoke',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard release --architecture-parity-smoke',
+  check_command: 'agent-onboard release --check',
+  purpose: 'Verify that the compact installed npm package still exposes the admitted public architecture, authority, target runtime, and package-surface checks while source-only repository files remain excluded from the npm package.',
+  validated_surfaces: Object.freeze([
+    'release --check',
+    'architecture --check',
+    'authority --check',
+    'target runtime --check',
+    'release --surface-check'
+  ]),
+  expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
+  source_only_files_may_be_absent_after_install: true,
+  boundary: Object.freeze({
+    architecture_parity_smoke_command_writes_files: false,
+    writes_package_root: false,
+    writes_target_repository_state: false,
+    creates_temp_files: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false,
+    package_allowlist_unchanged: true,
+    source_context_files_stay_out_of_npm_pack: true
+  })
+});
+
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-014',
+  schema: 'agent-onboard-public-release-contract-016',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
   release_line: RELEASE_LINE,
@@ -509,6 +594,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   contract_command: 'agent-onboard release --contract',
   fixture_command: 'agent-onboard release --fixture',
   parity_smoke_command: 'agent-onboard release --parity-smoke',
+  architecture_parity_smoke_command: 'agent-onboard release --architecture-parity-smoke',
   target_onboarding_smoke_command: 'agent-onboard release --target-onboarding-smoke',
   post_publish_handoff_command: 'agent-onboard release --post-publish-handoff',
   published_acceptance_command: 'agent-onboard release --published-acceptance',
@@ -521,6 +607,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   authority_check_command: 'agent-onboard authority --check',
   target_runtime_namespace_command: 'agent-onboard target runtime --namespace',
   target_runtime_check_command: 'agent-onboard target runtime --check',
+  package_surface_command: 'agent-onboard release --surface',
+  package_surface_check_command: 'agent-onboard release --surface-check',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
     '.agent-onboard/project.json',
@@ -556,6 +644,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js release --contract',
     'node cli/agent-onboard.js release --fixture',
     'node cli/agent-onboard.js release --parity-smoke',
+    'node cli/agent-onboard.js release --architecture-parity-smoke',
     'node cli/agent-onboard.js release --target-onboarding-smoke',
     'node cli/agent-onboard.js release --post-publish-handoff',
     'node cli/agent-onboard.js release --published-acceptance',
@@ -567,6 +656,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js authority --check',
     'node cli/agent-onboard.js target runtime --namespace',
     'node cli/agent-onboard.js target runtime --check',
+    'node cli/agent-onboard.js release --surface',
+    'node cli/agent-onboard.js release --surface-check',
     'node cli/agent-onboard.js architecture --check',
     'node cli/agent-onboard.js target onboarding --trial',
     'node cli/agent-onboard.js release --check',
@@ -579,6 +670,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> release --contract',
     'npx agent-onboard@<version> release --fixture',
     'npx agent-onboard@<version> release --parity-smoke',
+    'npx agent-onboard@<version> release --architecture-parity-smoke',
     'npx agent-onboard@<version> release --target-onboarding-smoke',
     'npx agent-onboard@<version> release --post-publish-handoff',
     'npx agent-onboard@<version> release --published-acceptance',
@@ -590,6 +682,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> authority --check',
     'npx agent-onboard@<version> target runtime --namespace',
     'npx agent-onboard@<version> target runtime --check',
+    'npx agent-onboard@<version> release --surface',
+    'npx agent-onboard@<version> release --surface-check',
     'npx agent-onboard@<version> architecture --check',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run',
@@ -608,7 +702,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
-  schema: 'agent-onboard-public-release-fixture-matrix-010',
+  schema: 'agent-onboard-public-release-fixture-matrix-012',
   title: 'Agent-Onboard Public Package Contract Fixture Matrix',
   package_name: 'agent-onboard',
   release_line: PUBLIC_RELEASE_CONTRACT.release_line,
@@ -706,6 +800,18 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
       expected_status: 'ok',
       validates: Object.freeze(['canonical .agent-onboard namespace root', 'runtime namespace file', 'canonical runtime file order', 'reserved future files not written', 'compact npm package boundary']),
       boundary: 'target runtime --namespace and target runtime --check are read-only; target onboarding writes the namespace file only with explicit --write authorization'
+    }),
+    Object.freeze({
+      id: 'public_package_surface_preservation',
+      expected_status: 'ok',
+      validates: Object.freeze(['four-file npm package surface', 'package.json files allowlist', 'source-only context excluded from pack', 'bin entrypoints remain in pack', 'public artifact messaging guard']),
+      boundary: 'release --surface and release --surface-check are read-only; they do not run npm, mutate the registry, write files, install dependencies, run Git, build, test, deploy, publish, or push'
+    }),
+    Object.freeze({
+      id: 'public_installed_parity_architecture_smoke',
+      expected_status: 'ok',
+      validates: Object.freeze(['installed-like package context accepts missing source-only files', 'architecture check passes from compact package files', 'authority and runtime checks pass from installed context', 'package surface check remains compact']),
+      boundary: 'release --architecture-parity-smoke is read-only; it does not create temp files, run npm, mutate registry, write files, install dependencies, run Git, build, test, deploy, publish, or push'
     })
   ]),
   boundary: Object.freeze({
@@ -2609,6 +2715,101 @@ function publicArchitectureCheck(root = packageRoot()) {
   };
 }
 
+
+function publicPackageSurface(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const projectedPackFiles = packageJsonProjectedPackFiles(pkg);
+  const expectedPackFiles = PUBLIC_PACKAGE_SURFACE_PRESERVATION.expected_pack_files.slice().sort();
+  const requiredPackageJsonFiles = PUBLIC_PACKAGE_SURFACE_PRESERVATION.required_package_json_files.slice().sort();
+  const actualPackageJsonFiles = Array.isArray(pkg.files) ? pkg.files.slice().sort() : [];
+  const context = sourceContext(root);
+  const sourceOnlyFiles = PUBLIC_PACKAGE_SURFACE_PRESERVATION.source_only_files.slice();
+  const sourceOnlyPresent = sourceOnlyFiles.filter((rel) => fs.existsSync(path.join(root, rel)));
+  const sourceOnlyProjected = sourceOnlyFiles.filter((rel) => projectedPackFiles.includes(rel));
+  const expectedPresent = expectedPackFiles.filter((rel) => fs.existsSync(path.join(root, rel)));
+  const expectedMissing = expectedPackFiles.filter((rel) => !fs.existsSync(path.join(root, rel)));
+  const binTargets = Object.values(PUBLIC_RELEASE_CONTRACT.required_package_json.bin);
+  const binTargetsInProjectedPack = binTargets.every((rel) => projectedPackFiles.includes(rel));
+  return {
+    schema: 'agent-onboard-public-package-surface-preservation-result-001',
+    status: 'ok',
+    package_name: PUBLIC_PACKAGE_SURFACE_PRESERVATION.package_name,
+    version: VERSION,
+    release_line: PUBLIC_PACKAGE_SURFACE_PRESERVATION.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_PACKAGE_SURFACE_PRESERVATION.command,
+    check_command: PUBLIC_PACKAGE_SURFACE_PRESERVATION.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: projectedPackFiles,
+    required_package_json_files: requiredPackageJsonFiles,
+    actual_package_json_files: actualPackageJsonFiles,
+    source_only_files: sourceOnlyFiles,
+    source_only_files_present: sourceOnlyPresent,
+    source_only_files_projected_into_pack: sourceOnlyProjected,
+    expected_pack_files_present: expectedPresent,
+    expected_pack_files_missing: expectedMissing,
+    bin_targets: binTargets,
+    bin_targets_in_projected_pack: binTargetsInProjectedPack,
+    installed_context_policy: PUBLIC_PACKAGE_SURFACE_PRESERVATION.installed_context_policy,
+    boundary: {
+      writes_files: false,
+      writes_package_root: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      network_registry_publish_required: false
+    }
+  };
+}
+
+function publicPackageSurfaceCheck(root = packageRoot()) {
+  const surface = publicPackageSurface(root);
+  const errors = [];
+  const messagingErrors = publicArtifactMessagingErrors(root, surface.expected_pack_files);
+  if (!arrayEquals(surface.projected_pack_files, surface.expected_pack_files)) errors.push(`projected npm pack files must stay ${surface.expected_pack_files.join(', ')}`);
+  if (!arrayEquals(surface.actual_package_json_files, surface.required_package_json_files)) errors.push(`package.json#files must stay ${surface.required_package_json_files.join(', ')}`);
+  if (surface.expected_pack_files_missing.length > 0) errors.push(`expected npm package files missing: ${surface.expected_pack_files_missing.join(', ')}`);
+  if (surface.source_only_files_projected_into_pack.length > 0) errors.push(`source-only files projected into npm package: ${surface.source_only_files_projected_into_pack.join(', ')}`);
+  if (!surface.bin_targets_in_projected_pack) errors.push('all bin targets must remain inside the projected npm package surface');
+  if (surface.expected_pack_files.length !== 4) errors.push('public npm package surface must remain exactly four files for this gate');
+  errors.push(...messagingErrors.map((error) => `public artifact messaging: ${error}`));
+  return {
+    schema: 'agent-onboard-public-package-surface-preservation-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_PACKAGE_SURFACE_PRESERVATION.package_name,
+    version: VERSION,
+    release_line: PUBLIC_PACKAGE_SURFACE_PRESERVATION.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_PACKAGE_SURFACE_PRESERVATION.check_command,
+    package_root: root,
+    package_context: surface.package_context,
+    validated: {
+      four_file_package_surface: surface.expected_pack_files.length === 4 && arrayEquals(surface.projected_pack_files, surface.expected_pack_files),
+      package_json_files_allowlist: arrayEquals(surface.actual_package_json_files, surface.required_package_json_files),
+      expected_pack_files_present: surface.expected_pack_files_missing.length === 0,
+      source_only_context_excluded_from_pack: surface.source_only_files_projected_into_pack.length === 0,
+      source_growth_files_present_in_source_repo: surface.package_context === 'installed_package' || surface.source_only_files_present.length >= 5,
+      bin_entrypoints_in_pack: surface.bin_targets_in_projected_pack,
+      public_artifact_messaging: messagingErrors.length === 0,
+      surface_commands_no_write: PUBLIC_PACKAGE_SURFACE_PRESERVATION.boundary.surface_command_writes_files === false && PUBLIC_PACKAGE_SURFACE_PRESERVATION.boundary.check_command_writes_files === false
+    },
+    expected_pack_files: surface.expected_pack_files,
+    projected_pack_files: surface.projected_pack_files,
+    required_package_json_files: surface.required_package_json_files,
+    actual_package_json_files: surface.actual_package_json_files,
+    source_only_files_present: surface.source_only_files_present,
+    source_only_files_projected_into_pack: surface.source_only_files_projected_into_pack,
+    boundary: surface.boundary,
+    errors
+  };
+}
+
 function publicReleaseCheck(root = packageRoot()) {
   const pkg = readJson(path.join(root, 'package.json'));
   const metadataErrors = packageJsonReleaseErrors(pkg, root);
@@ -2622,9 +2823,13 @@ function publicReleaseCheck(root = packageRoot()) {
   const sourceLedgerErrors = sourceLedger.present ? sourceLedger.errors.map((error) => `source ledger: ${error}`) : [];
   const architecture = publicArchitectureCheck(root);
   const architectureErrors = architecture.errors.map((error) => `architecture: ${error}`);
-  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors];
+  const packageSurface = publicPackageSurfaceCheck(root);
+  const packageSurfaceErrors = packageSurface.errors.map((error) => `package surface: ${error}`);
+  const architectureParity = publicInstalledParityArchitectureSmoke(root);
+  const architectureParityErrors = architectureParity.errors.map((error) => `installed architecture parity: ${error}`);
+  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors];
   return {
-    schema: 'agent-onboard-public-release-check-result-009',
+    schema: 'agent-onboard-public-release-check-result-011',
     status: errors.length === 0 ? 'ok' : 'error',
     package_name: PUBLIC_RELEASE_CONTRACT.package_name,
     version: VERSION,
@@ -2645,12 +2850,16 @@ function publicReleaseCheck(root = packageRoot()) {
       public_command_router: architecture.command_router && architecture.command_router.status === 'ok',
       public_domain_service_facades: architecture.domain_service_facades && architecture.domain_service_facades.status === 'ok',
       public_authority_first_read_index: architecture.authority_first_read_index && architecture.authority_first_read_index.status === 'ok',
-      public_target_runtime_namespace: architecture.target_runtime_namespace && architecture.target_runtime_namespace.status === 'ok'
+      public_target_runtime_namespace: architecture.target_runtime_namespace && architecture.target_runtime_namespace.status === 'ok',
+      public_package_surface_preservation: packageSurface.status === 'ok',
+      public_installed_parity_architecture_smoke: architectureParity.status === 'ok'
     },
     expected_pack_files: expectedPackFiles,
     projected_pack_files: projectedPackFiles,
     source_context_files: PUBLIC_RELEASE_CONTRACT.source_context_files.slice(),
     public_architecture: architecture,
+    public_package_surface_preservation: packageSurface,
+    public_installed_parity_architecture_smoke: architectureParity,
     local_pre_publish_commands: PUBLIC_RELEASE_CONTRACT.local_pre_publish_commands.slice(),
     post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
     boundary: {
@@ -2735,6 +2944,104 @@ function publicInstalledPackageParitySmoke(root = packageRoot()) {
     errors
   };
 }
+
+
+function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const expectedPackFiles = PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE.expected_pack_files.slice().sort();
+  const projectedPackFiles = packageJsonProjectedPackFiles(pkg);
+  const missingExpectedFiles = expectedPackFiles.filter((rel) => !fs.existsSync(path.join(root, rel)));
+  const sourceContextFilesInPack = PUBLIC_RELEASE_CONTRACT.source_context_files.filter((rel) => expectedPackFiles.includes(rel));
+  const metadataErrors = packageJsonReleaseErrors(pkg, root);
+  const messagingErrors = publicArtifactMessagingErrors(root, expectedPackFiles);
+  const architecture = publicArchitectureCheck(root);
+  const authority = publicAuthorityFirstReadCheck(root);
+  const targetRuntime = publicTargetRuntimeNamespaceCheck(root);
+  const packageSurface = publicPackageSurfaceCheck(root);
+  const componentErrors = [];
+  if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
+  if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
+  if (targetRuntime.status !== 'ok') componentErrors.push(...targetRuntime.errors.map((error) => `target runtime: ${error}`));
+  if (packageSurface.status !== 'ok') componentErrors.push(...packageSurface.errors.map((error) => `package surface: ${error}`));
+
+  const parity = {
+    package_metadata: metadataErrors.length === 0,
+    public_artifact_messaging: messagingErrors.length === 0,
+    projected_pack_files_match_contract: arrayEquals(projectedPackFiles, expectedPackFiles),
+    expected_pack_files_present: missingExpectedFiles.length === 0,
+    source_context_excluded_from_pack: sourceContextFilesInPack.length === 0,
+    installed_context_allows_missing_source_files: context.package_context === 'installed_package' ? context.source_context_files_present.length === 0 : true,
+    architecture_check: architecture.status === 'ok',
+    command_router_check: architecture.command_router && architecture.command_router.status === 'ok',
+    domain_service_facades_check: architecture.domain_service_facades && architecture.domain_service_facades.status === 'ok',
+    authority_first_read_check: authority.status === 'ok',
+    target_runtime_namespace_check: targetRuntime.status === 'ok',
+    package_surface_check: packageSurface.status === 'ok',
+    runtime_version_matches_package_json: pkg.version === VERSION
+  };
+
+  const errors = [];
+  errors.push(...metadataErrors, ...messagingErrors.map((error) => `public artifact messaging: ${error}`), ...componentErrors);
+  if (!parity.projected_pack_files_match_contract) errors.push(`projected npm pack files must match ${expectedPackFiles.join(', ')}`);
+  for (const rel of missingExpectedFiles) errors.push(`expected npm package file is missing: ${rel}`);
+  for (const rel of sourceContextFilesInPack) errors.push(`source-only context file must not be projected into npm package: ${rel}`);
+  if (!parity.runtime_version_matches_package_json) errors.push(`package.json#version must match runtime version ${VERSION}`);
+  if (!parity.installed_context_allows_missing_source_files) errors.push('installed package context must accept absent source-only authority, runtime, ledger, and test files');
+
+  return {
+    schema: 'agent-onboard-public-installed-parity-architecture-smoke-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE.package_name,
+    version: VERSION,
+    release_line: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE.release_line,
+    contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+    command: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE.command,
+    package_root: root,
+    source_context: context,
+    installed_context_policy: {
+      source_only_files_may_be_absent_after_install: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE.source_only_files_may_be_absent_after_install,
+      source_work_item_ledger_may_be_absent_after_install: PUBLIC_PACKAGE_SURFACE_PRESERVATION.installed_context_policy.source_work_item_ledger_may_be_absent_after_install,
+      release_check_must_skip_missing_source_ledger: PUBLIC_PACKAGE_SURFACE_PRESERVATION.installed_context_policy.installed_package_release_check_must_skip_missing_source_ledger
+    },
+    projected_installed_package: {
+      expected_pack_files: expectedPackFiles,
+      projected_pack_files: projectedPackFiles,
+      missing_expected_files: missingExpectedFiles,
+      source_context_files_excluded: PUBLIC_RELEASE_CONTRACT.source_context_files.filter((rel) => !expectedPackFiles.includes(rel)),
+      source_context_files_in_pack: sourceContextFilesInPack
+    },
+    observed: {
+      architecture_check_status: architecture.status,
+      authority_check_status: authority.status,
+      target_runtime_check_status: targetRuntime.status,
+      package_surface_check_status: packageSurface.status,
+      package_context: context.package_context,
+      source_context_files_present: context.source_context_files_present,
+      source_context_files_missing: context.source_context_files_missing
+    },
+    parity,
+    architecture,
+    authority_first_read_index: authority,
+    target_runtime_namespace: targetRuntime,
+    package_surface_preservation: packageSurface,
+    boundary: {
+      writes_files: false,
+      writes_package_root: false,
+      writes_target_repository_state: false,
+      creates_temp_files: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      network_registry_publish_required: false
+    },
+    errors
+  };
+}
+
 
 
 function publicTargetOnboardingInstalledPackageSmoke(root = packageRoot()) {
@@ -2854,6 +3161,7 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
     `npx agent-onboard@${version} release --contract`,
     `npx agent-onboard@${version} release --fixture`,
     `npx agent-onboard@${version} release --parity-smoke`,
+    `npx agent-onboard@${version} release --architecture-parity-smoke`,
     `npx agent-onboard@${version} release --target-onboarding-smoke`,
     `npx agent-onboard@${version} release --post-publish-handoff`,
     `npx agent-onboard@${version} release --published-acceptance`,
@@ -2865,6 +3173,8 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
     `npx agent-onboard@${version} authority --check`,
     `npx agent-onboard@${version} target runtime --namespace`,
     `npx agent-onboard@${version} target runtime --check`,
+    `npx agent-onboard@${version} release --surface`,
+    `npx agent-onboard@${version} release --surface-check`,
     `npx agent-onboard@${version} architecture --check`,
     `npx agent-onboard@${version} release --check`,
     `npx agent-onboard@${version} init --dry-run`,
@@ -2897,17 +3207,20 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
       'version-pinned release contract returns ok',
       'version-pinned release fixture returns ok',
       'version-pinned parity smoke returns ok',
+      'version-pinned architecture parity smoke returns ok',
       'version-pinned target onboarding smoke returns ok',
       'version-pinned published acceptance returns ok',
       'version-pinned release check returns ok',
+      'version-pinned package surface check returns ok',
       'version-pinned target onboarding plan and fixture return ok'
     ],
     acceptance_criteria: {
       latest_dist_tag_matches_version: true,
       version_pinned_npx_commands_pass: true,
       release_contract_and_fixture_pass: true,
-      parity_and_target_onboarding_smokes_pass: true,
+      parity_architecture_and_target_onboarding_smokes_pass: true,
       release_check_passes_in_installed_package_context: true,
+      package_surface_check_passes_in_installed_package_context: true,
       published_acceptance_passes_in_registry_package_context: true,
       target_onboarding_plan_and_fixture_pass_from_registry_package: true
     },
@@ -2936,6 +3249,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
   const releaseCheck = publicReleaseCheck(root);
   const handoff = publicTargetOnboardingPostPublishHandoff(root, VERSION);
   const paritySmoke = publicInstalledPackageParitySmoke(root);
+  const architectureParitySmoke = publicInstalledParityArchitectureSmoke(root);
   const targetSmoke = publicTargetOnboardingInstalledPackageSmoke(root);
   const targetPlan = targetOnboardingSurfacePlan(root);
   const targetFixture = targetOnboardingDryRunFixture(root);
@@ -2947,6 +3261,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
     `npx agent-onboard@${VERSION} release --check`,
     `npx agent-onboard@${VERSION} release --published-acceptance`,
     `npx agent-onboard@${VERSION} release --real-target-trial`,
+    `npx agent-onboard@${VERSION} release --architecture-parity-smoke`,
     `npx agent-onboard@${VERSION} architecture --map`,
     `npx agent-onboard@${VERSION} architecture --router`,
     `npx agent-onboard@${VERSION} architecture --facades`,
@@ -2964,6 +3279,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
   if (releaseCheck.status !== 'ok') errors.push('release check must pass for published package acceptance');
   if (handoff.status !== 'ok') errors.push('post-publish handoff must pass for published package acceptance');
   if (paritySmoke.status !== 'ok') errors.push('parity smoke must pass for published package acceptance');
+  if (architectureParitySmoke.status !== 'ok') errors.push('architecture parity smoke must pass for published package acceptance');
   if (targetSmoke.status !== 'ok') errors.push('target onboarding smoke must pass for published package acceptance');
   if (targetPlan.status !== 'ok') errors.push('target onboarding plan must pass for published package acceptance');
   if (targetFixture.status !== 'ok') errors.push('target onboarding fixture must pass for published package acceptance');
@@ -2990,6 +3306,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
       release_check_status: releaseCheck.status,
       post_publish_handoff_status: handoff.status,
       parity_smoke_status: paritySmoke.status,
+      architecture_parity_smoke_status: architectureParitySmoke.status,
       target_onboarding_smoke_status: targetSmoke.status,
       target_onboarding_plan_status: targetPlan.status,
       target_onboarding_fixture_status: targetFixture.status,
@@ -3003,6 +3320,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
       release_check: releaseCheck.status === 'ok',
       post_publish_handoff: handoff.status === 'ok',
       parity_smoke: paritySmoke.status === 'ok',
+      architecture_parity_smoke: architectureParitySmoke.status === 'ok',
       target_onboarding_smoke: targetSmoke.status === 'ok',
       target_onboarding_plan: targetPlan.status === 'ok',
       target_onboarding_fixture: targetFixture.status === 'ok',
@@ -3017,6 +3335,7 @@ function publicTargetOnboardingPublishedAcceptance(root = packageRoot()) {
       package_metadata_checked_by_operator_handoff: true,
       version_pinned_release_check_passes: true,
       version_pinned_published_acceptance_passes: true,
+      version_pinned_architecture_parity_smoke_passes: true,
       target_onboarding_plan_and_fixture_pass_from_published_package: true,
       target_onboarding_smoke_passes_from_published_package: true,
       real_target_trial_passes_from_published_package: true,
@@ -3103,6 +3422,7 @@ function runRelease(args) {
       contract_command: PUBLIC_RELEASE_CONTRACT.contract_command,
       fixture_command: PUBLIC_RELEASE_CONTRACT.fixture_command,
       parity_smoke_command: PUBLIC_RELEASE_CONTRACT.parity_smoke_command,
+      architecture_parity_smoke_command: PUBLIC_RELEASE_CONTRACT.architecture_parity_smoke_command,
       target_onboarding_smoke_command: PUBLIC_RELEASE_CONTRACT.target_onboarding_smoke_command,
       post_publish_handoff_command: PUBLIC_RELEASE_CONTRACT.post_publish_handoff_command,
       published_acceptance_command: PUBLIC_RELEASE_CONTRACT.published_acceptance_command,
@@ -3115,6 +3435,8 @@ function runRelease(args) {
       authority_check_command: PUBLIC_RELEASE_CONTRACT.authority_check_command,
       target_runtime_namespace_command: PUBLIC_RELEASE_CONTRACT.target_runtime_namespace_command,
       target_runtime_check_command: PUBLIC_RELEASE_CONTRACT.target_runtime_check_command,
+      package_surface_command: PUBLIC_RELEASE_CONTRACT.package_surface_command,
+      package_surface_check_command: PUBLIC_RELEASE_CONTRACT.package_surface_check_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
       fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
@@ -3123,6 +3445,8 @@ function runRelease(args) {
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
+      package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
+      installed_parity_architecture_smoke: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE,
       source_context: sourceContext(),
       post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
       boundary: {
@@ -3150,6 +3474,8 @@ function runRelease(args) {
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
+      package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
+      installed_parity_architecture_smoke: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE,
       source_context: sourceContext(),
       writes_files: false,
       publishes_package: false,
@@ -3171,6 +3497,8 @@ function runRelease(args) {
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
+      package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
+      installed_parity_architecture_smoke: PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE,
       source_context: sourceContext(),
       writes_files: false,
       publishes_package: false,
@@ -3178,8 +3506,22 @@ function runRelease(args) {
     });
     return 0;
   }
+  if (args.length === 1 && args[0] === '--surface') {
+    json(publicPackageSurface());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--surface-check') {
+    const result = publicPackageSurfaceCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--parity-smoke') {
     const result = publicInstalledPackageParitySmoke();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
+  if (args.length === 1 && args[0] === '--architecture-parity-smoke') {
+    const result = publicInstalledParityArchitectureSmoke();
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
@@ -3212,7 +3554,7 @@ function runRelease(args) {
     schema: 'agent-onboard-release-command-error-001',
     status: 'error',
     command_family: 'release',
-    message: 'release requires --plan, --contract, --fixture, --parity-smoke, --target-onboarding-smoke, --post-publish-handoff, --published-acceptance, --real-target-trial, or --check',
+    message: 'release requires --plan, --contract, --fixture, --surface, --surface-check, --parity-smoke, --architecture-parity-smoke, --target-onboarding-smoke, --post-publish-handoff, --published-acceptance, --real-target-trial, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -3938,7 +4280,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--check\nagent-onboard release --plan|--contract|--fixture|--parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -4078,6 +4420,7 @@ module.exports = {
   publicCommandRouterCheck,
   publicArchitectureCheck,
   publicInstalledPackageParitySmoke,
+  publicInstalledParityArchitectureSmoke,
   publicTargetOnboardingInstalledPackageSmoke,
   publicTargetOnboardingPostPublishHandoff,
   publicTargetOnboardingPublishedAcceptance,
@@ -4093,5 +4436,6 @@ module.exports = {
   PUBLIC_RELEASE_FIXTURE_MATRIX,
   PUBLIC_ARCHITECTURE_MAP,
   PUBLIC_COMMAND_ROUTER,
-  PUBLIC_TARGET_RUNTIME_NAMESPACE
+  PUBLIC_TARGET_RUNTIME_NAMESPACE,
+  PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE
 };

@@ -6,7 +6,7 @@ Target:
 
 - name: agent-onboard
 - kind: node
-- control package: agent-onboard@0.0.32
+- control package: agent-onboard@0.0.34
 
 First-read order:
 
@@ -21,3 +21,8 @@ First-read order:
 9. Raw evidence/source files — on demand only after the authority files above.
 
 Default boundary: start read-only. Do not install dependencies, run builds/tests/deploys, publish, push, or overwrite non-identical files unless the repository owner explicitly authorizes that action.
+
+Package surface gate:
+- npx agent-onboard@0.0.34 release --surface
+- npx agent-onboard@0.0.34 release --surface-check
+- npx agent-onboard@0.0.34 release --architecture-parity-smoke
