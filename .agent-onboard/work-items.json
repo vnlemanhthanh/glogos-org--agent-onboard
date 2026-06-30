@@ -231,6 +231,46 @@
       "id": "P1S1M2W2",
       "milestone_id": "P1S1M2",
       "title": "Public package contract fixture gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding a public package contract fixture matrix in agent-onboard@0.0.19: release --fixture exposes the regression matrix and source tests now exercise installed-package pass, stale package version, npm pack allowlist drift, missing bin entrypoint, and public artifact messaging failure cases.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js release --plan",
+          "node cli/agent-onboard.js release --contract",
+          "node cli/agent-onboard.js release --fixture",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.19 status",
+          "npx agent-onboard@0.0.19 release --fixture",
+          "npx agent-onboard@0.0.19 release --check"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S1M2W3",
+      "milestone_id": "P1S1M2",
+      "title": "Public installed package parity smoke gate",
       "status": "open"
     }
   ]

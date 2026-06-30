@@ -238,12 +238,13 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
 
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-002',
+  schema: 'agent-onboard-public-release-contract-003',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
-  release_line: 'public_release_contract_absorption_gate',
+  release_line: 'public_package_contract_fixture_gate',
   command: 'agent-onboard release --check',
   contract_command: 'agent-onboard release --contract',
+  fixture_command: 'agent-onboard release --fixture',
   expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
   source_context_files: Object.freeze([
     '.agent-onboard/project.json',
@@ -272,6 +273,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npm publish --dry-run --json --ignore-scripts',
     'node cli/agent-onboard.js status',
     'node cli/agent-onboard.js release --contract',
+    'node cli/agent-onboard.js release --fixture',
     'node cli/agent-onboard.js release --check',
     'node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json'
   ]),
@@ -280,6 +282,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npm view agent-onboard@<version> name version license bin repository',
     'npx agent-onboard@<version> status',
     'npx agent-onboard@<version> release --contract',
+    'npx agent-onboard@<version> release --fixture',
     'npx agent-onboard@<version> release --check',
     'npx agent-onboard@<version> init --dry-run'
   ]),
@@ -289,6 +292,58 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     release_commands_install_dependencies: false,
     release_commands_run_git: false,
     source_ledger_required_only_when_present: true
+  })
+});
+
+
+const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
+  schema: 'agent-onboard-public-release-fixture-matrix-001',
+  title: 'Agent-Onboard Public Package Contract Fixture Matrix',
+  package_name: 'agent-onboard',
+  release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+  contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+  command: 'agent-onboard release --fixture',
+  purpose: 'Declare regression fixtures for package/version/content drift before publish handoff.',
+  fixtures: Object.freeze([
+    Object.freeze({
+      id: 'valid_source_repository_contract',
+      expected_status: 'ok',
+      validates: Object.freeze(['package_metadata', 'projected_pack_allowlist', 'public_artifact_messaging', 'source_work_items_ledger'])
+    }),
+    Object.freeze({
+      id: 'valid_installed_package_contract',
+      expected_status: 'ok',
+      validates: Object.freeze(['package_metadata', 'projected_pack_allowlist', 'public_artifact_messaging']),
+      expected_source_work_items_ledger_status: 'skipped'
+    }),
+    Object.freeze({
+      id: 'stale_package_version_contract',
+      expected_status: 'error',
+      detects: 'package.json version drift from runtime version'
+    }),
+    Object.freeze({
+      id: 'pack_allowlist_drift_contract',
+      expected_status: 'error',
+      detects: 'package.json files array drift from public npm tarball allowlist'
+    }),
+    Object.freeze({
+      id: 'missing_bin_entrypoint_contract',
+      expected_status: 'error',
+      detects: 'missing CLI bin entrypoint referenced by package.json'
+    }),
+    Object.freeze({
+      id: 'public_artifact_messaging_contract',
+      expected_status: 'error',
+      detects: 'reserved public artifact messaging token in npm-packed files'
+    })
+  ]),
+  boundary: Object.freeze({
+    writes_files: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
   })
 });
 
@@ -1111,7 +1166,7 @@ function publicReleaseCheck(root = packageRoot()) {
   const sourceLedgerErrors = sourceLedger.present ? sourceLedger.errors.map((error) => `source ledger: ${error}`) : [];
   const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors];
   return {
-    schema: 'agent-onboard-public-release-check-result-002',
+    schema: 'agent-onboard-public-release-check-result-003',
     status: errors.length === 0 ? 'ok' : 'error',
     package_name: PUBLIC_RELEASE_CONTRACT.package_name,
     version: VERSION,
@@ -1150,15 +1205,17 @@ function publicReleaseCheck(root = packageRoot()) {
 function runRelease(args) {
   if (args.length === 1 && args[0] === '--plan') {
     json({
-      schema: 'agent-onboard-public-release-plan-002',
+      schema: 'agent-onboard-public-release-plan-003',
       status: 'ok',
       package_name: PUBLIC_RELEASE_CONTRACT.package_name,
       version: VERSION,
       release_line: PUBLIC_RELEASE_CONTRACT.release_line,
       contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
       contract_command: PUBLIC_RELEASE_CONTRACT.contract_command,
+      fixture_command: PUBLIC_RELEASE_CONTRACT.fixture_command,
       check_command: PUBLIC_RELEASE_CONTRACT.command,
       contract: PUBLIC_RELEASE_CONTRACT,
+      fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
       source_context: sourceContext(),
       post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
       boundary: {
@@ -1180,6 +1237,23 @@ function runRelease(args) {
       version: VERSION,
       release_line: PUBLIC_RELEASE_CONTRACT.release_line,
       contract: PUBLIC_RELEASE_CONTRACT,
+      fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
+      source_context: sourceContext(),
+      writes_files: false,
+      publishes_package: false,
+      mutates_registry: false
+    });
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--fixture') {
+    json({
+      schema: 'agent-onboard-public-release-fixture-response-001',
+      status: 'ok',
+      package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+      version: VERSION,
+      release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+      contract_schema: PUBLIC_RELEASE_CONTRACT.schema,
+      fixture_matrix: PUBLIC_RELEASE_FIXTURE_MATRIX,
       source_context: sourceContext(),
       writes_files: false,
       publishes_package: false,
@@ -1196,7 +1270,7 @@ function runRelease(args) {
     schema: 'agent-onboard-release-command-error-001',
     status: 'error',
     command_family: 'release',
-    message: 'release requires --plan, --contract, or --check',
+    message: 'release requires --plan, --contract, --fixture, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -1849,7 +1923,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--contract|--fixture|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -1861,7 +1935,7 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_release_contract_absorption_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_package_contract_fixture_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
@@ -1905,5 +1979,6 @@ module.exports = {
   evaluateTargetBoundaryConfig,
   sourceWorkItemsLedgerCheck,
   sourceContext,
-  publicReleaseCheck
+  publicReleaseCheck,
+  PUBLIC_RELEASE_FIXTURE_MATRIX
 };
