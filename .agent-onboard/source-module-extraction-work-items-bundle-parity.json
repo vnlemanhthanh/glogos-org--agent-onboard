@@ -1,0 +1,45 @@
+{
+  "schema": "agent-onboard-public-source-module-work-items-bundle-parity-001",
+  "title": "Agent-Onboard Public Work-Items Domain Source Extraction Bundle Parity",
+  "package_name": "agent-onboard",
+  "release_line": "public_work_items_domain_source_extraction_bundle_parity_gate",
+  "command": "agent-onboard architecture --work-items-bundle-parity",
+  "check_command": "agent-onboard architecture --work-items-bundle-parity-check",
+  "bundle_parity_file": ".agent-onboard/source-module-extraction-work-items-bundle-parity.json",
+  "source_module": "src/domains/work-items.js",
+  "prerequisite_first_slice_file": ".agent-onboard/source-module-extraction-work-items-first-slice.json",
+  "parity_status": "work_items_source_slice_matches_bundled_cli_view",
+  "purpose": "Prove that the source-only work_items first slice and the bundled CLI work-items architecture view remain equivalent before admitting a runtime bridge or deeper claims-domain extraction.",
+  "parity_scope": [
+    "work_items domain id, facade, schema id, and state file match between source slice and bundled CLI view",
+    "work_items read/list/init/append surface metadata matches the bundled CLI view",
+    "claim and close remain excluded for a later claims-domain extraction gate",
+    "source module remains source-only and excluded from npm package allowlist",
+    "installed package context may omit source-only modules while bundled CLI checks still pass"
+  ],
+  "bundled_view": {
+    "source_of_truth": "cli/agent-onboard.js bundled work-items runtime metadata",
+    "public_bin_entrypoint": "cli/agent-onboard.js",
+    "published_package_file_count": 4
+  },
+  "boundary": {
+    "work_items_bundle_parity_command_writes_files": false,
+    "work_items_bundle_parity_check_command_writes_files": false,
+    "creates_bundle_artifact": false,
+    "creates_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "includes_claim_and_close_commands": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}

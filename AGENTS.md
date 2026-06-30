@@ -215,4 +215,21 @@ node cli/agent-onboard.js architecture --m2-seed
 node cli/agent-onboard.js architecture --m2-seed-check
 ```
 
-The next architecture milestone remains open and the next executable work item is the work-items domain source extraction planning gate. Do not create the work-items source module until that gate is explicitly assigned.
+The next architecture milestone remains open. The work-items first slice and bundle parity gates are now closed; the next executable work item is the work-items runtime bridge gate.
+
+
+## Public work-items domain source extraction bundle parity gate
+
+Run these source checks before publishing this gate:
+
+```sh
+node cli/agent-onboard.js architecture --work-items-first-slice
+node cli/agent-onboard.js architecture --work-items-first-slice-check
+node cli/agent-onboard.js architecture --work-items-bundle-parity
+node cli/agent-onboard.js architecture --work-items-bundle-parity-check
+node cli/agent-onboard.js architecture --check
+node cli/agent-onboard.js release --architecture-parity-smoke
+node cli/agent-onboard.js release --check
+```
+
+The work-items source slice must remain source-only, outside `package.json#files`, and must keep `work-items --claim` and `work-items --close` reserved for a later claims-domain extraction gate.

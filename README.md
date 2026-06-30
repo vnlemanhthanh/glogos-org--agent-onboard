@@ -108,6 +108,8 @@ npx agent-onboard architecture --work-items-plan
 npx agent-onboard architecture --work-items-check
 npx agent-onboard architecture --work-items-first-slice
 npx agent-onboard architecture --work-items-first-slice-check
+npx agent-onboard architecture --work-items-bundle-parity
+npx agent-onboard architecture --work-items-bundle-parity-check
 npx agent-onboard architecture --check
 npx agent-onboard release --plan
 npx agent-onboard release --contract
@@ -750,6 +752,9 @@ This release adds the public source extraction golden output freeze gate: `archi
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
 
+
+This release adds the public work-items domain source extraction bundle parity gate: `architecture --work-items-bundle-parity` and `architecture --work-items-bundle-parity-check` validate that the source-only `src/domains/work-items.js` slice matches the bundled CLI work-items view without expanding the npm package surface.
+
 ## Source self-dogfood and agent participation
 
 The source repository can carry its own public Agent-Onboard operating surface:
@@ -815,6 +820,8 @@ npx agent-onboard architecture --work-items-plan
 npx agent-onboard architecture --work-items-check
 npx agent-onboard architecture --work-items-first-slice
 npx agent-onboard architecture --work-items-first-slice-check
+npx agent-onboard architecture --work-items-bundle-parity
+npx agent-onboard architecture --work-items-bundle-parity-check
 ```
 
-This gate validates the transition from the public architecture kernel milestone to the next public source-domain extraction milestone. It does not create new source modules, does not expand `package.json#files`, and leaves the next executable source-domain extraction gate open in the source ledger.
+This gate validates the transition from the public architecture kernel milestone into the work-items source extraction line. The current bundle parity gate proves that `src/domains/work-items.js` matches the bundled CLI work-items view while keeping claim/close behavior excluded and preserving the compact `package.json#files` surface.

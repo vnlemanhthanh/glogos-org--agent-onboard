@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -209,7 +209,10 @@
     "source-extraction-planning",
     "work-items-first-slice",
     "work-items-source-slice",
-    "work-items-module-parity"
+    "work-items-module-parity",
+    "work-items-bundle-parity",
+    "work-items-source-parity",
+    "work-items-bundled-cli-view"
   ],
   "type": "commonjs",
   "engines": {

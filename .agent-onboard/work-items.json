@@ -1676,6 +1676,48 @@
       "id": "P1S3M2W4",
       "milestone_id": "P1S3M2",
       "title": "Public work-items domain source extraction bundle parity gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public work-items source extraction bundle parity gate in agent-onboard@0.0.50: architecture --work-items-bundle-parity proves that src/domains/work-items.js matches the bundled CLI work-items domain view for schema, state files, command surface, explicit write-boundary metadata, and claim/close exclusions while preserving the compact npm package allowlist.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-work-items-bundle-parity.json"
+        ],
+        "checks_run": [
+          "node cli/agent-onboard.js architecture --work-items-bundle-parity",
+          "node cli/agent-onboard.js architecture --work-items-bundle-parity-check",
+          "node cli/agent-onboard.js architecture --work-items-first-slice-check",
+          "node cli/agent-onboard.js architecture --work-items-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node test/agent-onboard.test.js",
+          "npm pack --dry-run --json",
+          "packed package smoke: status, architecture --work-items-bundle-parity-check, architecture --work-items-first-slice-check, architecture --check, release --architecture-parity-smoke, release --check"
+        ],
+        "checks_not_run": [
+          "npm publish"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M2W5",
+      "milestone_id": "P1S3M2",
+      "title": "Public work-items domain source extraction runtime bridge gate",
       "status": "open"
     }
   ]

@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_work_items_domain_source_extraction_first_slice_gate';
+const EXPECTED_RELEASE_LINE = 'public_work_items_domain_source_extraction_bundle_parity_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 
 function run(args, opts = {}) {
@@ -138,6 +138,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.architecture_work_items_check_command, 'agent-onboard architecture --work-items-check');
   assert.strictEqual(output.architecture_work_items_first_slice_command, 'agent-onboard architecture --work-items-first-slice');
   assert.strictEqual(output.architecture_work_items_first_slice_check_command, 'agent-onboard architecture --work-items-first-slice-check');
+  assert.strictEqual(output.architecture_work_items_bundle_parity_command, 'agent-onboard architecture --work-items-bundle-parity');
+  assert.strictEqual(output.architecture_work_items_bundle_parity_check_command, 'agent-onboard architecture --work-items-bundle-parity-check');
   assert.strictEqual(output.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.authority_check_command, 'agent-onboard authority --check');
@@ -188,6 +190,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.contract.architecture_work_items_check_command, 'agent-onboard architecture --work-items-check');
   assert.strictEqual(output.contract.architecture_work_items_first_slice_command, 'agent-onboard architecture --work-items-first-slice');
   assert.strictEqual(output.contract.architecture_work_items_first_slice_check_command, 'agent-onboard architecture --work-items-first-slice-check');
+  assert.strictEqual(output.contract.architecture_work_items_bundle_parity_command, 'agent-onboard architecture --work-items-bundle-parity');
+  assert.strictEqual(output.contract.architecture_work_items_bundle_parity_check_command, 'agent-onboard architecture --work-items-bundle-parity-check');
   assert.strictEqual(output.contract.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.contract.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.contract.authority_check_command, 'agent-onboard authority --check');
@@ -235,6 +239,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_module_extraction_authority_bundle_parity'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_module_extraction_authority_runtime_bridge'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_work_items_domain_source_extraction_plan'));
+  assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_work_items_domain_source_extraction_first_slice'));
+  assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_work_items_domain_source_extraction_bundle_parity'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_architecture_m1_closure_m2_seed'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_version_reference_policy'));
   assert.strictEqual(output.writes_files, false);
@@ -252,7 +258,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.command, 'agent-onboard architecture --map');
   assert.strictEqual(output.map.public_source_shape.source_partition_plan_file, '.agent-onboard/source-partition-plan.json');
   assert.strictEqual(output.map.public_source_shape.source_extraction_rehearsal_file, '.agent-onboard/source-extraction-rehearsal.json');
-  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'work_items_domain_source_first_slice_applied');
+  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'work_items_domain_source_bundle_parity_applied');
   assert.strictEqual(output.map.public_source_shape.source_extraction_golden_outputs_file, '.agent-onboard/source-extraction-golden-outputs.json');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_adapter_boundary_file, '.agent-onboard/source-module-extraction-adapter-boundary.json');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_first_slice_file, '.agent-onboard/source-module-extraction-first-slice.json');
@@ -267,6 +273,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_plan_file, '.agent-onboard/source-module-extraction-work-items-plan.json');
   assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_planned_module, 'src/domains/work-items.js');
   assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_first_slice_file, '.agent-onboard/source-module-extraction-work-items-first-slice.json');
+  assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_bundle_parity_file, '.agent-onboard/source-module-extraction-work-items-bundle-parity.json');
   assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_module, 'src/domains/work-items.js');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_authority_bundle_parity_module, 'src/domains/authority.js');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_second_slice_planned_module, 'src/domains/authority.js');
@@ -644,10 +651,12 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.validated.public_source_module_extraction_authority_bundle_parity);
   assert.ok(output.validated.public_source_module_extraction_authority_runtime_bridge);
   assert.ok(output.validated.work_items_domain_source_extraction_plan);
+  assert.ok(output.validated.work_items_domain_source_extraction_first_slice);
+  assert.ok(output.validated.work_items_domain_source_extraction_bundle_parity);
   assert.ok(output.validated.public_architecture_m1_closure_m2_seed);
   assert.strictEqual(output.public_architecture_m1_closure_m2_seed.milestone_transition.closed_milestone.status, 'closed');
   assert.strictEqual(output.public_architecture_m1_closure_m2_seed.milestone_transition.opened_milestone.status, 'open');
-  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 2, 'W', 4].join('')));
+  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 2, 'W', 5].join('')));
   assert.ok(output.validated.public_version_reference_policy);
   assert.strictEqual(output.public_architecture.status, 'ok');
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public installed parity architecture smoke gate'));
@@ -2156,7 +2165,7 @@ function cliTargetConfigForTest(dir) {
   const help = run(['--help']);
   assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
   assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
-  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--check'));
+  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--check'));
   assert.ok(help.stdout.includes('release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check'));
   assert.ok(help.stdout.includes('target runtime --namespace|--check'));
   assert.ok(help.stdout.includes('target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]'));
@@ -2261,6 +2270,41 @@ assert.ok(agents.includes('node cli/agent-onboard.js target runtime --check'));
   assert.strictEqual(output.planned_domain.planned_module, 'src/domains/work-items.js');
   assert.strictEqual(output.work_items.current.status, 'closed');
   assert.strictEqual(output.work_items.next.status, 'closed');
+  assert.deepStrictEqual(output.errors, []);
+}
+
+
+{
+  const result = run(['architecture', '--work-items-first-slice-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-source-module-work-items-first-slice-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, EXPECTED_VERSION);
+  assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
+  assert.strictEqual(output.command, 'agent-onboard architecture --work-items-first-slice-check');
+  assert.ok(output.validated.extracted_domain_is_work_items);
+  assert.ok(output.validated.claim_and_close_commands_excluded);
+  assert.ok(output.validated.package_allowlist_unchanged);
+  assert.deepStrictEqual(output.errors, []);
+}
+
+{
+  const result = run(['architecture', '--work-items-bundle-parity-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-source-module-work-items-bundle-parity-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, EXPECTED_VERSION);
+  assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
+  assert.strictEqual(output.command, 'agent-onboard architecture --work-items-bundle-parity-check');
+  assert.ok(output.validated.first_slice);
+  assert.ok(output.validated.bundle_parity_status);
+  assert.ok(output.validated.source_slice_domain_matches_bundled_work_items);
+  assert.ok(output.validated.source_slice_commands_match_bundled_work_items);
+  assert.ok(output.validated.source_slice_exclusions_match_bundled_work_items);
+  assert.ok(output.validated.source_slice_write_boundary_matches_bundled_work_items);
+  assert.ok(output.validated.claim_and_close_commands_excluded);
+  assert.ok(output.validated.package_allowlist_unchanged);
+  assert.strictEqual(output.bundled_work_items_view.domain, 'work_items');
   assert.deepStrictEqual(output.errors, []);
 }
 
