@@ -1,0 +1,61 @@
+{
+  "schema": "agent-onboard-public-source-module-work-items-runtime-bridge-001",
+  "title": "Agent-Onboard Public Work-Items Domain Source Extraction Runtime Bridge",
+  "package_name": "agent-onboard",
+  "release_line": "public_work_items_domain_source_extraction_runtime_bridge_gate",
+  "command": "agent-onboard architecture --work-items-runtime-bridge",
+  "check_command": "agent-onboard architecture --work-items-runtime-bridge-check",
+  "runtime_bridge_file": ".agent-onboard/source-module-extraction-work-items-runtime-bridge.json",
+  "source_module": "src/domains/work-items.js",
+  "prerequisite_bundle_parity_file": ".agent-onboard/source-module-extraction-work-items-bundle-parity.json",
+  "bridge_status": "work_items_source_context_optional_runtime_bridge_applied",
+  "purpose": "Admit a guarded runtime bridge that may load the source-only work_items module in source repository context while falling back to bundled CLI work-items metadata in installed package context.",
+  "bridge_resolution_order": [
+    "source repository context: try src/domains/work-items.js through guarded optional require",
+    "installed package context: use bundled CLI work-items metadata fallback",
+    "failure mode: fail closed if source module is present but invalid"
+  ],
+  "runtime_bridge": {
+    "bridge_function": "resolveWorkItemsDomainRuntimeBridge",
+    "source_context_loads_module_when_present": true,
+    "installed_context_allows_missing_source_module": true,
+    "fallback": "bundledWorkItemsDomainForParity",
+    "public_import_api": false,
+    "writes_files": false,
+    "state_writer": false,
+    "includes_claim_and_close_commands": false
+  },
+  "next_work_item_components": {
+    "program": 1,
+    "stage": 3,
+    "milestone": 2,
+    "work_item": 6
+  },
+  "boundary": {
+    "work_items_runtime_bridge_command_writes_files": false,
+    "work_items_runtime_bridge_check_command_writes_files": false,
+    "creates_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "source_context_optional_require_only": true,
+    "installed_context_fallback_required": true,
+    "includes_claim_and_close_commands": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  },
+  "work_item_components": {
+    "program": 1,
+    "stage": 3,
+    "milestone": 2,
+    "work_item": 5
+  }
+}

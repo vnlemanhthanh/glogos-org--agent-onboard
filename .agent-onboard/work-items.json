@@ -1718,6 +1718,36 @@
       "id": "P1S3M2W5",
       "milestone_id": "P1S3M2",
       "title": "Public work-items domain source extraction runtime bridge gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by admitting the public work-items domain source extraction runtime bridge gate with source-context optional load and installed-package bundled fallback.",
+        "changed_files": [
+          "README.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-work-items-runtime-bridge.json"
+        ],
+        "checks_run": [
+          "node cli/agent-onboard.js architecture --work-items-runtime-bridge",
+          "node cli/agent-onboard.js architecture --work-items-runtime-bridge-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M2W6",
+      "milestone_id": "P1S3M2",
+      "title": "Public work-items domain source extraction installed fallback smoke gate",
       "status": "open"
     }
   ]
