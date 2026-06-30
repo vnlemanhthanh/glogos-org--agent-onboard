@@ -829,3 +829,7 @@ npx agent-onboard architecture --work-items-runtime-bridge-check
 ```
 
 This gate validates the transition from the public architecture kernel milestone into the work-items source extraction line. The current bundle parity gate proves that `src/domains/work-items.js` matches the bundled CLI work-items view while keeping claim/close behavior excluded and preserving the compact `package.json#files` surface.
+
+## Work-items installed fallback smoke
+
+Use `node cli/agent-onboard.js architecture --work-items-installed-fallback-smoke` and `node cli/agent-onboard.js architecture --work-items-installed-fallback-check` to verify that the source-only work-items module remains outside the npm package while installed context falls back to bundled CLI metadata. Claim and close behavior remain excluded from this slice.

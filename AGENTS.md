@@ -233,3 +233,7 @@ node cli/agent-onboard.js release --check
 ```
 
 The work-items source slice must remain source-only, outside `package.json#files`, and must keep `work-items --claim` and `work-items --close` reserved for a later claims-domain extraction gate.
+
+## Work-items installed fallback smoke
+
+Use `node cli/agent-onboard.js architecture --work-items-installed-fallback-smoke` and `node cli/agent-onboard.js architecture --work-items-installed-fallback-check` to verify that the source-only work-items module remains outside the npm package while installed context falls back to bundled CLI metadata. Claim and close behavior remain excluded from this slice.

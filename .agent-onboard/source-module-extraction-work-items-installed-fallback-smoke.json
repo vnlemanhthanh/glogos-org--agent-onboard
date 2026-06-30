@@ -1,0 +1,52 @@
+{
+  "schema": "agent-onboard-public-source-module-work-items-installed-fallback-smoke-001",
+  "title": "Agent-Onboard Public Work-Items Domain Source Extraction Installed Fallback Smoke",
+  "package_name": "agent-onboard",
+  "release_line": "public_work_items_domain_source_extraction_installed_fallback_smoke_gate",
+  "command": "agent-onboard architecture --work-items-installed-fallback-smoke",
+  "check_command": "agent-onboard architecture --work-items-installed-fallback-check",
+  "installed_fallback_smoke_file": ".agent-onboard/source-module-extraction-work-items-installed-fallback-smoke.json",
+  "source_module": "src/domains/work-items.js",
+  "prerequisite_runtime_bridge_file": ".agent-onboard/source-module-extraction-work-items-runtime-bridge.json",
+  "purpose": "Freeze an installed-package fallback smoke contract proving the compact npm tarball can omit the source-only work_items module while architecture and release checks still fall back to bundled CLI metadata.",
+  "smoke_status": "work_items_installed_fallback_smoke_admitted",
+  "projected_installed_context": {
+    "package_context": "installed_package",
+    "source_module_present": false,
+    "runtime_bridge_resolution_mode": "bundled_fallback",
+    "source_module_must_remain_out_of_pack": true,
+    "claim_and_close_commands_remain_excluded": true,
+    "architecture_checks_do_not_require_source_context_files": true
+  },
+  "validated_surfaces": [
+    "architecture --work-items-runtime-bridge-check",
+    "architecture --work-items-installed-fallback-check",
+    "architecture --check",
+    "release --surface-check",
+    "release --architecture-parity-smoke",
+    "release --check"
+  ],
+  "next_work_item_id": "P1S3M2W7",
+  "boundary": {
+    "work_items_installed_fallback_smoke_command_writes_files": false,
+    "work_items_installed_fallback_check_command_writes_files": false,
+    "creates_temp_files": false,
+    "creates_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "source_modules_remain_out_of_npm_pack": true,
+    "installed_context_fallback_required": true,
+    "includes_claim_and_close_commands": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}

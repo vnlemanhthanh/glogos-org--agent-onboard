@@ -1748,6 +1748,48 @@
       "id": "P1S3M2W6",
       "milestone_id": "P1S3M2",
       "title": "Public work-items domain source extraction installed fallback smoke gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding the public work-items domain source extraction installed fallback smoke gate: architecture --work-items-installed-fallback-check proves the compact installed package can omit src/domains/work-items.js while the work-items runtime bridge resolves through bundled_fallback and claim/close behavior remains excluded.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-work-items-installed-fallback-smoke.json"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node cli/agent-onboard.js architecture --work-items-installed-fallback-smoke",
+          "node cli/agent-onboard.js architecture --work-items-installed-fallback-check",
+          "node cli/agent-onboard.js architecture --work-items-runtime-bridge-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node test/agent-onboard.test.js",
+          "npm pack --dry-run --json",
+          "installed tarball smoke: status, architecture --work-items-installed-fallback-check, architecture --work-items-runtime-bridge-check, architecture --check, release --surface-check, release --architecture-parity-smoke, release --check"
+        ],
+        "checks_not_run": [
+          "npm publish"
+        ],
+        "known_non_pass": [
+          "Post-publish registry verification remains an operator handoff after publishing this source candidate."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M2W7",
+      "milestone_id": "P1S3M2",
+      "title": "Public claims domain source extraction planning gate",
       "status": "open"
     }
   ]
