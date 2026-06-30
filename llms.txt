@@ -6,7 +6,7 @@ Target:
 
 - name: agent-onboard
 - kind: node
-- control package: agent-onboard@0.0.34
+- control package: agent-onboard@0.0.35
 
 First-read order:
 
@@ -22,7 +22,11 @@ First-read order:
 
 Default boundary: start read-only. Do not install dependencies, run builds/tests/deploys, publish, push, or overwrite non-identical files unless the repository owner explicitly authorizes that action.
 
+Source partition gate:
+- npx agent-onboard@0.0.35 architecture --partition-plan
+- npx agent-onboard@0.0.35 architecture --partition-check
+
 Package surface gate:
-- npx agent-onboard@0.0.34 release --surface
-- npx agent-onboard@0.0.34 release --surface-check
-- npx agent-onboard@0.0.34 release --architecture-parity-smoke
+- npx agent-onboard@0.0.35 release --surface
+- npx agent-onboard@0.0.35 release --surface-check
+- npx agent-onboard@0.0.35 release --architecture-parity-smoke

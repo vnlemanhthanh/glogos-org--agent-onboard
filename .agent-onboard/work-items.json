@@ -996,6 +996,48 @@
       "id": "P1S3M1W8",
       "milestone_id": "P1S3M1",
       "title": "Public source domain module partition planning gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by preparing agent-onboard@0.0.35 with a public source domain module partition planning gate. The gate adds architecture --partition-plan and architecture --partition-check, admits .agent-onboard/source-partition-plan.json as a source-only planning artifact, maps future src/domains/* modules to the six canonical public domains and service facades, and preserves the compact four-file npm package surface without moving source files.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "agent-onboard.target.json",
+          ".agent-onboard/authority-path.json",
+          ".agent-onboard/runtime-namespace.json",
+          ".agent-onboard/source-partition-plan.json",
+          ".agent-onboard/work-items.json",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "node cli/agent-onboard.js architecture --partition-plan",
+          "node cli/agent-onboard.js architecture --partition-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "registry post-publish verification with version-pinned npx commands"
+        ],
+        "known_non_pass": [
+          "npm publish --dry-run may report registry authentication warnings in unauthenticated environments while still producing the dry-run package JSON"
+        ]
+      }
+    },
+    {
+      "id": "P1S3M1W9",
+      "milestone_id": "P1S3M1",
+      "title": "Public source domain extraction rehearsal gate",
       "status": "open"
     }
   ]

@@ -8,10 +8,10 @@ The generated files are intended to be read by agents, wrappers, CI hooks, or fu
 
 ## Install
 
-For the `0.0.x` line, install with `~0.0.34` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
+For the `0.0.x` line, install with `~0.0.35` so target repos can receive later `0.0.x` updates without crossing the `0.1.0` boundary:
 
 ```sh
-npm install --save-dev agent-onboard@~0.0.34
+npm install --save-dev agent-onboard@~0.0.35
 ```
 
 Run without installing:
@@ -100,6 +100,8 @@ npx agent-onboard target runtime --check
 npx agent-onboard architecture --map
 npx agent-onboard architecture --router
 npx agent-onboard architecture --facades
+npx agent-onboard architecture --partition-plan
+npx agent-onboard architecture --partition-check
 npx agent-onboard architecture --check
 npx agent-onboard release --plan
 npx agent-onboard release --contract
@@ -156,13 +158,29 @@ Inspect the public command router boundary without moving files or writing state
 npx agent-onboard architecture --router
 ```
 
-Validate that the public architecture map still declares the six canonical domains, preserves the compact npm package boundary, admits the command router, domain service facade, and authority first-read boundaries, and keeps architecture/authority inspection commands read-only:
+Validate that the public architecture map still declares the six canonical domains, preserves the compact npm package boundary, admits the command router, domain service facade, authority first-read, target runtime, and source partition planning boundaries, and keeps architecture/authority inspection commands read-only:
 
 ```sh
 npx agent-onboard architecture --check
 ```
 
-The public architecture kernel is: `core`, `authority`, `work_items`, `claims`, `target`, and `release_package`. `0.0.29` adds the public command router boundary gate. `0.0.30` adds the public domain service facade gate: top-level routes declare their owning service facade, and `architecture --facades` reports the admitted facade layer while the published package still uses one compact CLI entrypoint. `0.0.31` adds the public authority first-read index gate: `authority --first-read` reports the canonical read order and `authority --check` validates `llms.txt` plus `.agent-onboard/authority-path.json` in source context while preserving the compact npm package allowlist. `0.0.32` adds the public target runtime namespace gate: `target runtime --namespace` reports the canonical `.agent-onboard/` namespace and `target runtime --check` validates `.agent-onboard/runtime-namespace.json` plus reserved future-file boundaries. `0.0.33` adds the public package surface preservation gate: `release --surface` reports the compact npm package surface and `release --surface-check` validates that source-only context stays out of the npm package allowlist. `0.0.34` adds the public installed parity architecture smoke gate: `release --architecture-parity-smoke` validates that the compact installed package still exposes architecture, authority, target-runtime, and package-surface checks.
+The public architecture kernel is: `core`, `authority`, `work_items`, `claims`, `target`, and `release_package`. `0.0.29` adds the public command router boundary gate. `0.0.30` adds the public domain service facade gate: top-level routes declare their owning service facade, and `architecture --facades` reports the admitted facade layer while the published package still uses one compact CLI entrypoint. `0.0.31` adds the public authority first-read index gate: `authority --first-read` reports the canonical read order and `authority --check` validates `llms.txt` plus `.agent-onboard/authority-path.json` in source context while preserving the compact npm package allowlist. `0.0.32` adds the public target runtime namespace gate: `target runtime --namespace` reports the canonical `.agent-onboard/` namespace and `target runtime --check` validates `.agent-onboard/runtime-namespace.json` plus reserved future-file boundaries. `0.0.33` adds the public package surface preservation gate: `release --surface` reports the compact npm package surface and `release --surface-check` validates that source-only context stays out of the npm package allowlist. `0.0.34` adds the public installed parity architecture smoke gate: `release --architecture-parity-smoke` validates that the compact installed package still exposes architecture, source-partition, authority, target-runtime, and package-surface checks. `0.0.35` adds the public source domain module partition planning gate: `architecture --partition-plan` reports the future `src/domains/*` module map and `architecture --partition-check` validates that no physical source move is performed while the npm package remains compact.
+
+## Public source domain module partition plan
+
+Print the source-domain module partition plan without moving files:
+
+```sh
+npx agent-onboard architecture --partition-plan
+```
+
+Validate the partition plan and source-only `.agent-onboard/source-partition-plan.json` file when running from the source repo, or validate the embedded plan when running from an installed package:
+
+```sh
+npx agent-onboard architecture --partition-check
+```
+
+This gate does not create `src/domains/*`, move source code, change `package.json#files`, run package-manager commands, or publish. It only admits the future module boundaries for `core`, `authority`, `work_items`, `claims`, `target`, and `release_package` behind the already admitted service facades.
 
 ## Public authority first-read index
 
@@ -204,7 +222,7 @@ For a source release candidate, validate the package-owned release contract befo
 npx agent-onboard release --check
 ```
 
-The check validates package metadata, bin entrypoints, the projected npm pack allowlist, public artifact messaging, the public architecture map, the public command router, public domain service facades, the public authority first-read index, the public target runtime namespace, the public package surface preservation gate, the installed parity architecture smoke, and the source work-item ledger when that ledger is present. It does not publish, mutate registry state, install dependencies, or run Git operations. The response reports whether it is running in a source-repository context or an installed-package context, then includes local pre-publish commands and post-publish verification commands for the operator.
+The check validates package metadata, bin entrypoints, the projected npm pack allowlist, public artifact messaging, the public architecture map, the public command router, public domain service facades, the public authority first-read index, the public target runtime namespace, the public source domain module partition plan, the public package surface preservation gate, the installed parity architecture smoke, and the source work-item ledger when that ledger is present. It does not publish, mutate registry state, install dependencies, or run Git operations. The response reports whether it is running in a source-repository context or an installed-package context, then includes local pre-publish commands and post-publish verification commands for the operator.
 
 Preview the release plan without running validation:
 
@@ -224,7 +242,7 @@ Print the release fixture matrix without mutating files, package state, or regis
 npx agent-onboard release --fixture
 ```
 
-The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, target onboarding installed-package smoke, target onboarding post-publish handoff, published package acceptance rehearsal, real target repo trial, public architecture map, public command router boundary, public domain service facade boundary, public authority first-read index boundary, public target runtime namespace boundary, public package surface preservation boundary, and public installed parity architecture smoke boundary.
+The fixture matrix documents the contract regression cases used by the source tests: valid source context, valid installed-package context, stale package version, npm pack allowlist drift, missing bin entrypoint, reserved public artifact messaging tokens, projected installed-package parity smoke, target onboarding installed-package smoke, target onboarding post-publish handoff, published package acceptance rehearsal, real target repo trial, public architecture map, public command router boundary, public domain service facade boundary, public authority first-read index boundary, public target runtime namespace boundary, public source domain module partition planning boundary, public package surface preservation boundary, and public installed parity architecture smoke boundary.
 
 Run the installed package parity smoke without executing package-manager, registry, Git, build, or temp-file write operations:
 
@@ -243,7 +261,7 @@ Run the installed parity architecture smoke without executing package-manager, r
 npx agent-onboard release --architecture-parity-smoke
 ```
 
-The architecture parity smoke validates that architecture, authority, target-runtime, and package-surface checks still pass when the package is evaluated from the compact installed-package context where source-only repository files may be absent.
+The architecture parity smoke validates that architecture, source-partition, authority, target-runtime, and package-surface checks still pass when the package is evaluated from the compact installed-package context where source-only repository files may be absent.
 
 Run the target onboarding installed-package smoke to exercise the package runtime against a temporary target repo:
 
@@ -259,7 +277,7 @@ Emit the post-publish verification handoff for the exact package version:
 npx agent-onboard release --post-publish-handoff
 ```
 
-The post-publish handoff emits the version-pinned npm view and npx commands an operator should run after publishing. It includes metadata verification, installed-package release contract and fixture checks, parity smoke, target onboarding smoke, published acceptance, real target trial, architecture map/router/facades/check, authority first-read/check, release check, and target onboarding plan/fixture/trial checks. The command itself does not query the registry, publish, mutate registry state, install dependencies, run Git, or write target files.
+The post-publish handoff emits the version-pinned npm view and npx commands an operator should run after publishing. It includes metadata verification, installed-package release contract and fixture checks, parity smoke, target onboarding smoke, published acceptance, real target trial, architecture map/router/facades/partition-plan/partition-check/check, authority first-read/check, release check, and target onboarding plan/fixture/trial checks. The command itself does not query the registry, publish, mutate registry state, install dependencies, run Git, or write target files.
 
 Run the published package acceptance check after publish with a version-pinned package, or locally as a source rehearsal before publish:
 
@@ -672,7 +690,7 @@ This version does not:
 
 `0.0.33` adds the public package surface preservation gate: `release --surface` reports the projected four-file npm package surface, `release --surface-check` validates the package allowlist and source-only exclusions, and `release --check` now includes the package surface preservation result.
 
-`0.0.34` adds the public installed parity architecture smoke gate: `release --architecture-parity-smoke` validates the admitted architecture, authority, target runtime, and package surface checks in installed-package-compatible context, and `release --check` now includes the architecture parity result.
+`0.0.35` adds the public installed parity architecture smoke gate: `release --architecture-parity-smoke` validates the admitted architecture, authority, target runtime, and package surface checks in installed-package-compatible context, and `release --check` now includes the architecture parity result.
 
 <!-- ## Star History
 
@@ -693,9 +711,9 @@ The source repository can carry its own public Agent-Onboard operating surface:
 Agent participation is explicit. An agent should first list the ledger, then claim only an assigned work item:
 
 ```sh
-npx agent-onboard@0.0.34 work-items --list
-npx agent-onboard@0.0.34 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
-npx agent-onboard@0.0.34 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.35 work-items --list
+npx agent-onboard@0.0.35 work-items --claim --dry-run --id <public-work-item-id> --actor <agent-or-human-name>
+npx agent-onboard@0.0.35 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
 The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.

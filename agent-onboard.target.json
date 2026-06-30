@@ -27,7 +27,11 @@
       "AGENTS.md",
       "agent-onboard.target.json",
       ".agent-onboard/project.json",
-      ".agent-onboard/work-items.json"
+      ".agent-onboard/work-items.json",
+      "llms.txt",
+      ".agent-onboard/authority-path.json",
+      ".agent-onboard/runtime-namespace.json",
+      ".agent-onboard/source-partition-plan.json"
     ],
     "exclude": [
       "node_modules",

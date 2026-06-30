@@ -85,8 +85,8 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
 }
 
 {
@@ -94,11 +94,11 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-plan-005');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.boundary.publishes_package, false);
-  assert.ok(output.post_publish_verification_commands.some((command) => command.includes('agent-onboard@0.0.34')));
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-016');
+  assert.ok(output.post_publish_verification_commands.some((command) => command.includes('agent-onboard@0.0.35')));
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-017');
   assert.strictEqual(output.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -110,6 +110,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.architecture_map_command, 'agent-onboard architecture --map');
   assert.strictEqual(output.architecture_router_command, 'agent-onboard architecture --router');
   assert.strictEqual(output.architecture_facades_command, 'agent-onboard architecture --facades');
+  assert.strictEqual(output.architecture_partition_plan_command, 'agent-onboard architecture --partition-plan');
+  assert.strictEqual(output.architecture_partition_check_command, 'agent-onboard architecture --partition-check');
   assert.strictEqual(output.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.authority_check_command, 'agent-onboard authority --check');
@@ -122,9 +124,9 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-contract-response-001');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
-  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-016');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
+  assert.strictEqual(output.contract.schema, 'agent-onboard-public-release-contract-017');
   assert.strictEqual(output.contract.contract_command, 'agent-onboard release --contract');
   assert.strictEqual(output.contract.fixture_command, 'agent-onboard release --fixture');
   assert.strictEqual(output.contract.parity_smoke_command, 'agent-onboard release --parity-smoke');
@@ -136,6 +138,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.contract.architecture_map_command, 'agent-onboard architecture --map');
   assert.strictEqual(output.contract.architecture_router_command, 'agent-onboard architecture --router');
   assert.strictEqual(output.contract.architecture_facades_command, 'agent-onboard architecture --facades');
+  assert.strictEqual(output.contract.architecture_partition_plan_command, 'agent-onboard architecture --partition-plan');
+  assert.strictEqual(output.contract.architecture_partition_check_command, 'agent-onboard architecture --partition-check');
   assert.strictEqual(output.contract.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.contract.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.contract.authority_check_command, 'agent-onboard authority --check');
@@ -152,9 +156,9 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-fixture-response-001');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
-  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-016');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
+  assert.strictEqual(output.contract_schema, 'agent-onboard-public-release-contract-017');
   assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-release-fixture-matrix-012');
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'stale_package_version_contract'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'pack_allowlist_drift_contract'));
@@ -170,6 +174,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_target_runtime_namespace'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_package_surface_preservation'));
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_installed_parity_architecture_smoke'));
+  assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'public_source_domain_module_partition_plan'));
   assert.strictEqual(output.writes_files, false);
   assert.strictEqual(output.publishes_package, false);
 }
@@ -180,9 +185,11 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-architecture-map-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard architecture --map');
+  assert.strictEqual(output.map.public_source_shape.source_partition_plan_file, '.agent-onboard/source-partition-plan.json');
+  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'source_domain_module_partition_planned_not_applied');
   assert.deepStrictEqual(output.map.canonical_domains.map((domain) => domain.id), ['core', 'authority', 'work_items', 'claims', 'target', 'release_package']);
   assert.deepStrictEqual(output.current_runtime.expected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
   assert.strictEqual(output.boundary.writes_files, false);
@@ -194,8 +201,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-command-router-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard architecture --router');
   assert.strictEqual(output.router.dispatch_mode, 'table_driven_top_level_router');
   assert.strictEqual(output.router.dispatcher, 'dispatchCommand');
@@ -209,8 +216,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-domain-service-facades-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard architecture --facades');
   assert.deepStrictEqual(output.facade_ids, ['core', 'authority', 'work_items', 'claims', 'target', 'release_package']);
   assert.deepStrictEqual(output.service_names, ['coreService', 'authorityService', 'workItemsService', 'claimsService', 'targetService', 'releasePackageService']);
@@ -219,12 +226,43 @@ function cliTargetConfigForTest(dir) {
 }
 
 {
+  const result = run(['architecture', '--partition-plan']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-source-domain-module-partition-plan-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
+  assert.strictEqual(output.command, 'agent-onboard architecture --partition-plan');
+  assert.strictEqual(output.plan_file, '.agent-onboard/source-partition-plan.json');
+  assert.strictEqual(output.plan.current_shape.physical_module_partition_status, 'planned_not_applied');
+  assert.deepStrictEqual(output.plan.planned_source_modules.map((module) => module.domain), ['core', 'authority', 'work_items', 'claims', 'target', 'release_package']);
+  assert.strictEqual(output.plan.boundary.moves_source_files, false);
+  assert.strictEqual(output.boundary.writes_files, false);
+}
+
+{
+  const result = run(['architecture', '--partition-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-source-domain-module-partition-plan-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.validated.planned_module_count, true);
+  assert.strictEqual(output.validated.planned_modules_map_to_facades, true);
+  assert.strictEqual(output.validated.physical_partition_not_applied, true);
+  assert.strictEqual(output.validated.partition_commands_no_write, true);
+  assert.strictEqual(output.validated.package_allowlist_unchanged, true);
+  assert.strictEqual(output.validated.source_plan_file, true);
+  assert.strictEqual(output.source_plan_file.status, 'present_validated');
+  assert.deepStrictEqual(output.errors, []);
+}
+
+{
   const result = run(['authority', '--first-read']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-authority-first-read-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard authority --first-read');
   assert.deepStrictEqual(output.read_order.map((entry) => entry.path), ['AGENTS.md', 'llms.txt', '.agent-onboard/authority-path.json', 'agent-onboard.target.json', '.agent-onboard/runtime-namespace.json', '.agent-onboard/project.json', '.agent-onboard/work-items.json', 'README.md', 'raw evidence/source files']);
   assert.strictEqual(output.boundary.writes_files, false);
@@ -247,8 +285,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-runtime-namespace-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard target runtime --namespace');
   assert.strictEqual(output.namespace_root, '.agent-onboard');
   assert.strictEqual(output.namespace_file, '.agent-onboard/runtime-namespace.json');
@@ -279,8 +317,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-package-surface-preservation-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --surface');
   assert.deepStrictEqual(output.expected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
   assert.deepStrictEqual(output.projected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
@@ -295,7 +333,7 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-package-surface-preservation-check-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
+  assert.strictEqual(output.version, '0.0.35');
   assert.strictEqual(output.validated.four_file_package_surface, true);
   assert.strictEqual(output.validated.package_json_files_allowlist, true);
   assert.strictEqual(output.validated.source_only_context_excluded_from_pack, true);
@@ -310,7 +348,7 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-architecture-check-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
+  assert.strictEqual(output.version, '0.0.35');
   assert.strictEqual(output.validated.domain_count, true);
   assert.strictEqual(output.validated.domain_order, true);
   assert.strictEqual(output.validated.compact_package_boundary, true);
@@ -319,9 +357,11 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.validated.domain_service_facades, true);
   assert.strictEqual(output.validated.authority_first_read_index, true);
   assert.strictEqual(output.validated.target_runtime_namespace, true);
+  assert.strictEqual(output.validated.source_domain_module_partition_plan, true);
   assert.strictEqual(output.command_router.status, 'ok');
   assert.strictEqual(output.domain_service_facades.status, 'ok');
   assert.strictEqual(output.target_runtime_namespace.status, 'ok');
+  assert.strictEqual(output.source_domain_module_partition_plan.status, 'ok');
   assert.deepStrictEqual(output.errors, []);
 }
 
@@ -330,8 +370,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-installed-package-parity-smoke-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --parity-smoke');
   assert.strictEqual(output.parity.source_candidate_release_check, true);
   assert.strictEqual(output.parity.source_context_excluded_from_pack, true);
@@ -346,13 +386,14 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-installed-parity-architecture-smoke-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --architecture-parity-smoke');
   assert.strictEqual(output.parity.architecture_check, true);
   assert.strictEqual(output.parity.authority_first_read_check, true);
   assert.strictEqual(output.parity.target_runtime_namespace_check, true);
   assert.strictEqual(output.parity.package_surface_check, true);
+  assert.strictEqual(output.parity.source_domain_module_partition_plan_check, true);
   assert.strictEqual(output.boundary.runs_package_manager, false);
   assert.strictEqual(output.boundary.creates_temp_files, false);
 }
@@ -363,8 +404,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-installed-package-smoke-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --target-onboarding-smoke');
   assert.strictEqual(output.observed.package_context, 'source_repository');
   assert.strictEqual(output.validated.package_release_check, true);
@@ -385,23 +426,25 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-post-publish-verification-handoff-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --post-publish-handoff');
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.ok(output.verification_commands.includes('npm view agent-onboard version dist-tags'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --post-publish-handoff'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --published-acceptance'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --real-target-trial'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --architecture-parity-smoke'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --target-onboarding-smoke'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 target runtime --namespace'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 target runtime --check'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --surface'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 release --surface-check'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 target onboarding --plan'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 target onboarding --fixture'));
-  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.34 target onboarding --trial'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --post-publish-handoff'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --published-acceptance'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --real-target-trial'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --architecture-parity-smoke'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --target-onboarding-smoke'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 architecture --partition-plan'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 architecture --partition-check'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 target runtime --namespace'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 target runtime --check'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --surface'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 release --surface-check'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 target onboarding --plan'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 target onboarding --fixture'));
+  assert.ok(output.verification_commands.includes('npx agent-onboard@0.0.35 target onboarding --trial'));
   assert.strictEqual(output.acceptance_criteria.latest_dist_tag_matches_version, true);
   assert.strictEqual(output.acceptance_criteria.target_onboarding_plan_and_fixture_pass_from_registry_package, true);
   assert.strictEqual(output.boundary.writes_files, false);
@@ -416,8 +459,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-published-package-acceptance-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --published-acceptance');
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.strictEqual(output.acceptance_mode, 'source_repository_rehearsal');
@@ -430,7 +473,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.validated.target_onboarding_fixture, true);
   assert.strictEqual(output.validated.real_target_trial, true);
   assert.strictEqual(output.validated.handoff_includes_published_acceptance_command, true);
-  assert.strictEqual(output.acceptance_criteria.run_after_publish_with_version_pinned_npx, 'npx agent-onboard@0.0.34 release --published-acceptance');
+  assert.strictEqual(output.acceptance_criteria.run_after_publish_with_version_pinned_npx, 'npx agent-onboard@0.0.35 release --published-acceptance');
   assert.strictEqual(output.boundary.mutates_registry, false);
   assert.strictEqual(output.boundary.installs_dependencies, false);
   assert.deepStrictEqual(output.errors, []);
@@ -441,8 +484,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-real-target-repo-trial-gate-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard release --real-target-trial');
   assert.strictEqual(output.validated.target_onboarding_trial_status, true);
   assert.strictEqual(output.validated.target_ready_for_explicit_write, true);
@@ -458,14 +501,14 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
   assert.strictEqual(output.schema, 'agent-onboard-public-release-check-result-011');
-  assert.strictEqual(output.version, '0.0.34');
+  assert.strictEqual(output.version, '0.0.35');
   assert.strictEqual(output.validated.package_metadata, true);
   assert.strictEqual(output.validated.projected_pack_allowlist, true);
   assert.strictEqual(output.validated.public_artifact_messaging, true);
   assert.strictEqual(output.validated.source_work_items_ledger, true);
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.strictEqual(output.source_work_items_ledger.present, true);
-  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public source domain module partition planning gate'));
+  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public source domain extraction rehearsal gate'));
   assert.ok(output.validated.public_package_surface_preservation);
   assert.ok(output.validated.public_installed_parity_architecture_smoke);
   assert.ok(output.validated.public_architecture_map);
@@ -473,6 +516,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.validated.public_domain_service_facades);
   assert.ok(output.validated.public_authority_first_read_index);
   assert.ok(output.validated.public_target_runtime_namespace);
+  assert.ok(output.validated.public_source_domain_module_partition_plan);
   assert.strictEqual(output.public_architecture.status, 'ok');
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public installed parity architecture smoke gate'));
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public target onboarding real target repo trial gate'));
@@ -494,8 +538,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-surface-plan-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard target onboarding --plan');
   assert.strictEqual(output.target.name, 'target-fixture');
   assert.ok(output.canonical_files.includes('agent-onboard.target.json'));
@@ -519,8 +563,8 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-dry-run-fixture-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
-  assert.strictEqual(output.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(output.version, '0.0.35');
+  assert.strictEqual(output.release_line, 'public_source_domain_module_partition_planning_gate');
   assert.strictEqual(output.command, 'agent-onboard target onboarding --fixture');
   assert.strictEqual(output.fixture_matrix.schema, 'agent-onboard-public-target-onboarding-fixture-matrix-002');
   assert.ok(output.fixture_matrix.fixtures.some((fixture) => fixture.id === 'target_bootstrap_dry_run_empty_target'));
@@ -612,7 +656,7 @@ function cliTargetConfigForTest(dir) {
   const output = readJsonOutput(result);
   assert.strictEqual(output.schema, 'agent-onboard-public-target-onboarding-explicit-write-result-001');
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.34');
+  assert.strictEqual(output.version, '0.0.35');
   assert.strictEqual(output.mode, 'write');
   assert.strictEqual(output.force, false);
   assert.strictEqual(output.writes_performed, true);
@@ -1448,7 +1492,17 @@ function cliTargetConfigForTest(dir) {
 
   assert.strictEqual(s3m1w8.title, 'Public source domain module partition planning gate');
 
-  assert.strictEqual(s3m1w8.status, 'open');
+  assert.strictEqual(s3m1w8.status, 'closed');
+
+  assert.match(s3m1w8.closure.summary, /agent-onboard@0\.0\.35/);
+
+  const s3m1w9 = findById(rootLedger.work_items, ['P', 1, 'S', 3, 'M', 1, 'W', 9].join(''));
+
+  assert.ok(s3m1w9);
+
+  assert.strictEqual(s3m1w9.title, 'Public source domain extraction rehearsal gate');
+
+  assert.strictEqual(s3m1w9.status, 'open');
 
   assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
 
@@ -1459,6 +1513,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(fs.existsSync(path.join(ROOT, 'llms.txt')));
 
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'authority-path.json')));
+
+  assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'source-partition-plan.json')));
 
   assert.ok(fs.existsSync(path.join(ROOT, '.agent-onboard', 'runtime-namespace.json')));
 
@@ -1609,7 +1665,7 @@ function cliTargetConfigForTest(dir) {
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
   });
   assert.strictEqual(staleVersion.status, 'error');
-  assert.ok(staleVersion.errors.some((error) => error.includes('package.json#version must match runtime version 0.0.34')));
+  assert.ok(staleVersion.errors.some((error) => error.includes('package.json#version must match runtime version 0.0.35')));
 
   const packDrift = installedFixture((dir) => {
     const pkgPath = path.join(dir, 'package.json');
@@ -1645,8 +1701,8 @@ function cliTargetConfigForTest(dir) {
 
   const status = runNodeScript(installedCli, ['status'], installRoot);
   const statusOutput = readJsonOutput(status);
-  assert.strictEqual(statusOutput.version, '0.0.34');
-  assert.strictEqual(statusOutput.release_line, 'public_installed_parity_architecture_smoke_gate');
+  assert.strictEqual(statusOutput.version, '0.0.35');
+  assert.strictEqual(statusOutput.release_line, 'public_source_domain_module_partition_planning_gate');
 
   const installedCheck = runNodeScript(installedCli, ['release', '--check'], installRoot);
   const installedCheckOutput = readJsonOutput(installedCheck);
@@ -1658,19 +1714,21 @@ function cliTargetConfigForTest(dir) {
   const installedHandoffOutput = readJsonOutput(installedHandoff);
   assert.strictEqual(installedHandoffOutput.status, 'ok');
   assert.strictEqual(installedHandoffOutput.source_context.package_context, 'installed_package');
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 release --check'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 release --published-acceptance'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 release --real-target-trial'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 architecture --map'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 architecture --router'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 architecture --facades'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 authority --first-read'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 authority --check'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 target runtime --namespace'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 target runtime --check'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 release --surface'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 release --surface-check'));
-  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.34 architecture --check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 release --check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 release --published-acceptance'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 release --real-target-trial'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --map'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --router'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --facades'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --partition-plan'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --partition-check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 authority --first-read'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 authority --check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 target runtime --namespace'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 target runtime --check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 release --surface'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 release --surface-check'));
+  assert.ok(installedHandoffOutput.verification_commands.includes('npx agent-onboard@0.0.35 architecture --check'));
 
   const installedAcceptance = runNodeScript(installedCli, ['release', '--published-acceptance'], installRoot);
   assert.strictEqual(installedAcceptance.status, 0, installedAcceptance.stderr);
@@ -1795,6 +1853,9 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('`0.0.32` adds the public target runtime namespace gate'));
   assert.ok(readme.includes('`0.0.33` adds the public package surface preservation gate'));
   assert.ok(readme.includes('`0.0.34` adds the public installed parity architecture smoke gate'));
+  assert.ok(readme.includes('`0.0.35` adds the public source domain module partition planning gate'));
+  assert.ok(readme.includes('npx agent-onboard architecture --partition-plan'));
+  assert.ok(readme.includes('npx agent-onboard architecture --partition-check'));
   assert.ok(readme.includes('npx agent-onboard release --surface'));
   assert.ok(readme.includes('npx agent-onboard release --surface-check'));
   assert.ok(readme.includes('npx agent-onboard authority --first-read'));
@@ -1815,7 +1876,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('npx agent-onboard release --check'));
   assert.ok(readme.includes('The check validates package metadata, bin entrypoints, the projected npm pack allowlist'));
   assert.ok(readme.includes('The parity smoke checks that the source candidate release check passes'));
-  assert.ok(readme.includes('The architecture parity smoke validates that architecture, authority, target-runtime, and package-surface checks still pass'));
+  assert.ok(readme.includes('The architecture parity smoke validates that architecture, source-partition, authority, target-runtime, and package-surface checks still pass'));
   assert.ok(readme.includes('The target onboarding smoke creates and removes a temporary target repo'));
   assert.ok(readme.includes('The post-publish handoff emits the version-pinned npm view and npx commands'));
   assert.ok(readme.includes('The published acceptance command composes release check'));
@@ -1830,7 +1891,7 @@ function cliTargetConfigForTest(dir) {
   const help = run(['--help']);
   assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
   assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
-  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--check'));
+  assert.ok(help.stdout.includes('authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--check'));
   assert.ok(help.stdout.includes('release --plan|--contract|--fixture|--surface|--surface-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check'));
   assert.ok(help.stdout.includes('target runtime --namespace|--check'));
   assert.ok(help.stdout.includes('target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]'));
@@ -1838,30 +1899,32 @@ function cliTargetConfigForTest(dir) {
 
 {
   const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 work-items --list'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 architecture --map'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 architecture --router'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 architecture --facades'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 architecture --check'));
-assert.ok(agents.includes('npx agent-onboard@0.0.34 target runtime --namespace'));
-assert.ok(agents.includes('npx agent-onboard@0.0.34 target runtime --check'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --check'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --contract'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --fixture'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --surface'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --surface-check'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --parity-smoke'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --architecture-parity-smoke'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --target-onboarding-smoke'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --post-publish-handoff'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --published-acceptance'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 release --real-target-trial'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 target onboarding --plan'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 target onboarding --fixture'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 target onboarding --trial'));
-  assert.ok(agents.includes('npx agent-onboard@0.0.34 target onboarding --write'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 work-items --list'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --map'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --router'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --facades'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --partition-plan'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --partition-check'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 architecture --check'));
+assert.ok(agents.includes('npx agent-onboard@0.0.35 target runtime --namespace'));
+assert.ok(agents.includes('npx agent-onboard@0.0.35 target runtime --check'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --check'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --contract'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --fixture'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --surface'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --surface-check'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --parity-smoke'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --architecture-parity-smoke'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --target-onboarding-smoke'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --post-publish-handoff'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --published-acceptance'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 release --real-target-trial'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 target onboarding --plan'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 target onboarding --fixture'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 target onboarding --trial'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.35 target onboarding --write'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.19'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.18'));
   assert.ok(!agents.includes('npx agent-onboard@0.0.17'));

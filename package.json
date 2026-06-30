@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -154,7 +154,14 @@
     "architecture-parity-smoke",
     "installed-architecture-parity",
     "public-architecture-parity",
-    "release-architecture-parity"
+    "release-architecture-parity",
+    "source-partition-plan",
+    "source-domain-module",
+    "module-partition",
+    "architecture-partition",
+    "partition-check",
+    "source-module-planning",
+    "domain-module-boundary"
   ],
   "type": "commonjs",
   "engines": {

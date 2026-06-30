@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_installed_parity_architecture_smoke_gate';
+const RELEASE_LINE = 'public_source_domain_module_partition_planning_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -301,7 +301,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
   ]),
   public_source_shape: Object.freeze({
     current_entrypoint: 'cli/agent-onboard.js',
-    physical_domain_split_status: 'domain_service_facade_boundary_admitted',
+    physical_domain_split_status: 'source_domain_module_partition_planned_not_applied',
+    source_partition_plan_file: '.agent-onboard/source-partition-plan.json',
     source_can_grow_with_tests: true,
     npm_package_remains_compact: true,
     expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json'])
@@ -318,26 +319,29 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     package_surface_command_writes_files: false,
     package_surface_check_command_writes_files: false,
     architecture_parity_smoke_command_writes_files: false,
+    architecture_partition_plan_command_writes_files: false,
+    architecture_partition_check_command_writes_files: false,
     published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
     main_function_delegates_to_command_router: true,
     command_router_delegates_to_domain_service_facades: true,
     package_allowlist_must_stay_compact: true,
     source_context_files_stay_out_of_npm_pack: true,
-    physical_partition_not_required_for_this_gate: true
+    physical_partition_not_required_for_this_gate: true,
+    source_domain_module_partition_planned_not_applied: true
   }),
   next_candidate_gates: Object.freeze([
     Object.freeze({
-      title: 'Public authority first-read index gate',
-      intent: 'Materialize the authority read order as a compact machine-readable public file.'
+      title: 'Public source domain module extraction rehearsal gate',
+      intent: 'Rehearse extracting source modules behind the admitted facades without changing runtime output or npm package surface.'
     }),
     Object.freeze({
-      title: 'Public package surface preservation gate',
-      intent: 'Preserve compact npm package output while the public source architecture grows.'
+      title: 'Public source/bundle parity planning gate',
+      intent: 'Decide whether future source modules remain source-only or are bundled back into the compact CLI entrypoint before publish.'
     }),
     Object.freeze({
-      title: 'Public installed parity architecture smoke gate',
-      intent: 'Verify the compact installed package still exposes the admitted architecture checks after publish.'
+      title: 'Public module extraction golden output gate',
+      intent: 'Freeze golden command outputs before any physical source-domain extraction.'
     })
   ])
 });
@@ -527,6 +531,7 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/work-items.json',
     '.agent-onboard/authority-path.json',
     '.agent-onboard/runtime-namespace.json',
+    '.agent-onboard/source-partition-plan.json',
     'test/agent-onboard.test.js'
   ]),
   installed_context_policy: Object.freeze({
@@ -563,6 +568,7 @@ const PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE = Object.freeze({
   validated_surfaces: Object.freeze([
     'release --check',
     'architecture --check',
+    'architecture --partition-check',
     'authority --check',
     'target runtime --check',
     'release --surface-check'
@@ -585,8 +591,64 @@ const PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE = Object.freeze({
   })
 });
 
+const PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN = Object.freeze({
+  schema: 'agent-onboard-public-source-domain-module-partition-plan-001',
+  title: 'Agent-Onboard Public Source Domain Module Partition Plan',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --partition-plan',
+  check_command: 'agent-onboard architecture --partition-check',
+  plan_file: '.agent-onboard/source-partition-plan.json',
+  purpose: 'Declare the future public source-domain module partition before moving code out of the compact CLI entrypoint or expanding the npm package surface.',
+  current_shape: Object.freeze({
+    entrypoint: 'cli/agent-onboard.js',
+    physical_module_partition_status: 'planned_not_applied',
+    implementation_strategy: 'single_file_runtime_with_declared_domain_boundaries',
+    package_surface_status: 'compact_four_file_npm_package_preserved'
+  }),
+  planned_source_modules: Object.freeze([
+    Object.freeze({ domain: 'core', planned_module: 'src/domains/core.js', facade: 'coreService', package_surface: 'bundled_into_cli_entrypoint_before_publish' }),
+    Object.freeze({ domain: 'authority', planned_module: 'src/domains/authority.js', facade: 'authorityService', package_surface: 'source_only_or_bundled_before_publish' }),
+    Object.freeze({ domain: 'work_items', planned_module: 'src/domains/work-items.js', facade: 'workItemsService', package_surface: 'source_only_or_bundled_before_publish' }),
+    Object.freeze({ domain: 'claims', planned_module: 'src/domains/claims.js', facade: 'claimsService', package_surface: 'source_only_or_bundled_before_publish' }),
+    Object.freeze({ domain: 'target', planned_module: 'src/domains/target.js', facade: 'targetService', package_surface: 'source_only_or_bundled_before_publish' }),
+    Object.freeze({ domain: 'release_package', planned_module: 'src/domains/release-package.js', facade: 'releasePackageService', package_surface: 'source_only_or_bundled_before_publish' })
+  ]),
+  partition_sequence: Object.freeze([
+    Object.freeze({ order: 1, gate: 'plan', action: 'declare module boundaries and checks without moving files' }),
+    Object.freeze({ order: 2, gate: 'extract-no-behavior-change', action: 'move pure constants/helpers behind source modules with golden output tests' }),
+    Object.freeze({ order: 3, gate: 'adapter-preservation', action: 'keep cli/agent-onboard.js as the only published executable adapter' }),
+    Object.freeze({ order: 4, gate: 'bundle-or-allowlist', action: 'either bundle modules into cli/agent-onboard.js before publish or explicitly admit any additional published files' }),
+    Object.freeze({ order: 5, gate: 'installed-parity', action: 'prove npx installed package outputs match source architecture checks' })
+  ]),
+  invariants: Object.freeze({
+    command_router_remains_table_driven: true,
+    every_canonical_domain_has_one_facade: true,
+    every_planned_module_maps_to_canonical_domain: true,
+    cli_entrypoint_remains_published_bin_target: true,
+    npm_package_allowlist_unchanged_for_this_gate: true,
+    physical_partition_not_applied_by_this_gate: true,
+    source_plan_file_is_source_only: true
+  }),
+  boundary: Object.freeze({
+    partition_plan_command_writes_files: false,
+    partition_check_command_writes_files: false,
+    moves_source_files: false,
+    creates_source_modules: false,
+    writes_package_root: false,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false,
+    package_allowlist_unchanged: true
+  })
+});
+
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-016',
+  schema: 'agent-onboard-public-release-contract-017',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
   release_line: RELEASE_LINE,
@@ -602,6 +664,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_map_command: 'agent-onboard architecture --map',
   architecture_router_command: 'agent-onboard architecture --router',
   architecture_facades_command: 'agent-onboard architecture --facades',
+  architecture_partition_plan_command: 'agent-onboard architecture --partition-plan',
+  architecture_partition_check_command: 'agent-onboard architecture --partition-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
   authority_check_command: 'agent-onboard authority --check',
@@ -618,6 +682,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'llms.txt',
     '.agent-onboard/authority-path.json',
     '.agent-onboard/runtime-namespace.json',
+    '.agent-onboard/source-partition-plan.json',
     'test/agent-onboard.test.js'
   ]),
   required_package_json: Object.freeze({
@@ -652,6 +717,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js architecture --map',
     'node cli/agent-onboard.js architecture --router',
     'node cli/agent-onboard.js architecture --facades',
+    'node cli/agent-onboard.js architecture --partition-plan',
+    'node cli/agent-onboard.js architecture --partition-check',
     'node cli/agent-onboard.js authority --first-read',
     'node cli/agent-onboard.js authority --check',
     'node cli/agent-onboard.js target runtime --namespace',
@@ -678,6 +745,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> architecture --map',
     'npx agent-onboard@<version> architecture --router',
     'npx agent-onboard@<version> architecture --facades',
+    'npx agent-onboard@<version> architecture --partition-plan',
+    'npx agent-onboard@<version> architecture --partition-check',
     'npx agent-onboard@<version> authority --first-read',
     'npx agent-onboard@<version> authority --check',
     'npx agent-onboard@<version> target runtime --namespace',
@@ -812,6 +881,12 @@ const PUBLIC_RELEASE_FIXTURE_MATRIX = Object.freeze({
       expected_status: 'ok',
       validates: Object.freeze(['installed-like package context accepts missing source-only files', 'architecture check passes from compact package files', 'authority and runtime checks pass from installed context', 'package surface check remains compact']),
       boundary: 'release --architecture-parity-smoke is read-only; it does not create temp files, run npm, mutate registry, write files, install dependencies, run Git, build, test, deploy, publish, or push'
+    }),
+    Object.freeze({
+      id: 'public_source_domain_module_partition_plan',
+      expected_status: 'ok',
+      validates: Object.freeze(['planned module map covers all six public domains', 'each planned module maps to the admitted facade', 'physical source movement is explicitly not performed by this gate', 'npm package allowlist remains compact']),
+      boundary: 'architecture --partition-plan and --partition-check are read-only; they do not create modules, move files, run npm, mutate Git, publish, or touch target repository state'
     })
   ]),
   boundary: Object.freeze({
@@ -2399,6 +2474,126 @@ function publicDomainServiceFacadesCheck(root = packageRoot()) {
 }
 
 
+function publicSourceDomainModulePartitionPlan(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const planFile = PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.plan_file;
+  const planFilePath = path.join(root, planFile);
+  return {
+    schema: 'agent-onboard-public-source-domain-module-partition-plan-result-001',
+    status: 'ok',
+    package_name: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.release_line,
+    command: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.command,
+    check_command: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
+    plan_file: planFile,
+    plan_file_present: fs.existsSync(planFilePath),
+    canonical_domain_ids: PUBLIC_ARCHITECTURE_MAP.canonical_domains.map((domain) => domain.id),
+    facade_ids: PUBLIC_DOMAIN_SERVICE_FACADES.facades.map((facade) => facade.id),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg),
+    boundary: {
+      writes_files: false,
+      moves_source_files: false,
+      creates_source_modules: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function plainClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function publicSourceDomainModulePartitionPlanCheck(root = packageRoot()) {
+  const result = publicSourceDomainModulePartitionPlan(root);
+  const expectedDomains = PUBLIC_ARCHITECTURE_MAP.canonical_domains.map((domain) => domain.id);
+  const expectedFacades = new Map(PUBLIC_DOMAIN_SERVICE_FACADES.facades.map((facade) => [facade.id, facade.service]));
+  const plannedDomains = result.plan.planned_source_modules.map((module) => module.domain);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const errors = [];
+  if (!arrayEquals(plannedDomains, expectedDomains)) errors.push(`source partition planned modules must follow canonical domain order ${expectedDomains.join(', ')}`);
+  if (new Set(plannedDomains).size !== plannedDomains.length) errors.push('source partition planned module domains must be unique');
+  for (const module of result.plan.planned_source_modules) {
+    if (!expectedDomains.includes(module.domain)) errors.push(`planned source module is not mapped to a canonical domain: ${module.domain}`);
+    if (expectedFacades.has(module.domain) && module.facade !== expectedFacades.get(module.domain)) errors.push(`planned source module ${module.domain} must map to facade ${expectedFacades.get(module.domain)}`);
+    if (!String(module.planned_module || '').startsWith('src/domains/')) errors.push(`planned source module path must stay under src/domains/: ${module.planned_module}`);
+  }
+  if (result.plan.current_shape.physical_module_partition_status !== 'planned_not_applied') errors.push('source partition plan must remain planned_not_applied for this gate');
+  if (result.plan.invariants.physical_partition_not_applied_by_this_gate !== true) errors.push('source partition plan must not apply the physical partition in this gate');
+  if (result.plan.boundary.moves_source_files !== false) errors.push('architecture partition plan must not move source files');
+  if (result.plan.boundary.creates_source_modules !== false) errors.push('architecture partition plan must not create source modules');
+  if (result.plan.boundary.partition_plan_command_writes_files !== false) errors.push('architecture partition plan command must remain no-write');
+  if (result.plan.boundary.partition_check_command_writes_files !== false) errors.push('architecture partition check command must remain no-write');
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+
+  let sourcePlanFileStatus = 'not_present_installed_context_allowed';
+  let sourcePlanFileSchema = null;
+  if (result.plan_file_present) {
+    try {
+      const sourcePlan = readJson(path.join(root, result.plan_file));
+      sourcePlanFileSchema = sourcePlan.schema || null;
+      if (sourcePlan.schema !== PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.schema) errors.push(`${result.plan_file} schema must be ${PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.schema}`);
+      if (!sourcePlan.current_shape || sourcePlan.current_shape.physical_module_partition_status !== 'planned_not_applied') errors.push(`${result.plan_file} must declare planned_not_applied physical module partition status`);
+      const fileDomains = Array.isArray(sourcePlan.planned_source_modules) ? sourcePlan.planned_source_modules.map((module) => module.domain) : [];
+      if (!arrayEquals(fileDomains, expectedDomains)) errors.push(`${result.plan_file} planned_source_modules must follow canonical domain order ${expectedDomains.join(', ')}`);
+      sourcePlanFileStatus = 'present_validated';
+    } catch (error) {
+      sourcePlanFileStatus = 'present_invalid_json';
+      errors.push(`${result.plan_file} is not valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (result.package_context === 'source_repository') {
+    sourcePlanFileStatus = 'missing_source_context';
+    errors.push(`${result.plan_file} must be present in source repository context`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-source-domain-module-partition-plan-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.release_line,
+    command: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.check_command,
+    package_root: root,
+    validated: {
+      planned_module_count: result.plan.planned_source_modules.length === expectedDomains.length,
+      planned_module_domain_order: arrayEquals(plannedDomains, expectedDomains),
+      planned_module_domains_unique: new Set(plannedDomains).size === plannedDomains.length,
+      planned_modules_map_to_facades: result.plan.planned_source_modules.every((module) => expectedFacades.has(module.domain) && module.facade === expectedFacades.get(module.domain)),
+      physical_partition_not_applied: result.plan.current_shape.physical_module_partition_status === 'planned_not_applied' && result.plan.invariants.physical_partition_not_applied_by_this_gate === true,
+      partition_commands_no_write: result.plan.boundary.partition_plan_command_writes_files === false && result.plan.boundary.partition_check_command_writes_files === false && result.plan.boundary.moves_source_files === false && result.plan.boundary.creates_source_modules === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      source_plan_file: sourcePlanFileStatus === 'present_validated' || sourcePlanFileStatus === 'not_present_installed_context_allowed'
+    },
+    expected_domain_ids: expectedDomains,
+    planned_module_domains: plannedDomains,
+    planned_modules: result.plan.planned_source_modules,
+    source_plan_file: {
+      path: result.plan_file,
+      present: result.plan_file_present,
+      status: sourcePlanFileStatus,
+      schema: sourcePlanFileSchema,
+      source_context_required: result.package_context === 'source_repository'
+    },
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
 
 function publicAuthorityFirstRead(root = packageRoot()) {
   const packageContext = sourceContext(root);
@@ -2631,6 +2826,7 @@ function publicArchitectureMap(root = packageRoot()) {
     map: PUBLIC_ARCHITECTURE_MAP,
     command_router: PUBLIC_COMMAND_ROUTER,
     domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+    source_domain_module_partition_plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
     authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
     target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
     current_runtime: {
@@ -2668,6 +2864,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const authorityErrors = authority.errors.map((error) => `authority: ${error}`);
   const targetRuntime = publicTargetRuntimeNamespaceCheck(root);
   const targetRuntimeErrors = targetRuntime.errors.map((error) => `target runtime: ${error}`);
+  const sourcePartition = publicSourceDomainModulePartitionPlanCheck(root);
+  const sourcePartitionErrors = sourcePartition.errors.map((error) => `source partition: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -2678,11 +2876,13 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.architecture_check_command_writes_files !== false) errors.push('architecture check command must remain no-write');
   if (map.map.package_boundary.architecture_router_command_writes_files !== false) errors.push('architecture router command must remain no-write');
   if (map.map.package_boundary.architecture_facades_command_writes_files !== false) errors.push('architecture facades command must remain no-write');
+  if (map.map.package_boundary.architecture_partition_plan_command_writes_files !== false) errors.push('architecture partition plan command must remain no-write');
+  if (map.map.package_boundary.architecture_partition_check_command_writes_files !== false) errors.push('architecture partition check command must remain no-write');
   if (map.map.package_boundary.authority_first_read_command_writes_files !== false) errors.push('authority first-read command must remain no-write');
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -2697,11 +2897,12 @@ function publicArchitectureCheck(root = packageRoot()) {
       domain_ids_unique: new Set(domainIds).size === domainIds.length,
       runtime_entrypoint_present: map.current_runtime.entrypoint_exists,
       compact_package_boundary: arrayEquals(projectedPackFiles, expectedPackFiles),
-      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
+      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.architecture_partition_plan_command_writes_files === false && map.map.package_boundary.architecture_partition_check_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
       command_router_boundary: router.status === 'ok',
       domain_service_facades: facades.status === 'ok',
       authority_first_read_index: authority.status === 'ok',
-      target_runtime_namespace: targetRuntime.status === 'ok'
+      target_runtime_namespace: targetRuntime.status === 'ok',
+      source_domain_module_partition_plan: sourcePartition.status === 'ok'
     },
     domain_ids: domainIds,
     expected_pack_files: expectedPackFiles,
@@ -2710,6 +2911,7 @@ function publicArchitectureCheck(root = packageRoot()) {
     domain_service_facades: facades,
     authority_first_read_index: authority,
     target_runtime_namespace: targetRuntime,
+    source_domain_module_partition_plan: sourcePartition,
     boundary: map.boundary,
     errors
   };
@@ -2851,6 +3053,7 @@ function publicReleaseCheck(root = packageRoot()) {
       public_domain_service_facades: architecture.domain_service_facades && architecture.domain_service_facades.status === 'ok',
       public_authority_first_read_index: architecture.authority_first_read_index && architecture.authority_first_read_index.status === 'ok',
       public_target_runtime_namespace: architecture.target_runtime_namespace && architecture.target_runtime_namespace.status === 'ok',
+      public_source_domain_module_partition_plan: architecture.source_domain_module_partition_plan && architecture.source_domain_module_partition_plan.status === 'ok',
       public_package_surface_preservation: packageSurface.status === 'ok',
       public_installed_parity_architecture_smoke: architectureParity.status === 'ok'
     },
@@ -2858,6 +3061,7 @@ function publicReleaseCheck(root = packageRoot()) {
     projected_pack_files: projectedPackFiles,
     source_context_files: PUBLIC_RELEASE_CONTRACT.source_context_files.slice(),
     public_architecture: architecture,
+    public_source_domain_module_partition_plan: architecture.source_domain_module_partition_plan,
     public_package_surface_preservation: packageSurface,
     public_installed_parity_architecture_smoke: architectureParity,
     local_pre_publish_commands: PUBLIC_RELEASE_CONTRACT.local_pre_publish_commands.slice(),
@@ -2959,11 +3163,13 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const authority = publicAuthorityFirstReadCheck(root);
   const targetRuntime = publicTargetRuntimeNamespaceCheck(root);
   const packageSurface = publicPackageSurfaceCheck(root);
+  const sourcePartition = publicSourceDomainModulePartitionPlanCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
   if (targetRuntime.status !== 'ok') componentErrors.push(...targetRuntime.errors.map((error) => `target runtime: ${error}`));
   if (packageSurface.status !== 'ok') componentErrors.push(...packageSurface.errors.map((error) => `package surface: ${error}`));
+  if (sourcePartition.status !== 'ok') componentErrors.push(...sourcePartition.errors.map((error) => `source partition: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -2978,6 +3184,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     authority_first_read_check: authority.status === 'ok',
     target_runtime_namespace_check: targetRuntime.status === 'ok',
     package_surface_check: packageSurface.status === 'ok',
+    source_domain_module_partition_plan_check: sourcePartition.status === 'ok',
     runtime_version_matches_package_json: pkg.version === VERSION
   };
 
@@ -3016,6 +3223,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
       authority_check_status: authority.status,
       target_runtime_check_status: targetRuntime.status,
       package_surface_check_status: packageSurface.status,
+      source_domain_module_partition_plan_status: sourcePartition.status,
       package_context: context.package_context,
       source_context_files_present: context.source_context_files_present,
       source_context_files_missing: context.source_context_files_missing
@@ -3025,6 +3233,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     authority_first_read_index: authority,
     target_runtime_namespace: targetRuntime,
     package_surface_preservation: packageSurface,
+    source_domain_module_partition_plan: sourcePartition,
     boundary: {
       writes_files: false,
       writes_package_root: false,
@@ -3169,6 +3378,8 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
     `npx agent-onboard@${version} architecture --map`,
     `npx agent-onboard@${version} architecture --router`,
     `npx agent-onboard@${version} architecture --facades`,
+    `npx agent-onboard@${version} architecture --partition-plan`,
+    `npx agent-onboard@${version} architecture --partition-check`,
     `npx agent-onboard@${version} authority --first-read`,
     `npx agent-onboard@${version} authority --check`,
     `npx agent-onboard@${version} target runtime --namespace`,
@@ -3208,6 +3419,7 @@ function publicTargetOnboardingPostPublishHandoff(root = packageRoot(), version 
       'version-pinned release fixture returns ok',
       'version-pinned parity smoke returns ok',
       'version-pinned architecture parity smoke returns ok',
+      'version-pinned architecture source partition check returns ok',
       'version-pinned target onboarding smoke returns ok',
       'version-pinned published acceptance returns ok',
       'version-pinned release check returns ok',
@@ -3372,6 +3584,15 @@ function runArchitecture(args) {
     json(publicDomainServiceFacades());
     return 0;
   }
+  if (args.length === 1 && args[0] === '--partition-plan') {
+    json(publicSourceDomainModulePartitionPlan());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--partition-check') {
+    const result = publicSourceDomainModulePartitionPlanCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -3381,7 +3602,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -3430,6 +3651,8 @@ function runRelease(args) {
       architecture_map_command: PUBLIC_RELEASE_CONTRACT.architecture_map_command,
       architecture_router_command: PUBLIC_RELEASE_CONTRACT.architecture_router_command,
       architecture_facades_command: PUBLIC_RELEASE_CONTRACT.architecture_facades_command,
+      architecture_partition_plan_command: PUBLIC_RELEASE_CONTRACT.architecture_partition_plan_command,
+      architecture_partition_check_command: PUBLIC_RELEASE_CONTRACT.architecture_partition_check_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       authority_first_read_command: PUBLIC_RELEASE_CONTRACT.authority_first_read_command,
       authority_check_command: PUBLIC_RELEASE_CONTRACT.authority_check_command,
@@ -3443,6 +3666,7 @@ function runRelease(args) {
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
       command_router: PUBLIC_COMMAND_ROUTER,
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+      source_domain_module_partition_plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
       package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
@@ -3472,6 +3696,7 @@ function runRelease(args) {
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
       command_router: PUBLIC_COMMAND_ROUTER,
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+      source_domain_module_partition_plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
       package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
@@ -3495,6 +3720,7 @@ function runRelease(args) {
       architecture_map: PUBLIC_ARCHITECTURE_MAP,
       command_router: PUBLIC_COMMAND_ROUTER,
       domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+      source_domain_module_partition_plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
       package_surface_preservation: PUBLIC_PACKAGE_SURFACE_PRESERVATION,
@@ -4280,7 +4506,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
