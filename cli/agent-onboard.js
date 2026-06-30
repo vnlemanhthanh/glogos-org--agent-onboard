@@ -236,6 +236,42 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
   ])
 });
 
+
+const PUBLIC_RELEASE_CONTRACT = Object.freeze({
+  schema: 'agent-onboard-public-release-contract-001',
+  package_name: 'agent-onboard',
+  release_line: 'public_package_publish_verification_gate',
+  command: 'agent-onboard release --check',
+  expected_pack_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
+  required_package_json: Object.freeze({
+    name: 'agent-onboard',
+    license: 'Apache-2.0',
+    type: 'commonjs',
+    node_engine: '>=18',
+    bin: Object.freeze({
+      'agent-onboard': 'cli/agent-onboard.js',
+      aob: 'cli/agent-onboard.js',
+      'create-agent-onboard': 'cli/agent-onboard.js'
+    }),
+    files: Object.freeze(['cli/agent-onboard.js', 'README.md', 'LICENSE'])
+  }),
+  required_metadata_fields: Object.freeze(['description', 'author', 'repository.url', 'homepage', 'bugs.url', 'keywords']),
+  local_pre_publish_commands: Object.freeze([
+    'npm test',
+    'npm pack --dry-run --json',
+    'npm publish --dry-run --json --ignore-scripts',
+    'node cli/agent-onboard.js status',
+    'node cli/agent-onboard.js release --check'
+  ]),
+  post_publish_verification_commands: Object.freeze([
+    'npm view agent-onboard version dist-tags',
+    'npm view agent-onboard@<version> name version license bin repository',
+    'npx agent-onboard@<version> status',
+    'npx agent-onboard@<version> release --check',
+    'npx agent-onboard@<version> init --dry-run'
+  ])
+});
+
 function agentsMdTemplate(cwd = process.cwd()) {
   const [name, kind] = targetName(cwd);
   return `# AGENTS.md
@@ -909,6 +945,167 @@ function summarizePlan(plannedWrites) {
   }));
 }
 
+
+function packageRoot() {
+  return path.resolve(__dirname, '..');
+}
+
+function arrayEquals(left, right) {
+  if (!Array.isArray(left) || !Array.isArray(right)) return false;
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
+}
+
+function publicReleasePostPublishCommands(version = VERSION) {
+  return PUBLIC_RELEASE_CONTRACT.post_publish_verification_commands.map((command) => command.replaceAll('<version>', version));
+}
+
+function packageJsonReleaseErrors(pkg, root = packageRoot()) {
+  const errors = [];
+  const required = PUBLIC_RELEASE_CONTRACT.required_package_json;
+  if (pkg.name !== required.name) errors.push(`package.json#name must be ${required.name}`);
+  if (pkg.version !== VERSION) errors.push(`package.json#version must match runtime version ${VERSION}`);
+  if (pkg.private === true) errors.push('package.json#private must not be true for a public package');
+  if (pkg.license !== required.license) errors.push(`package.json#license must be ${required.license}`);
+  if (pkg.type !== required.type) errors.push(`package.json#type must be ${required.type}`);
+  if (!pkg.engines || pkg.engines.node !== required.node_engine) errors.push(`package.json#engines.node must be ${required.node_engine}`);
+  for (const field of PUBLIC_RELEASE_CONTRACT.required_metadata_fields) {
+    const value = getPathValue(pkg, field);
+    const missing = Array.isArray(value) ? value.length === 0 : value === undefined || value === null || value === '';
+    if (missing) errors.push(`package.json#${field} is required`);
+  }
+  if (!Array.isArray(pkg.keywords) || pkg.keywords.length < 5) errors.push('package.json#keywords must contain at least 5 discovery terms');
+  const requiredBin = required.bin;
+  for (const [name, rel] of Object.entries(requiredBin)) {
+    if (!pkg.bin || pkg.bin[name] !== rel) errors.push(`package.json#bin.${name} must be ${rel}`);
+    else if (!fs.existsSync(path.join(root, rel))) errors.push(`package.json#bin.${name} points to missing file ${rel}`);
+  }
+  const actualFiles = Array.isArray(pkg.files) ? pkg.files.slice().sort() : [];
+  const expectedFiles = required.files.slice().sort();
+  if (!arrayEquals(actualFiles, expectedFiles)) errors.push(`package.json#files must match ${expectedFiles.join(', ')}`);
+  for (const rel of expectedFiles) {
+    if (!fs.existsSync(path.join(root, rel))) errors.push(`package.json#files includes missing path ${rel}`);
+  }
+  return errors;
+}
+
+function packageJsonProjectedPackFiles(pkg) {
+  const files = new Set(['package.json']);
+  if (Array.isArray(pkg.files)) {
+    for (const rel of pkg.files) files.add(rel);
+  }
+  return Array.from(files).sort();
+}
+
+function publicArtifactMessagingErrors(root = packageRoot(), files = PUBLIC_RELEASE_CONTRACT.expected_pack_files) {
+  const errors = [];
+  const forbiddenConcreteWorkItem = /P\d+S\d+M\d+W\d+/;
+  const forbiddenKey = ['machine', 'identifier'].join('_');
+  const forbiddenNarrativePatterns = [
+    /private\s*\/\s*public\s+split/i,
+    /internal\s+line/i,
+    /research\s+line/i,
+    /stripp?ed/i,
+    /saniti[sz]ed/i,
+    /\bleak(?:age|ed|s|ing)?\b/i
+  ];
+
+  for (const rel of files) {
+    const abs = path.join(root, rel);
+    if (!fs.existsSync(abs) || fs.statSync(abs).isDirectory()) continue;
+    const text = fs.readFileSync(abs, 'utf8');
+    if (text.includes(forbiddenKey)) errors.push(`${rel} contains reserved implementation key token`);
+    const workItemMatch = forbiddenConcreteWorkItem.exec(text);
+    if (workItemMatch) errors.push(`${rel} contains concrete work-item token ${workItemMatch[0]}`);
+    for (let index = 0; index < forbiddenNarrativePatterns.length; index += 1) {
+      const match = forbiddenNarrativePatterns[index].exec(text);
+      if (match) errors.push(`${rel} violates public artifact messaging rule ${index + 1}: ${match[0]}`);
+    }
+  }
+  return errors;
+}
+
+function publicReleaseCheck(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const metadataErrors = packageJsonReleaseErrors(pkg, root);
+  const projectedPackFiles = packageJsonProjectedPackFiles(pkg);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const packErrors = arrayEquals(projectedPackFiles, expectedPackFiles) ? [] : [
+    `projected npm pack files must match ${expectedPackFiles.join(', ')}`
+  ];
+  const messagingErrors = publicArtifactMessagingErrors(root, expectedPackFiles);
+  const errors = [...metadataErrors, ...packErrors, ...messagingErrors];
+  return {
+    schema: 'agent-onboard-public-release-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+    version: VERSION,
+    release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+    package_root: root,
+    command: PUBLIC_RELEASE_CONTRACT.command,
+    validated: {
+      package_metadata: metadataErrors.length === 0,
+      projected_pack_allowlist: packErrors.length === 0,
+      public_artifact_messaging: messagingErrors.length === 0,
+      bin_entrypoints_exist: metadataErrors.filter((error) => error.includes('points to missing file')).length === 0
+    },
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: projectedPackFiles,
+    local_pre_publish_commands: PUBLIC_RELEASE_CONTRACT.local_pre_publish_commands.slice(),
+    post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
+    boundary: {
+      writes_files: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false,
+      network_registry_publish_required: false
+    },
+    errors
+  };
+}
+
+function runRelease(args) {
+  if (args.length === 1 && args[0] === '--plan') {
+    json({
+      schema: 'agent-onboard-public-release-plan-001',
+      status: 'ok',
+      package_name: PUBLIC_RELEASE_CONTRACT.package_name,
+      version: VERSION,
+      release_line: PUBLIC_RELEASE_CONTRACT.release_line,
+      contract: PUBLIC_RELEASE_CONTRACT,
+      post_publish_verification_commands: publicReleasePostPublishCommands(VERSION),
+      boundary: {
+        writes_files: false,
+        git_mutation: false,
+        installs_dependencies: false,
+        runs_build_test_deploy: false,
+        publishes_package: false,
+        mutates_registry: false
+      }
+    });
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--check') {
+    const result = publicReleaseCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
+  json({
+    schema: 'agent-onboard-release-command-error-001',
+    status: 'error',
+    command_family: 'release',
+    message: 'release requires --plan or --check',
+    writes_files: false,
+    publishes_package: false
+  });
+  return 1;
+}
+
 function runGuard(args) {
   if (args.length === 1 && args[0] === '--plan') {
     json({
@@ -1555,7 +1752,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard release --plan|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -1567,12 +1764,13 @@ function main(argv = process.argv) {
     return 0;
   }
   if (cmd === 'status') {
-    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_source_closure_test_fixture_alignment_gate' });
+    json({ schema: 'agent-onboard-status-001', status: 'ok', version: VERSION, release_line: 'public_package_publish_verification_gate' });
     return 0;
   }
   if (cmd === 'init') return runInit(args);
   if (cmd === 'agents') return runAgents(args);
   if (cmd === 'guard') return runGuard(args);
+  if (cmd === 'release') return runRelease(args);
   if (cmd === 'target-config') return runTargetConfig(args);
   if (cmd === 'work-items') return runWorkItems(args);
   if (cmd === 'target') {
@@ -1607,5 +1805,6 @@ module.exports = {
   initWriteSet,
   planWrites,
   agentsMdTemplate,
-  evaluateTargetBoundaryConfig
+  evaluateTargetBoundaryConfig,
+  publicReleaseCheck
 };

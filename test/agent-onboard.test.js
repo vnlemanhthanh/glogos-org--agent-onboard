@@ -56,8 +56,34 @@ function cliTargetConfigForTest(dir) {
   const result = run(['status']);
   const output = readJsonOutput(result);
   assert.strictEqual(output.status, 'ok');
-  assert.strictEqual(output.version, '0.0.16');
-  assert.strictEqual(output.release_line, 'public_source_closure_test_fixture_alignment_gate');
+  assert.strictEqual(output.version, '0.0.17');
+  assert.strictEqual(output.release_line, 'public_package_publish_verification_gate');
+}
+
+{
+  const result = run(['release', '--plan']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.schema, 'agent-onboard-public-release-plan-001');
+  assert.strictEqual(output.version, '0.0.17');
+  assert.strictEqual(output.release_line, 'public_package_publish_verification_gate');
+  assert.strictEqual(output.boundary.publishes_package, false);
+  assert.ok(output.post_publish_verification_commands.some((command) => command.includes('agent-onboard@0.0.17')));
+}
+
+{
+  const result = run(['release', '--check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.schema, 'agent-onboard-public-release-check-result-001');
+  assert.strictEqual(output.version, '0.0.17');
+  assert.strictEqual(output.validated.package_metadata, true);
+  assert.strictEqual(output.validated.projected_pack_allowlist, true);
+  assert.strictEqual(output.validated.public_artifact_messaging, true);
+  assert.deepStrictEqual(output.expected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
+  assert.deepStrictEqual(output.projected_pack_files, ['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']);
+  assert.strictEqual(output.boundary.mutates_registry, false);
+  assert.deepStrictEqual(output.errors, []);
 }
 
 {
@@ -577,6 +603,8 @@ function cliTargetConfigForTest(dir) {
 
   const milestone = findById(rootLedger.milestones, ['P', 1, 'S', 1, 'M', 1].join(''));
 
+  const releaseMilestone = findById(rootLedger.milestones, ['P', 1, 'S', 1, 'M', 2].join(''));
+
   const w1 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 1].join(''));
 
   const w2 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 2].join(''));
@@ -587,11 +615,19 @@ function cliTargetConfigForTest(dir) {
 
   const w5 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 1, 'W', 5].join(''));
 
+  const m2w1 = findById(rootLedger.work_items, ['P', 1, 'S', 1, 'M', 2, 'W', 1].join(''));
+
   assert.ok(program);
 
   assert.ok(stage);
 
   assert.ok(milestone);
+
+  assert.strictEqual(milestone.status, 'closed');
+
+  assert.ok(releaseMilestone);
+
+  assert.strictEqual(releaseMilestone.status, 'open');
 
   assert.ok(w1);
 
@@ -625,7 +661,17 @@ function cliTargetConfigForTest(dir) {
 
   assert.strictEqual(w5.title, 'Public package publish verification gate');
 
-  assert.strictEqual(w5.status, 'open');
+  assert.strictEqual(w5.status, 'closed');
+
+  assert.strictEqual(w5.closure.actor, 'release-maintainer');
+
+  assert.match(w5.closure.summary, /agent-onboard@0\.0\.17/);
+
+  assert.ok(m2w1);
+
+  assert.strictEqual(m2w1.title, 'Public release contract absorption gate');
+
+  assert.strictEqual(m2w1.status, 'open');
 
   assert.ok(fs.existsSync(path.join(ROOT, 'AGENTS.md')));
 
@@ -725,6 +771,7 @@ function cliTargetConfigForTest(dir) {
   assert.ok(generatedAgents.includes('Follow the public participation lifecycle'));
   assert.ok(cli.participationLifecycleNextSteps().some((step) => step.startsWith('discover:')));
   assert.ok(cli.handoffEvidenceChecklist().some((step) => step.startsWith('summary:')));
+  assert.strictEqual(cli.publicReleaseCheck().status, 'ok');
 }
 
 
@@ -795,8 +842,29 @@ function cliTargetConfigForTest(dir) {
   assert.ok(readme.includes('`0.0.15` adds the public handoff and closure evidence gate'));
 
   assert.ok(readme.includes('`0.0.16` aligns public source closure tests'));
+  assert.ok(readme.includes('`0.0.17` adds public `release --plan` and `release --check`'));
+  assert.ok(readme.includes('npx agent-onboard release --check'));
+  assert.ok(readme.includes('The check validates package metadata, bin entrypoints, the projected npm pack allowlist'));
   assert.ok(readme.includes('The claim response also returns `next_steps`'));
   assert.ok(readme.includes('The close command reads the existing ledger'));
+}
+
+
+{
+  const help = run(['--help']);
+  assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
+  assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
+  assert.ok(help.stdout.includes('release --plan|--check'));
+}
+
+{
+  const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
+  assert.ok(agents.includes('npx agent-onboard@0.0.17 work-items --list'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.17 work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.17 work-items --close --dry-run --id <public-work-item-id> --actor <agent-or-human-name> --summary <summary>'));
+  assert.ok(agents.includes('npx agent-onboard@0.0.17 release --check'));
+  assert.ok(!agents.includes('npx agent-onboard@0.0.16'));
+  assert.ok(!agents.includes('npx agent-onboard@0.0.15'));
 }
 
 console.log('agent-onboard tests passed');

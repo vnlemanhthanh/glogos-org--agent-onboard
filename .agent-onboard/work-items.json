@@ -43,6 +43,12 @@
       "id": "P1S1M1",
       "stage_id": "P1S1",
       "title": "Public self-dogfood baseline milestone",
+      "status": "closed"
+    },
+    {
+      "id": "P1S1M2",
+      "stage_id": "P1S1",
+      "title": "Public release contract milestone",
       "status": "open"
     }
   ],
@@ -123,9 +129,11 @@
       "closure": {
         "actor": "release-maintainer",
         "closed_at": "2026-06-29T20:56:12.000Z",
-        "summary": "Closed after aligning the public source closure test fixture with the already-closed handoff evidence work item in agent-onboard@0.0.16.",
+        "summary": "Closed after aligning the public source closure test fixture with the already-closed handoff evidence work item in agent-onboard@0.0.16, and after aligning the advertised source participation commands with the 0.0.16 closure surface.",
         "changed_files": [
+          "AGENTS.md",
           "README.md",
+          "cli/agent-onboard.js",
           "test/agent-onboard.test.js",
           ".agent-onboard/work-items.json"
         ],
@@ -135,7 +143,9 @@
           "node cli/agent-onboard.js status",
           "node cli/agent-onboard.js work-items --list",
           "installed package smoke: agent-onboard status",
-          "installed package smoke: agent-onboard init --dry-run in empty target repo"
+          "installed package smoke: agent-onboard init --dry-run in empty target repo",
+          "node cli/agent-onboard.js --help",
+          "source command surface assertions in npm test"
         ],
         "checks_not_run": [],
         "known_non_pass": [
@@ -147,6 +157,41 @@
       "id": "P1S1M1W5",
       "milestone_id": "P1S1M1",
       "title": "Public package publish verification gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Closed by adding a public release verification harness in agent-onboard@0.0.17 that validates package metadata, projected npm pack allowlist, public artifact messaging, and post-publish verification commands without mutating the npm registry.",
+        "changed_files": [
+          "README.md",
+          "AGENTS.md",
+          "cli/agent-onboard.js",
+          "test/agent-onboard.test.js",
+          "package.json",
+          ".agent-onboard/work-items.json"
+        ],
+        "checks_run": [
+          "npm test",
+          "npm pack --dry-run --json",
+          "npm publish --dry-run --json --ignore-scripts",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js release --plan",
+          "node cli/agent-onboard.js release --check"
+        ],
+        "checks_not_run": [
+          "npm publish",
+          "npm view agent-onboard version dist-tags",
+          "npx agent-onboard@0.0.17 status"
+        ],
+        "known_non_pass": [
+          "post-publish registry verification is intentionally listed as an operator handoff because this source candidate does not mutate the public npm registry."
+        ]
+      }
+    },
+    {
+      "id": "P1S1M2W1",
+      "milestone_id": "P1S1M2",
+      "title": "Public release contract absorption gate",
       "status": "open"
     }
   ]
