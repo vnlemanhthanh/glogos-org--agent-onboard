@@ -261,6 +261,8 @@ For this gate, run:
 ```bash
 node cli/agent-onboard.js architecture --claims-bundle-parity
 node cli/agent-onboard.js architecture --claims-bundle-parity-check
+node cli/agent-onboard.js architecture --claims-runtime-bridge
+node cli/agent-onboard.js architecture --claims-runtime-bridge-check
 node cli/agent-onboard.js architecture --check
 node cli/agent-onboard.js release --surface-check
 node cli/agent-onboard.js release --check

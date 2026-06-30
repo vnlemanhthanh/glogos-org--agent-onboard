@@ -1,0 +1,52 @@
+{
+  "schema": "agent-onboard-public-source-module-claims-runtime-bridge-001",
+  "title": "Agent-Onboard Public Claims Domain Source Extraction Runtime Bridge",
+  "package_name": "agent-onboard",
+  "release_line": "public_claims_domain_source_extraction_runtime_bridge_gate",
+  "command": "agent-onboard architecture --claims-runtime-bridge",
+  "check_command": "agent-onboard architecture --claims-runtime-bridge-check",
+  "runtime_bridge_file": ".agent-onboard/source-module-extraction-claims-runtime-bridge.json",
+  "source_module": "src/domains/claims.js",
+  "prerequisite_bundle_parity_file": ".agent-onboard/source-module-extraction-claims-bundle-parity.json",
+  "bridge_status": "claims_source_context_optional_runtime_bridge_applied",
+  "purpose": "Admit a guarded runtime bridge that may load the source-only claims module in source repository context while falling back to bundled CLI claims metadata in installed package context.",
+  "bridge_resolution_order": [
+    "source repository context: try src/domains/claims.js through guarded optional require",
+    "installed package context: use bundled CLI claims metadata fallback",
+    "failure mode: fail closed if source module is present but invalid"
+  ],
+  "runtime_bridge": {
+    "bridge_function": "resolveClaimsDomainRuntimeBridge",
+    "source_context_loads_module_when_present": true,
+    "installed_context_allows_missing_source_module": true,
+    "fallback": "bundledClaimsDomainForParity",
+    "public_import_api": false,
+    "writes_files": false,
+    "state_writer": false,
+    "keeps_shared_work_items_ledger": true,
+    "includes_non_claim_work_items_commands": false
+  },
+  "next_work_item_id": "P1S3M2W11",
+  "boundary": {
+    "claims_runtime_bridge_command_writes_files": false,
+    "claims_runtime_bridge_check_command_writes_files": false,
+    "creates_source_modules": false,
+    "moves_existing_source_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "exports_source_module_as_public_api": false,
+    "source_context_optional_require_only": true,
+    "installed_context_fallback_required": true,
+    "keeps_shared_work_items_ledger": true,
+    "includes_non_claim_work_items_commands": false,
+    "writes_package_root": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false,
+    "package_allowlist_unchanged": true
+  }
+}

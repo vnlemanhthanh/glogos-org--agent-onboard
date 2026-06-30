@@ -1910,6 +1910,52 @@
       "id": "P1S3M2W10",
       "milestone_id": "P1S3M2",
       "title": "Public claims domain source extraction runtime bridge gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-06-30T00:00:00.000Z",
+        "summary": "Admitted the public claims domain source extraction runtime bridge gate, allowing source-context optional loading of src/domains/claims.js with bundled CLI fallback in installed package context while preserving the shared work-items ledger and compact npm package allowlist.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/source-module-extraction-claims-runtime-bridge.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c src/domains/claims.js",
+          "node -c test/agent-onboard.test.js",
+          "node cli/agent-onboard.js architecture --claims-runtime-bridge",
+          "node cli/agent-onboard.js architecture --claims-runtime-bridge-check",
+          "installed-context copy: node cli/agent-onboard.js architecture --claims-runtime-bridge-check",
+          "node cli/agent-onboard.js architecture --claims-bundle-parity-check",
+          "node cli/agent-onboard.js architecture --claims-first-slice-check",
+          "node cli/agent-onboard.js architecture --claims-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --dry-run --json --ignore-scripts",
+          "npm publish --access public"
+        ],
+        "known_non_pass": [
+          "npm test was not run to completion in this sandbox because previous full-suite runs exceeded the execution window; targeted syntax, architecture, release, ledger, and npm pack checks were run instead."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M2W11",
+      "milestone_id": "P1S3M2",
+      "title": "Public claims domain source extraction installed fallback smoke gate",
       "status": "open"
     }
   ]

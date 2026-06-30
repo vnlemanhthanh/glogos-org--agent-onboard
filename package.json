@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -225,7 +225,9 @@
     "claim-close-boundary",
     "claims-bundle-parity",
     "claims-source-parity",
-    "claims-bundled-cli-view"
+    "claims-bundled-cli-view",
+    "claims-runtime-bridge",
+    "claims-source-bridge"
   ],
   "type": "commonjs",
   "engines": {

@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_claims_domain_source_extraction_bundle_parity_gate';
+const EXPECTED_RELEASE_LINE = 'public_claims_domain_source_extraction_runtime_bridge_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 
 function run(args, opts = {}) {
@@ -155,6 +155,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.architecture_claims_first_slice_check_command, 'agent-onboard architecture --claims-first-slice-check');
   assert.strictEqual(output.architecture_claims_bundle_parity_command, 'agent-onboard architecture --claims-bundle-parity');
   assert.strictEqual(output.architecture_claims_bundle_parity_check_command, 'agent-onboard architecture --claims-bundle-parity-check');
+  assert.strictEqual(output.architecture_claims_runtime_bridge_command, 'agent-onboard architecture --claims-runtime-bridge');
+  assert.strictEqual(output.architecture_claims_runtime_bridge_check_command, 'agent-onboard architecture --claims-runtime-bridge-check');
   assert.strictEqual(output.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.authority_check_command, 'agent-onboard authority --check');
@@ -217,6 +219,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.contract.architecture_claims_first_slice_check_command, 'agent-onboard architecture --claims-first-slice-check');
   assert.strictEqual(output.contract.architecture_claims_bundle_parity_command, 'agent-onboard architecture --claims-bundle-parity');
   assert.strictEqual(output.contract.architecture_claims_bundle_parity_check_command, 'agent-onboard architecture --claims-bundle-parity-check');
+  assert.strictEqual(output.contract.architecture_claims_runtime_bridge_command, 'agent-onboard architecture --claims-runtime-bridge');
+  assert.strictEqual(output.contract.architecture_claims_runtime_bridge_check_command, 'agent-onboard architecture --claims-runtime-bridge-check');
   assert.strictEqual(output.contract.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.contract.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.contract.authority_check_command, 'agent-onboard authority --check');
@@ -284,7 +288,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.command, 'agent-onboard architecture --map');
   assert.strictEqual(output.map.public_source_shape.source_partition_plan_file, '.agent-onboard/source-partition-plan.json');
   assert.strictEqual(output.map.public_source_shape.source_extraction_rehearsal_file, '.agent-onboard/source-extraction-rehearsal.json');
-  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'claims_domain_source_extraction_bundle_parity_applied');
+  assert.strictEqual(output.map.public_source_shape.physical_domain_split_status, 'claims_domain_source_extraction_runtime_bridge_applied');
   assert.strictEqual(output.map.public_source_shape.source_extraction_golden_outputs_file, '.agent-onboard/source-extraction-golden-outputs.json');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_adapter_boundary_file, '.agent-onboard/source-module-extraction-adapter-boundary.json');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_first_slice_file, '.agent-onboard/source-module-extraction-first-slice.json');
@@ -305,6 +309,7 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.map.public_source_shape.claims_domain_source_extraction_plan_file, '.agent-onboard/source-module-extraction-claims-plan.json');
   assert.strictEqual(output.map.public_source_shape.claims_domain_source_extraction_first_slice_file, '.agent-onboard/source-module-extraction-claims-first-slice.json');
   assert.strictEqual(output.map.public_source_shape.claims_domain_source_extraction_bundle_parity_file, '.agent-onboard/source-module-extraction-claims-bundle-parity.json');
+  assert.strictEqual(output.map.public_source_shape.claims_domain_source_extraction_runtime_bridge_file, '.agent-onboard/source-module-extraction-claims-runtime-bridge.json');
   assert.strictEqual(output.map.public_source_shape.claims_domain_source_extraction_module, 'src/domains/claims.js');
   assert.strictEqual(output.map.public_source_shape.work_items_domain_source_extraction_module, 'src/domains/work-items.js');
   assert.strictEqual(output.map.public_source_shape.source_module_extraction_authority_bundle_parity_module, 'src/domains/authority.js');
@@ -2433,6 +2438,26 @@ assert.ok(agents.includes('node cli/agent-onboard.js target runtime --check'));
   assert.ok(output.validated.close_contract_matches_bundled_claims);
   assert.ok(output.validated.non_claim_work_items_commands_excluded);
   assert.ok(output.validated.package_allowlist_unchanged);
+  assert.deepStrictEqual(output.errors, []);
+}
+
+
+{
+  const result = run(['architecture', '--claims-runtime-bridge-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-source-module-claims-runtime-bridge-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, EXPECTED_VERSION);
+  assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
+  assert.strictEqual(output.command, 'agent-onboard architecture --claims-runtime-bridge-check');
+  assert.ok(output.validated.claims_bundle_parity);
+  assert.ok(output.validated.source_module_loaded_when_present);
+  assert.ok(output.validated.installed_context_fallback_allowed);
+  assert.ok(output.validated.shared_work_items_ledger_preserved);
+  assert.ok(output.validated.non_claim_work_items_commands_excluded);
+  assert.ok(output.validated.package_allowlist_unchanged);
+  assert.strictEqual(output.source_claims_runtime_bridge_file.path, '.agent-onboard/source-module-extraction-claims-runtime-bridge.json');
+  assert.strictEqual(output.source_claims_runtime_bridge_file.status, 'present_validated');
   assert.deepStrictEqual(output.errors, []);
 }
 
