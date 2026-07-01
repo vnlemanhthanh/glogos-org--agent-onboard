@@ -2443,6 +2443,43 @@
       "id": "P1S3M3W11",
       "milestone_id": "P1S3M3",
       "title": "Public thin entrypoint router cutover application gate",
+      "status": "closed",
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by applying the public thin entrypoint router cutover: cli/agent-onboard.js now delegates main(process.argv) through the packaged command router and compatibility command port while preserving the 11-file npm package surface and public CLI outputs.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/thin-entrypoint-router-cutover-application.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/command-router.js",
+          "cli/agent_onboard/adapters/compatibility-command-port.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node cli/agent-onboard.js architecture --thin-entrypoint-cutover",
+          "node cli/agent-onboard.js architecture --thin-entrypoint-cutover-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W12",
+      "milestone_id": "P1S3M3",
+      "title": "Public router command adapter delegation expansion gate",
       "status": "open"
     }
   ]

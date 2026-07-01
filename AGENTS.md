@@ -283,9 +283,9 @@ Source-domain stabilization closure review: `architecture --source-domain-closur
 
 `cli/agent-onboard.js` is now declared as monolith debt; the public runtime cutover path uses controlled source-module inclusion, keeps the current compact npm package allowlist unchanged for this planning gate, and seeds the thin CLI router cutover.
 
-## Public thin entrypoint router cutover rehearsal
+## Public thin entrypoint router cutover application
 
-Run these source checks for the thin entrypoint router cutover rehearsal gate:
+Run these source checks for the thin entrypoint router cutover application gate:
 
 ```sh
 node cli/agent-onboard.js architecture --package-adapter
@@ -300,8 +300,10 @@ node cli/agent-onboard.js architecture --packaged-router-port
 node cli/agent-onboard.js architecture --packaged-router-port-check
 node cli/agent-onboard.js architecture --thin-entrypoint-rehearsal
 node cli/agent-onboard.js architecture --thin-entrypoint-rehearsal-check
+node cli/agent-onboard.js architecture --thin-entrypoint-cutover
+node cli/agent-onboard.js architecture --thin-entrypoint-cutover-check
 node cli/agent-onboard.js architecture --check
 node cli/agent-onboard.js release --check
 ```
 
-This gate rehearses the future `process.argv` delegation through the packaged router and compatibility command port. It keeps the 11-file package surface unchanged and must not cut over `cli/agent-onboard.js` to the router yet.
+This gate applies the `process.argv` delegation through the packaged router and compatibility command port. It keeps the 11-file package surface unchanged; future gates should expand adapter delegation without growing `cli/agent-onboard.js` again.

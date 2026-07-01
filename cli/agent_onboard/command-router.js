@@ -23,7 +23,7 @@ const ROUTER_SEED = Object.freeze({
     'target-instance'
   ]),
   boundary: Object.freeze({
-    used_by_runtime_entrypoint_in_this_gate: false,
+    used_by_runtime_entrypoint_in_this_gate: true,
     packaged_in_npm_tarball_in_this_gate: true,
     no_side_effect_on_require: true,
     no_file_writes: true,

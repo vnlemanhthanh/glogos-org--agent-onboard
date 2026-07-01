@@ -1,0 +1,32 @@
+{
+  "schema": "agent-onboard-public-thin-entrypoint-router-cutover-application-001",
+  "title": "Agent-Onboard Public Thin Entrypoint Router Cutover Application Gate",
+  "package_name": "agent-onboard",
+  "release_line": "public_thin_entrypoint_router_cutover_application_gate",
+  "command": "agent-onboard architecture --thin-entrypoint-cutover",
+  "check_command": "agent-onboard architecture --thin-entrypoint-cutover-check",
+  "work_item_id": "P1S3M3W11",
+  "next_work_item_id": "P1S3M3W12",
+  "cutover_status": "thin_entrypoint_router_cutover_applied",
+  "runtime_cutover_applied": true,
+  "entrypoint": "cli/agent-onboard.js",
+  "router_module": "cli/agent_onboard/command-router.js",
+  "compatibility_port_module": "cli/agent_onboard/adapters/compatibility-command-port.js",
+  "delegation_contract": "main(process.argv) to routeCommand(argv, createRuntimeCompatibilityPort())",
+  "package_file_count": 11,
+  "boundary": {
+    "thin_entrypoint_cutover_command_writes_files": false,
+    "thin_entrypoint_cutover_check_command_writes_files": false,
+    "changes_public_cli_outputs": false,
+    "runtime_uses_packaged_router": true,
+    "runtime_uses_packaged_compatibility_port": true,
+    "package_allowlist_unchanged": true,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false
+  }
+}

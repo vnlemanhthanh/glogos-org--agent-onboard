@@ -241,6 +241,8 @@ npx agent-onboard architecture --packaged-router-port
 npx agent-onboard architecture --packaged-router-port-check
 npx agent-onboard architecture --thin-entrypoint-rehearsal
 npx agent-onboard architecture --thin-entrypoint-rehearsal-check
+npx agent-onboard architecture --thin-entrypoint-cutover
+npx agent-onboard architecture --thin-entrypoint-cutover-check
 npx agent-onboard release --version-sprawl-check
 ```
 
@@ -771,6 +773,8 @@ This release adds the public modular runtime package inclusion planning gate: `a
 This release adds the public packaged router port inclusion gate: `architecture --packaged-router-port` reports the first controlled modular package inclusion slice, and `architecture --packaged-router-port-check` validates that the router, compatibility command port, port facade, and admitted command adapters are included in the npm package while `cli/agent-onboard.js` remains the runtime entrypoint for this gate.
 
 This release adds the public thin entrypoint router cutover rehearsal gate: `architecture --thin-entrypoint-rehearsal` reports the future thin-entrypoint delegation shape, and `architecture --thin-entrypoint-rehearsal-check` validates no-write router/compatibility-port rehearsal vectors while keeping `cli/agent-onboard.js` as the current runtime entrypoint and preserving the 11-file modular package surface.
+
+This release adds the public thin entrypoint router cutover application gate: `architecture --thin-entrypoint-cutover` reports the applied runtime delegation, and `architecture --thin-entrypoint-cutover-check` validates that `cli/agent-onboard.js` now routes `main(process.argv)` through the packaged command router and compatibility command port while preserving the 11-file package surface.
 
 <!-- ## Star History
 

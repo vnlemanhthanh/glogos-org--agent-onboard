@@ -17,7 +17,7 @@ const COMPATIBILITY_COMMAND_PORT_SEED = Object.freeze({
     coordination: Object.freeze(['authority', 'work-items'])
   }),
   boundary: Object.freeze({
-    used_by_runtime_entrypoint_in_this_gate: false,
+    used_by_runtime_entrypoint_in_this_gate: true,
     packaged_in_npm_tarball_in_this_gate: true,
     command_adapters_required_in_this_gate: false,
     no_side_effect_on_require: true,
