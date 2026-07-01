@@ -235,6 +235,8 @@ npx agent-onboard architecture --architecture-adapter
 npx agent-onboard architecture --architecture-adapter-check
 npx agent-onboard architecture --authority-adapter
 npx agent-onboard architecture --authority-adapter-check
+npx agent-onboard architecture --module-inclusion-plan
+npx agent-onboard architecture --module-inclusion-check
 npx agent-onboard release --version-sprawl-check
 ```
 
@@ -759,6 +761,8 @@ This release adds the public source extraction golden output freeze gate: `archi
 This release adds the public architecture command adapter extraction gate: `architecture --architecture-adapter` reports the source-only adapter contract for the architecture command family, and `architecture --architecture-adapter-check` validates that it remains outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
 
 This release adds the public authority command adapter extraction gate: `architecture --authority-adapter` reports the source-only adapter contract for the authority command family, and `architecture --authority-adapter-check` validates that `authority`, `agents`, and `guard` remain outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
+
+This release adds the public modular runtime package inclusion planning gate: `architecture --module-inclusion-plan` records the shift from adding more source-only command adapters toward the internal thin-entrypoint modular runtime shape, and `architecture --module-inclusion-check` keeps the current four-file package surface unchanged while planning the next controlled package inclusion slice.
 
 <!-- ## Star History
 

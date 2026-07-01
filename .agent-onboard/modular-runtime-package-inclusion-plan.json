@@ -1,0 +1,56 @@
+{
+  "schema": "agent-onboard-public-modular-runtime-package-inclusion-plan-001",
+  "title": "Agent-Onboard Public Modular Runtime Package Inclusion Planning Gate",
+  "package_name": "agent-onboard",
+  "release_line": "public_modular_runtime_package_inclusion_plan_gate",
+  "command": "agent-onboard architecture --module-inclusion-plan",
+  "check_command": "agent-onboard architecture --module-inclusion-check",
+  "work_item_id": "P1S3M3W8",
+  "next_work_item_id": "P1S3M3W9",
+  "planning_status": "modular_runtime_package_inclusion_plan_admitted",
+  "internal_reference_shape": {
+    "thin_entrypoint": "cli/agent-onboard.js",
+    "router_module": "cli/agent_onboard/command-router.js",
+    "compatibility_port_module": "cli/agent_onboard/adapters/compatibility-command-port.js",
+    "command_adapter_directory": "cli/agent_onboard/adapters/commands",
+    "domain_service_directory": "cli/agent_onboard/domains"
+  },
+  "current_public_package_files": [
+    "LICENSE",
+    "README.md",
+    "cli/agent-onboard.js",
+    "package.json"
+  ],
+  "future_include_candidates": [
+    "cli/agent_onboard/command-router.js",
+    "cli/agent_onboard/adapters/compatibility-command-port.js",
+    "cli/agent_onboard/ports/compatibility-command-port.js",
+    "cli/agent_onboard/adapters/commands/core.js",
+    "cli/agent_onboard/adapters/commands/release-package.js",
+    "cli/agent_onboard/adapters/commands/architecture.js",
+    "cli/agent_onboard/adapters/commands/authority.js"
+  ],
+  "first_inclusion_slice": {
+    "id": "packaged_router_port_core_adapters",
+    "runtime_cutover_allowed": false,
+    "package_files_change_allowed": true,
+    "requires_pack_surface_budget": true,
+    "requires_installed_package_parity": true
+  },
+  "boundary": {
+    "module_inclusion_plan_command_writes_files": false,
+    "module_inclusion_check_command_writes_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "package_allowlist_unchanged_for_this_gate": true,
+    "future_package_allowlist_change_planned": true,
+    "runtime_cutover_applied": false,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false
+  }
+}

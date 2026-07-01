@@ -2336,7 +2336,41 @@
     {
       "id": "P1S3M3W8",
       "milestone_id": "P1S3M3",
-      "title": "Public work-items command adapter extraction gate",
+      "title": "Public modular runtime package inclusion planning gate",
+      "status": "closed",
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by admitting the public modular runtime package inclusion planning gate: after comparing the public source-only command adapter path with the internal thin-entrypoint modular runtime, the public line now plans a controlled package-surface inclusion slice before adding more source-only command adapters.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/modular-runtime-package-inclusion-plan.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node cli/agent-onboard.js architecture --module-inclusion-plan",
+          "node cli/agent-onboard.js architecture --module-inclusion-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W9",
+      "milestone_id": "P1S3M3",
+      "title": "Public packaged router port inclusion gate",
       "status": "open"
     }
   ]
