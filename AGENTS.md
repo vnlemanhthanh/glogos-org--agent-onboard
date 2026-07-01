@@ -282,3 +282,18 @@ Source-domain stabilization closure review: `architecture --source-domain-closur
 ## Public CLI runtime de-monolith planning
 
 `cli/agent-onboard.js` is now declared as monolith debt; the public runtime cutover path uses controlled source-module inclusion, keeps the current compact npm package allowlist unchanged for this planning gate, and seeds the thin CLI router cutover.
+
+## Public architecture command adapter extraction
+
+Run these source checks for the architecture command adapter gate:
+
+```sh
+node cli/agent-onboard.js architecture --package-adapter
+node cli/agent-onboard.js architecture --package-adapter-check
+node cli/agent-onboard.js architecture --architecture-adapter
+node cli/agent-onboard.js architecture --architecture-adapter-check
+node cli/agent-onboard.js architecture --check
+node cli/agent-onboard.js release --check
+```
+
+The architecture command adapter is source-only for this gate. It must stay outside `package.json#files`, must not change public CLI output, and must not become the packaged runtime entrypoint yet.

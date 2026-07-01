@@ -2265,6 +2265,42 @@
       "id": "P1S3M3W6",
       "milestone_id": "P1S3M3",
       "title": "Public architecture command adapter extraction gate",
+      "status": "closed",
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by admitting the public architecture command adapter extraction gate: the architecture command family now has a source-only command adapter contract under the compatibility command port, while the packaged CLI runtime and compact npm package allowlist remain unchanged.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/architecture-command-adapter-extraction.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/architecture.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/architecture.js",
+          "node cli/agent-onboard.js architecture --architecture-adapter",
+          "node cli/agent-onboard.js architecture --architecture-adapter-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W7",
+      "milestone_id": "P1S3M3",
+      "title": "Public authority command adapter extraction gate",
       "status": "open"
     }
   ]

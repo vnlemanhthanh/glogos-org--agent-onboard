@@ -229,6 +229,10 @@ npx agent-onboard architecture --authority-bundle-parity
 npx agent-onboard architecture --authority-bundle-parity-check
 npx agent-onboard architecture --authority-runtime-bridge
 npx agent-onboard architecture --authority-runtime-bridge-check
+npx agent-onboard architecture --package-adapter
+npx agent-onboard architecture --package-adapter-check
+npx agent-onboard architecture --architecture-adapter
+npx agent-onboard architecture --architecture-adapter-check
 npx agent-onboard release --version-sprawl-check
 ```
 
@@ -749,6 +753,8 @@ This version does not:
 `0.0.35` adds the public source domain module partition planning gate: `architecture --partition-plan` reports the future `src/domains/*` module map and `architecture --partition-check` validates that no physical source move is performed while the npm package remains compact.
 
 This release adds the public source extraction golden output freeze gate: `architecture --golden-outputs` reports the frozen command-output contract, `architecture --golden-check` validates it, and `release --version-sprawl-check` prevents current patch-version literals from spreading through source docs and tests.
+
+This release adds the public architecture command adapter extraction gate: `architecture --architecture-adapter` reports the source-only adapter contract for the architecture command family, and `architecture --architecture-adapter-check` validates that it remains outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
 
 <!-- ## Star History
 
