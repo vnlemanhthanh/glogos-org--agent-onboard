@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.66",
+  "version": "0.0.67",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -266,7 +266,9 @@
     "authority-command-adapter",
     "public-authority-adapter",
     "modular-runtime",
-    "package-inclusion-plan"
+    "package-inclusion-plan",
+    "packaged-router",
+    "packaged-command-port"
   ],
   "type": "commonjs",
   "engines": {
@@ -282,6 +284,13 @@
   },
   "files": [
     "cli/agent-onboard.js",
+    "cli/agent_onboard/command-router.js",
+    "cli/agent_onboard/adapters/compatibility-command-port.js",
+    "cli/agent_onboard/ports/compatibility-command-port.js",
+    "cli/agent_onboard/adapters/commands/core.js",
+    "cli/agent_onboard/adapters/commands/release-package.js",
+    "cli/agent_onboard/adapters/commands/architecture.js",
+    "cli/agent_onboard/adapters/commands/authority.js",
     "README.md",
     "LICENSE"
   ]

@@ -237,6 +237,8 @@ npx agent-onboard architecture --authority-adapter
 npx agent-onboard architecture --authority-adapter-check
 npx agent-onboard architecture --module-inclusion-plan
 npx agent-onboard architecture --module-inclusion-check
+npx agent-onboard architecture --packaged-router-port
+npx agent-onboard architecture --packaged-router-port-check
 npx agent-onboard release --version-sprawl-check
 ```
 
@@ -764,6 +766,8 @@ This release adds the public authority command adapter extraction gate: `archite
 
 This release adds the public modular runtime package inclusion planning gate: `architecture --module-inclusion-plan` records the shift from adding more source-only command adapters toward the internal thin-entrypoint modular runtime shape, and `architecture --module-inclusion-check` keeps the current four-file package surface unchanged while planning the next controlled package inclusion slice.
 
+This release adds the public packaged router port inclusion gate: `architecture --packaged-router-port` reports the first controlled modular package inclusion slice, and `architecture --packaged-router-port-check` validates that the router, compatibility command port, port facade, and admitted command adapters are included in the npm package while `cli/agent-onboard.js` remains the runtime entrypoint for this gate.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
@@ -791,7 +795,7 @@ npx agent-onboard work-items --claim --dry-run --id <public-work-item-id> --acto
 npx agent-onboard work-items --claim --write --id <public-work-item-id> --actor <agent-or-human-name>
 ```
 
-The npm package surface remains intentionally compact. The self-dogfood files are source-repository operating files and are not included in the public npm tarball.
+The npm package surface now includes the first controlled modular runtime slice under `cli/agent_onboard/`. Self-dogfood files remain source-repository operating files and are not included in the public npm tarball.
 
 ## License
 

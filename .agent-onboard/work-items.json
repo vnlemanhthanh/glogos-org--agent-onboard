@@ -2371,6 +2371,41 @@
       "id": "P1S3M3W9",
       "milestone_id": "P1S3M3",
       "title": "Public packaged router port inclusion gate",
+      "status": "closed",
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by admitting the first controlled public modular package inclusion slice: the router, compatibility command port, port facade, and admitted command adapters are now projected into the npm package while cli/agent-onboard.js remains the runtime entrypoint for this gate.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/packaged-router-port-inclusion.json",
+          "cli/agent-onboard.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node cli/agent-onboard.js architecture --packaged-router-port",
+          "node cli/agent-onboard.js architecture --packaged-router-port-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W10",
+      "milestone_id": "P1S3M3",
+      "title": "Public thin entrypoint router cutover rehearsal gate",
       "status": "open"
     }
   ]
