@@ -1,0 +1,63 @@
+{
+  "schema": "agent-onboard-public-thin-entrypoint-router-cutover-rehearsal-001",
+  "title": "Agent-Onboard Public Thin Entrypoint Router Cutover Rehearsal Gate",
+  "package_name": "agent-onboard",
+  "release_line": "public_thin_entrypoint_router_cutover_rehearsal_gate",
+  "command": "agent-onboard architecture --thin-entrypoint-rehearsal",
+  "check_command": "agent-onboard architecture --thin-entrypoint-rehearsal-check",
+  "work_item_id": "P1S3M3W10",
+  "next_work_item_id": "P1S3M3W11",
+  "rehearsal_status": "thin_entrypoint_router_cutover_rehearsed_not_applied",
+  "runtime_cutover_applied": false,
+  "current_entrypoint": "cli/agent-onboard.js",
+  "planned_entrypoint_shape": {
+    "requires_router_module": "cli/agent_onboard/command-router.js",
+    "requires_compatibility_port": "cli/agent_onboard/adapters/compatibility-command-port.js",
+    "delegation_contract": "process.argv to router.route(argv, compatibilityPort)",
+    "target_entrypoint_max_lines": 25
+  },
+  "rehearsal_vectors": [
+    {
+      "id": "status",
+      "argv": [
+        "node",
+        "cli/agent-onboard.js",
+        "status"
+      ],
+      "expected_status": "ok"
+    },
+    {
+      "id": "help_default",
+      "argv": [
+        "node",
+        "cli/agent-onboard.js"
+      ],
+      "expected_status": "ok"
+    },
+    {
+      "id": "unhandled_closed",
+      "argv": [
+        "node",
+        "cli/agent-onboard.js",
+        "unknown"
+      ],
+      "expected_status": "unhandled_source_only_seed"
+    }
+  ],
+  "boundary": {
+    "thin_entrypoint_rehearsal_command_writes_files": false,
+    "thin_entrypoint_rehearsal_check_command_writes_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "runtime_cutover_applied": false,
+    "package_allowlist_unchanged": true,
+    "package_file_count": 11,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false
+  }
+}

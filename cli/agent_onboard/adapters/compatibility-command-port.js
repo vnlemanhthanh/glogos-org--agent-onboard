@@ -3,7 +3,7 @@
 const COMPATIBILITY_COMMAND_PORT_SEED = Object.freeze({
   schema: 'agent-onboard-public-compatibility-command-port-seed-module-001',
   package_name: 'agent-onboard',
-  role: 'source_only_compatibility_command_port_seed',
+  role: 'packaged_compatibility_command_port_seed',
   planned_adapter_path: 'cli/agent_onboard/adapters/compatibility-command-port.js',
   planned_port_path: 'cli/agent_onboard/ports/compatibility-command-port.js',
   dispatch_contract: 'router_calls_port_run_with_argv',
@@ -18,7 +18,7 @@ const COMPATIBILITY_COMMAND_PORT_SEED = Object.freeze({
   }),
   boundary: Object.freeze({
     used_by_runtime_entrypoint_in_this_gate: false,
-    packaged_in_npm_tarball_in_this_gate: false,
+    packaged_in_npm_tarball_in_this_gate: true,
     command_adapters_required_in_this_gate: false,
     no_side_effect_on_require: true,
     no_file_writes: true,

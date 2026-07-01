@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_packaged_router_port_inclusion_gate';
+const RELEASE_LINE = 'public_thin_entrypoint_router_cutover_rehearsal_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -716,6 +716,7 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/authority-command-adapter-extraction.json',
     '.agent-onboard/modular-runtime-package-inclusion-plan.json',
     '.agent-onboard/packaged-router-port-inclusion.json',
+    '.agent-onboard/thin-entrypoint-router-cutover-rehearsal.json',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2566,6 +2567,54 @@ const PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION = Object.freeze({
   })
 });
 
+const PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL = Object.freeze({
+  schema: 'agent-onboard-public-thin-entrypoint-router-cutover-rehearsal-001',
+  title: 'Agent-Onboard Public Thin Entrypoint Router Cutover Rehearsal Gate',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --thin-entrypoint-rehearsal',
+  check_command: 'agent-onboard architecture --thin-entrypoint-rehearsal-check',
+  rehearsal_file: '.agent-onboard/thin-entrypoint-router-cutover-rehearsal.json',
+  milestone_id: 'P1S3M3',
+  work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 10].join(''),
+  next_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 11].join(''),
+  rehearsal_status: 'thin_entrypoint_router_cutover_rehearsed_not_applied',
+  runtime_cutover_applied: false,
+  current_entrypoint: 'cli/agent-onboard.js',
+  router_module: 'cli/agent_onboard/command-router.js',
+  compatibility_port_module: 'cli/agent_onboard/adapters/compatibility-command-port.js',
+  target_entrypoint_max_lines: 25,
+  rehearsal_vectors: Object.freeze([
+    Object.freeze({ id: 'status', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'status']), expected_status: 'ok' }),
+    Object.freeze({ id: 'help_default', argv: Object.freeze(['node', 'cli/agent-onboard.js']), expected_status: 'ok' }),
+    Object.freeze({ id: 'unhandled_closed', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'unknown']), expected_status: 'unhandled_source_only_seed' })
+  ]),
+  expected_pack_files: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES,
+  acceptance_criteria: Object.freeze([
+    'Rehearse the future thin entrypoint delegation through the packaged router and compatibility command port.',
+    'Keep cli/agent-onboard.js as the current runtime entrypoint for this rehearsal gate.',
+    'Keep the 11-file modular npm package allowlist unchanged.',
+    'Require the router rehearsal vectors to return deterministic no-write results.',
+    'Seed the next gate that may apply the actual thin entrypoint cutover.'
+  ]),
+  boundary: Object.freeze({
+    thin_entrypoint_rehearsal_command_writes_files: false,
+    thin_entrypoint_rehearsal_check_command_writes_files: false,
+    changes_public_cli_outputs: false,
+    changes_cli_runtime_dependency_graph: false,
+    runtime_cutover_applied: false,
+    package_allowlist_unchanged: true,
+    package_file_count: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES.length,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
+  })
+});
+
 const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
   schema: 'agent-onboard-public-version-reference-policy-001',
   title: 'Agent-Onboard Public Version Reference Policy',
@@ -2636,7 +2685,7 @@ const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
 });
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-035',
+  schema: 'agent-onboard-public-release-contract-036',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
   release_line: RELEASE_LINE,
@@ -2718,6 +2767,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_module_inclusion_check_command: 'agent-onboard architecture --module-inclusion-check',
   architecture_packaged_router_port_command: 'agent-onboard architecture --packaged-router-port',
   architecture_packaged_router_port_check_command: 'agent-onboard architecture --packaged-router-port-check',
+  architecture_thin_entrypoint_rehearsal_command: 'agent-onboard architecture --thin-entrypoint-rehearsal',
+  architecture_thin_entrypoint_rehearsal_check_command: 'agent-onboard architecture --thin-entrypoint-rehearsal-check',
   version_sprawl_check_command: 'agent-onboard release --version-sprawl-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
@@ -2768,6 +2819,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     '.agent-onboard/authority-command-adapter-extraction.json',
     '.agent-onboard/modular-runtime-package-inclusion-plan.json',
     '.agent-onboard/packaged-router-port-inclusion.json',
+    '.agent-onboard/thin-entrypoint-router-cutover-rehearsal.json',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2870,6 +2922,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js architecture --module-inclusion-check',
     'node cli/agent-onboard.js architecture --packaged-router-port',
     'node cli/agent-onboard.js architecture --packaged-router-port-check',
+    'node cli/agent-onboard.js architecture --thin-entrypoint-rehearsal',
+    'node cli/agent-onboard.js architecture --thin-entrypoint-rehearsal-check',
     'node cli/agent-onboard.js release --version-sprawl-check',
     'node cli/agent-onboard.js authority --first-read',
     'node cli/agent-onboard.js authority --check',
@@ -2961,6 +3015,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> architecture --module-inclusion-check',
     'npx agent-onboard@<version> architecture --packaged-router-port',
     'npx agent-onboard@<version> architecture --packaged-router-port-check',
+    'npx agent-onboard@<version> architecture --thin-entrypoint-rehearsal',
+    'npx agent-onboard@<version> architecture --thin-entrypoint-rehearsal-check',
     'npx agent-onboard@<version> release --version-sprawl-check',
     'npx agent-onboard@<version> authority --first-read',
     'npx agent-onboard@<version> authority --check',
@@ -10781,6 +10837,227 @@ function publicPackagedRouterPortInclusionCheck(root = packageRoot()) {
   };
 }
 
+function runThinEntrypointRehearsalVectors(root, gate) {
+  let router = null;
+  let portFactory = null;
+  let routerLoadError = null;
+  let portLoadError = null;
+  try {
+    router = require(path.join(root, gate.router_module));
+  } catch (error) {
+    routerLoadError = error && error.message ? error.message : String(error);
+  }
+  try {
+    portFactory = require(path.join(root, gate.compatibility_port_module));
+  } catch (error) {
+    portLoadError = error && error.message ? error.message : String(error);
+  }
+  const canRun = router && typeof router.route === 'function' && portFactory && typeof portFactory.createCompatibilityCommandPort === 'function';
+  const reports = [];
+  if (!canRun) {
+    return { can_run: false, router_load_error: routerLoadError, port_load_error: portLoadError, reports };
+  }
+  const handlers = Object.freeze({
+    status(argv) {
+      return Object.freeze({ schema: 'agent-onboard-public-thin-entrypoint-rehearsal-vector-result-001', status: 'ok', command: argv[2], writes_files: false });
+    },
+    help(argv) {
+      return Object.freeze({ schema: 'agent-onboard-public-thin-entrypoint-rehearsal-vector-result-001', status: 'ok', command: argv[2] || 'help', writes_files: false });
+    },
+    default(argv) {
+      return Object.freeze({ schema: 'agent-onboard-public-thin-entrypoint-rehearsal-vector-result-001', status: argv[2] ? 'unhandled_source_only_seed' : 'ok', command: argv[2] || 'help', writes_files: false });
+    }
+  });
+  const port = portFactory.createCompatibilityCommandPort(handlers);
+  for (const vector of gate.rehearsal_vectors) {
+    let vectorResult = null;
+    let error = null;
+    try {
+      vectorResult = router.route(vector.argv.slice(), port);
+    } catch (caught) {
+      error = caught && caught.message ? caught.message : String(caught);
+    }
+    reports.push(Object.freeze({
+      id: vector.id,
+      argv: vector.argv.slice(),
+      expected_status: vector.expected_status,
+      actual_status: vectorResult && vectorResult.status ? vectorResult.status : null,
+      writes_files: vectorResult && vectorResult.writes_files === true,
+      matched: !!vectorResult && vectorResult.status === vector.expected_status && vectorResult.writes_files !== true,
+      error
+    }));
+  }
+  return { can_run: true, router_load_error: routerLoadError, port_load_error: portLoadError, reports };
+}
+
+function publicThinEntrypointRouterCutoverRehearsal(root = packageRoot()) {
+  const gate = PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL;
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const rehearsalPath = path.join(root, gate.rehearsal_file);
+  const moduleReports = [
+    inspectPackagedModule(root, gate.router_module, Object.freeze(['ROUTER_SEED', 'describeRouterSeed', 'route'])),
+    inspectPackagedModule(root, gate.compatibility_port_module, Object.freeze(['COMPATIBILITY_COMMAND_PORT_SEED', 'createCompatibilityCommandPort', 'describeCompatibilityCommandPortSeed']))
+  ];
+  const vectorRun = runThinEntrypointRehearsalVectors(root, gate);
+  const ledgerPath = path.join(root, '.agent-onboard', 'work-items.json');
+  let ledger = null;
+  if (fs.existsSync(ledgerPath)) {
+    try { ledger = readJson(ledgerPath); } catch { ledger = null; }
+  }
+  const workItems = ledger && Array.isArray(ledger.work_items) ? ledger.work_items : [];
+  return {
+    schema: 'agent-onboard-public-thin-entrypoint-router-cutover-rehearsal-result-001',
+    status: 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    rehearsal_file: gate.rehearsal_file,
+    rehearsal_file_present: fs.existsSync(rehearsalPath),
+    rehearsal_status: gate.rehearsal_status,
+    runtime_cutover: {
+      applied: gate.runtime_cutover_applied,
+      current_entrypoint: gate.current_entrypoint,
+      current_entrypoint_line_count: countFileLines(root, gate.current_entrypoint),
+      target_entrypoint_max_lines: gate.target_entrypoint_max_lines
+    },
+    module_reports: moduleReports,
+    rehearsal_vector_reports: vectorRun.reports,
+    rehearsal_vector_runtime: {
+      can_run: vectorRun.can_run,
+      router_load_error: vectorRun.router_load_error,
+      port_load_error: vectorRun.port_load_error
+    },
+    expected_pack_files: gate.expected_pack_files.slice().sort(),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
+    milestone_state: {
+      work_item: workItems.find((item) => item.id === gate.work_item_id) || null,
+      next_work_item: workItems.find((item) => item.id === gate.next_work_item_id) || null
+    },
+    rehearsal_contract: gate,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicThinEntrypointRouterCutoverRehearsalCheck(root = packageRoot()) {
+  const result = publicThinEntrypointRouterCutoverRehearsal(root);
+  const gate = PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL;
+  const sourceLedgerRequired = result.package_context === 'source_repository';
+  const expectedPackFiles = gate.expected_pack_files.slice().sort();
+  const errors = [];
+  if (gate.rehearsal_status !== 'thin_entrypoint_router_cutover_rehearsed_not_applied') errors.push('thin entrypoint rehearsal status must be rehearsed_not_applied');
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.runtime_cutover_applied !== false) errors.push('thin entrypoint rehearsal must not apply runtime cutover');
+  if (gate.boundary.package_allowlist_unchanged !== true) errors.push('thin entrypoint rehearsal must keep package allowlist unchanged');
+  if (gate.boundary.package_file_count !== expectedPackFiles.length) errors.push(`thin entrypoint rehearsal package file count must be ${expectedPackFiles.length}`);
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('thin entrypoint rehearsal must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('thin entrypoint rehearsal must not change runtime dependency graph yet');
+  if (gate.boundary.thin_entrypoint_rehearsal_command_writes_files !== false) errors.push('architecture --thin-entrypoint-rehearsal must remain no-write');
+  if (gate.boundary.thin_entrypoint_rehearsal_check_command_writes_files !== false) errors.push('architecture --thin-entrypoint-rehearsal-check must remain no-write');
+  for (const report of result.module_reports) {
+    if (!report.present) errors.push(`${report.path} must exist for thin entrypoint rehearsal`);
+    if (report.status !== 'present_validated') errors.push(`${report.path} must be require-able without side effects${report.require_error ? `: ${report.require_error}` : ''}`);
+    for (const exportName of report.expected_exports) {
+      if (!report.exports.includes(exportName)) errors.push(`${report.path} must export ${exportName}`);
+    }
+    if (!result.projected_pack_files.includes(report.path)) errors.push(`${report.path} must remain in projected npm pack files`);
+  }
+  if (!result.rehearsal_vector_runtime.can_run) errors.push('thin entrypoint rehearsal vectors must be runnable through router and compatibility port');
+  for (const report of result.rehearsal_vector_reports) {
+    if (!report.matched) errors.push(`thin entrypoint rehearsal vector ${report.id} must return ${report.expected_status} without writes`);
+  }
+
+  let rehearsalFileStatus = 'not_present_installed_context_allowed';
+  let rehearsalFileSchema = null;
+  const rehearsalPath = path.join(root, gate.rehearsal_file);
+  if (fs.existsSync(rehearsalPath)) {
+    try {
+      const artifact = readJson(rehearsalPath);
+      rehearsalFileSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${gate.rehearsal_file} schema must be ${gate.schema}`);
+      if (artifact.work_item_id !== gate.work_item_id) errors.push(`${gate.rehearsal_file} must identify ${gate.work_item_id}`);
+      if (artifact.next_work_item_id !== gate.next_work_item_id) errors.push(`${gate.rehearsal_file} must seed ${gate.next_work_item_id}`);
+      if (artifact.rehearsal_status !== gate.rehearsal_status) errors.push(`${gate.rehearsal_file} must admit ${gate.rehearsal_status}`);
+      if (artifact.runtime_cutover_applied !== false) errors.push(`${gate.rehearsal_file} must not apply runtime cutover`);
+      if (!artifact.boundary || artifact.boundary.package_allowlist_unchanged !== true) errors.push(`${gate.rehearsal_file} must declare package_allowlist_unchanged`);
+      rehearsalFileStatus = 'present_validated';
+    } catch (error) {
+      rehearsalFileStatus = 'present_invalid_json';
+      errors.push(`${gate.rehearsal_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (sourceLedgerRequired) {
+    rehearsalFileStatus = 'missing_source_context';
+    errors.push(`${gate.rehearsal_file} must exist in source repository context`);
+  }
+  const workItem = result.milestone_state.work_item;
+  const nextWorkItem = result.milestone_state.next_work_item;
+  if (sourceLedgerRequired) {
+    if (!workItem) errors.push(`${gate.work_item_id} work item must exist`);
+    else if (workItem.status !== 'closed') errors.push(`${gate.work_item_id} work item must be closed`);
+    if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
+    else if (!['open', 'closed'].includes(nextWorkItem.status)) errors.push(`${gate.next_work_item_id} work item must be open or closed after thin entrypoint rehearsal`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-thin-entrypoint-router-cutover-rehearsal-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    package_context: result.package_context,
+    validated: {
+      rehearsal_status_admitted: gate.rehearsal_status === 'thin_entrypoint_router_cutover_rehearsed_not_applied',
+      projected_pack_files_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      package_allowlist_unchanged: gate.boundary.package_allowlist_unchanged === true,
+      runtime_cutover_not_applied: gate.runtime_cutover_applied === false,
+      public_cli_outputs_unchanged: gate.boundary.changes_public_cli_outputs === false,
+      packaged_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
+      packaged_router_and_port_present: result.module_reports.every((report) => report.present),
+      packaged_router_and_port_requireable: result.module_reports.every((report) => report.status === 'present_validated'),
+      module_files_in_projected_pack: result.module_reports.every((report) => result.projected_pack_files.includes(report.path)),
+      rehearsal_vectors_runnable: result.rehearsal_vector_runtime.can_run,
+      rehearsal_vectors_match_expected_status: result.rehearsal_vector_reports.every((report) => report.matched),
+      rehearsal_commands_no_write: gate.boundary.thin_entrypoint_rehearsal_command_writes_files === false && gate.boundary.thin_entrypoint_rehearsal_check_command_writes_files === false,
+      rehearsal_file_present_or_installed_context_allowed: rehearsalFileStatus === 'present_validated' || rehearsalFileStatus === 'not_present_installed_context_allowed',
+      work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
+      next_cutover_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && ['open', 'closed'].includes(nextWorkItem.status))
+    },
+    source_thin_entrypoint_rehearsal_file: {
+      path: gate.rehearsal_file,
+      present: fs.existsSync(rehearsalPath),
+      status: rehearsalFileStatus,
+      schema: rehearsalFileSchema,
+      source_context_required: sourceLedgerRequired
+    },
+    module_reports: result.module_reports,
+    rehearsal_vector_reports: result.rehearsal_vector_reports,
+    milestone_state: result.milestone_state,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    runtime_cutover: result.runtime_cutover,
+    boundary: result.boundary,
+    errors
+  };
+}
+
 function publicArchitectureMap(root = packageRoot()) {
   const pkg = readJson(path.join(root, 'package.json'));
   return {
@@ -11541,6 +11818,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const moduleInclusionPlanErrors = moduleInclusionPlan.errors.map((error) => `modular runtime package inclusion plan: ${error}`);
   const packagedRouterPort = publicPackagedRouterPortInclusionCheck(root);
   const packagedRouterPortErrors = packagedRouterPort.errors.map((error) => `packaged router port inclusion: ${error}`);
+  const thinEntrypointRehearsal = publicThinEntrypointRouterCutoverRehearsalCheck(root);
+  const thinEntrypointRehearsalErrors = thinEntrypointRehearsal.errors.map((error) => `thin entrypoint rehearsal: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -11620,7 +11899,7 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors, ...moduleInclusionPlanErrors, ...packagedRouterPortErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors, ...moduleInclusionPlanErrors, ...packagedRouterPortErrors, ...thinEntrypointRehearsalErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -11672,7 +11951,8 @@ function publicArchitectureCheck(root = packageRoot()) {
       architecture_command_adapter_extraction: architectureAdapter.status === 'ok',
       authority_command_adapter_extraction: authorityAdapter.status === 'ok',
       modular_runtime_package_inclusion_plan: moduleInclusionPlan.status === 'ok',
-      packaged_router_port_inclusion: packagedRouterPort.status === 'ok'
+      packaged_router_port_inclusion: packagedRouterPort.status === 'ok',
+      thin_entrypoint_router_cutover_rehearsal: thinEntrypointRehearsal.status === 'ok'
     },
     domain_ids: domainIds,
     expected_pack_files: expectedPackFiles,
@@ -11714,6 +11994,7 @@ function publicArchitectureCheck(root = packageRoot()) {
     authority_command_adapter_extraction: authorityAdapter,
     modular_runtime_package_inclusion_plan: moduleInclusionPlan,
     packaged_router_port_inclusion: packagedRouterPort,
+    thin_entrypoint_router_cutover_rehearsal: thinEntrypointRehearsal,
     boundary: map.boundary,
     errors
   };
@@ -11883,8 +12164,10 @@ function publicReleaseCheck(root = packageRoot()) {
   const moduleInclusionPlanErrors = moduleInclusionPlan.errors.map((error) => `modular runtime package inclusion plan: ${error}`);
   const packagedRouterPort = publicPackagedRouterPortInclusionCheck(root);
   const packagedRouterPortErrors = packagedRouterPort.errors.map((error) => `packaged router port inclusion: ${error}`);
+  const thinEntrypointRehearsal = publicThinEntrypointRouterCutoverRehearsalCheck(root);
+  const thinEntrypointRehearsalErrors = thinEntrypointRehearsal.errors.map((error) => `thin entrypoint rehearsal: ${error}`);
   const architectureParityErrors = architectureParity.errors.map((error) => `installed architecture parity: ${error}`);
-  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors, ...moduleInclusionPlanErrors, ...packagedRouterPortErrors, ...versionPolicyErrors];
+  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors, ...moduleInclusionPlanErrors, ...packagedRouterPortErrors, ...thinEntrypointRehearsalErrors, ...versionPolicyErrors];
   return {
     schema: 'agent-onboard-public-release-check-result-014',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -11942,6 +12225,7 @@ function publicReleaseCheck(root = packageRoot()) {
       authority_command_adapter_extraction: authorityAdapter.status === 'ok',
       modular_runtime_package_inclusion_plan: moduleInclusionPlan.status === 'ok',
       packaged_router_port_inclusion: packagedRouterPort.status === 'ok',
+      thin_entrypoint_router_cutover_rehearsal: thinEntrypointRehearsal.status === 'ok',
       public_version_reference_policy: versionPolicy.status === 'ok',
       public_package_surface_preservation: packageSurface.status === 'ok',
       public_installed_parity_architecture_smoke: architectureParity.status === 'ok'
@@ -11982,6 +12266,7 @@ function publicReleaseCheck(root = packageRoot()) {
     authority_command_adapter_extraction: authorityAdapter,
     modular_runtime_package_inclusion_plan: moduleInclusionPlan,
     packaged_router_port_inclusion: packagedRouterPort,
+    thin_entrypoint_router_cutover_rehearsal: thinEntrypointRehearsal,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     public_version_reference_policy: versionPolicy,
     public_package_surface_preservation: packageSurface,
@@ -12116,6 +12401,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const authorityAdapter = publicAuthorityCommandAdapterExtractionCheck(root);
   const moduleInclusionPlan = publicModularRuntimePackageInclusionPlanCheck(root);
   const packagedRouterPort = publicPackagedRouterPortInclusionCheck(root);
+  const thinEntrypointRehearsal = publicThinEntrypointRouterCutoverRehearsalCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
@@ -12151,6 +12437,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   if (authorityAdapter.status !== 'ok') componentErrors.push(...authorityAdapter.errors.map((error) => `authority command adapter extraction: ${error}`));
   if (moduleInclusionPlan.status !== 'ok') componentErrors.push(...moduleInclusionPlan.errors.map((error) => `modular runtime package inclusion plan: ${error}`));
   if (packagedRouterPort.status !== 'ok') componentErrors.push(...packagedRouterPort.errors.map((error) => `packaged router port inclusion: ${error}`));
+  if (thinEntrypointRehearsal.status !== 'ok') componentErrors.push(...thinEntrypointRehearsal.errors.map((error) => `thin entrypoint rehearsal: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -12195,6 +12482,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     authority_command_adapter_extraction_check: authorityAdapter.status === 'ok',
     modular_runtime_package_inclusion_plan_check: moduleInclusionPlan.status === 'ok',
     packaged_router_port_inclusion_check: packagedRouterPort.status === 'ok',
+    thin_entrypoint_router_cutover_rehearsal_check: thinEntrypointRehearsal.status === 'ok',
     runtime_version_matches_package_json: pkg.version === VERSION
   };
 
@@ -12263,6 +12551,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
       authority_command_adapter_extraction_status: authorityAdapter.status,
       modular_runtime_package_inclusion_plan_status: moduleInclusionPlan.status,
       packaged_router_port_inclusion_status: packagedRouterPort.status,
+      thin_entrypoint_router_cutover_rehearsal_status: thinEntrypointRehearsal.status,
       package_context: context.package_context,
       source_context_files_present: context.source_context_files_present,
       source_context_files_missing: context.source_context_files_missing
@@ -12302,6 +12591,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     authority_command_adapter_extraction: authorityAdapter,
     modular_runtime_package_inclusion_plan: moduleInclusionPlan,
     packaged_router_port_inclusion: packagedRouterPort,
+    thin_entrypoint_router_cutover_rehearsal: thinEntrypointRehearsal,
     boundary: {
       writes_files: false,
       writes_package_root: false,
@@ -12984,6 +13274,15 @@ function runArchitecture(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--thin-entrypoint-rehearsal') {
+    json(publicThinEntrypointRouterCutoverRehearsal());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--thin-entrypoint-rehearsal-check') {
+    const result = publicThinEntrypointRouterCutoverRehearsalCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -12993,7 +13292,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, --package-adapter, --package-adapter-check, --architecture-adapter, --architecture-adapter-check, --authority-adapter, --authority-adapter-check, --module-inclusion-plan, --module-inclusion-check, --packaged-router-port, --packaged-router-port-check, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, --package-adapter, --package-adapter-check, --architecture-adapter, --architecture-adapter-check, --authority-adapter, --authority-adapter-check, --module-inclusion-plan, --module-inclusion-check, --packaged-router-port, --packaged-router-port-check, --thin-entrypoint-rehearsal, --thin-entrypoint-rehearsal-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -13106,6 +13405,8 @@ function runRelease(args) {
       architecture_module_inclusion_check_command: PUBLIC_RELEASE_CONTRACT.architecture_module_inclusion_check_command,
       architecture_packaged_router_port_command: PUBLIC_RELEASE_CONTRACT.architecture_packaged_router_port_command,
       architecture_packaged_router_port_check_command: PUBLIC_RELEASE_CONTRACT.architecture_packaged_router_port_check_command,
+      architecture_thin_entrypoint_rehearsal_command: PUBLIC_RELEASE_CONTRACT.architecture_thin_entrypoint_rehearsal_command,
+      architecture_thin_entrypoint_rehearsal_check_command: PUBLIC_RELEASE_CONTRACT.architecture_thin_entrypoint_rehearsal_check_command,
       version_sprawl_check_command: PUBLIC_RELEASE_CONTRACT.version_sprawl_check_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       authority_first_read_command: PUBLIC_RELEASE_CONTRACT.authority_first_read_command,
@@ -13147,6 +13448,7 @@ function runRelease(args) {
       authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       modular_runtime_package_inclusion_plan: PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN,
       packaged_router_port_inclusion: PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION,
+      thin_entrypoint_router_cutover_rehearsal: PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -13204,6 +13506,7 @@ function runRelease(args) {
       authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       modular_runtime_package_inclusion_plan: PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN,
       packaged_router_port_inclusion: PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION,
+      thin_entrypoint_router_cutover_rehearsal: PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -13255,6 +13558,7 @@ function runRelease(args) {
       authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       modular_runtime_package_inclusion_plan: PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN,
       packaged_router_port_inclusion: PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION,
+      thin_entrypoint_router_cutover_rehearsal: PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -14046,7 +14350,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--architecture-adapter|--architecture-adapter-check|--authority-adapter|--authority-adapter-check|--module-inclusion-plan|--module-inclusion-check|--packaged-router-port|--packaged-router-port-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--architecture-adapter|--architecture-adapter-check|--authority-adapter|--authority-adapter-check|--module-inclusion-plan|--module-inclusion-check|--packaged-router-port|--packaged-router-port-check|--thin-entrypoint-rehearsal|--thin-entrypoint-rehearsal-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -14207,6 +14511,8 @@ module.exports = {
   publicModularRuntimePackageInclusionPlanCheck,
   publicPackagedRouterPortInclusion,
   publicPackagedRouterPortInclusionCheck,
+  publicThinEntrypointRouterCutoverRehearsal,
+  publicThinEntrypointRouterCutoverRehearsalCheck,
   publicClaimsDomainSourceExtractionPlan,
   publicClaimsDomainSourceExtractionPlanCheck,
   publicClaimsDomainSourceExtractionFirstSlice,
@@ -14252,5 +14558,6 @@ module.exports = {
   PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION,
   PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
   PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN,
-  PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION
+  PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION,
+  PUBLIC_THIN_ENTRYPOINT_ROUTER_CUTOVER_REHEARSAL
 };
