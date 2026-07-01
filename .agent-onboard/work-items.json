@@ -2181,6 +2181,54 @@
       "id": "P1S3M3W4",
       "milestone_id": "P1S3M3",
       "title": "Public core command adapter extraction gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by seeding the public source-only core command adapter module and validation gate without changing the packaged runtime entrypoint or compact npm package allowlist.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/core.js",
+          ".agent-onboard/core-command-adapter-extraction.json",
+          ".agent-onboard/work-items.json",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/command-router.js",
+          "node -c cli/agent_onboard/adapters/compatibility-command-port.js",
+          "node -c cli/agent_onboard/ports/compatibility-command-port.js",
+          "node -c cli/agent_onboard/adapters/commands/core.js",
+          "node -c test/agent-onboard.test.js",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js architecture --core-adapter",
+          "node cli/agent-onboard.js architecture --core-adapter-check",
+          "node cli/agent-onboard.js architecture --compatibility-port-check",
+          "node cli/agent-onboard.js architecture --thin-router-check",
+          "node cli/agent-onboard.js architecture --cli-runtime-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --target-onboarding-smoke",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "installed tarball smoke: status / architecture --core-adapter-check / architecture --check / release --check"
+        ],
+        "checks_not_run": [
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "known_non_pass": [
+          "npm test full-suite may exceed the sandbox execution window; targeted gate checks and installed-tarball smoke were run instead."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M3W5",
+      "milestone_id": "P1S3M3",
+      "title": "Public package command adapter extraction gate",
       "status": "open"
     }
   ]
