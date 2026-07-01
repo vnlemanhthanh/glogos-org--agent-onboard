@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.71",
+  "version": "0.0.72",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -280,7 +280,8 @@
     "test": "node test/run-tests.js quick",
     "test:quick": "node test/run-tests.js quick",
     "test:full": "node test/run-tests.js full",
-    "test:all": "node test/run-tests.js all"
+    "test:all": "node test/run-tests.js all",
+    "check:public-artifact-boundary": "node scripts/check-public-artifact-boundary.js"
   },
   "bin": {
     "agent-onboard": "cli/agent-onboard.js",
@@ -296,6 +297,7 @@
     "cli/agent_onboard/adapters/commands/release-package.js",
     "cli/agent_onboard/adapters/commands/architecture.js",
     "cli/agent_onboard/adapters/commands/authority.js",
+    "cli/agent_onboard/adapters/commands/target.js",
     "README.md",
     "LICENSE"
   ]

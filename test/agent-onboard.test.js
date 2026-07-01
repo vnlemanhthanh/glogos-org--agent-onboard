@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_router_command_adapter_delegation_expansion_gate';
+const EXPECTED_RELEASE_LINE = 'public_target_command_adapter_extraction_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -20,6 +20,7 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/adapters/commands/authority.js',
   'cli/agent_onboard/adapters/commands/core.js',
   'cli/agent_onboard/adapters/commands/release-package.js',
+  'cli/agent_onboard/adapters/commands/target.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',

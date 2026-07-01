@@ -167,6 +167,8 @@ function syntaxTasks() {
     nodeTask('syntax: release package command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'release-package.js')]),
     nodeTask('syntax: architecture command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'architecture.js')]),
     nodeTask('syntax: authority command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'authority.js')]),
+    nodeTask('syntax: target command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'target.js')]),
+    nodeTask('syntax: public artifact boundary check', ['-c', path.join(ROOT, 'scripts', 'check-public-artifact-boundary.js')]),
     nodeTask('syntax: legacy full test', ['-c', path.join(ROOT, 'test', 'agent-onboard.test.js')]),
     nodeTask('syntax: parallel runner', ['-c', __filename])
   ];
@@ -184,6 +186,7 @@ function quickTasks() {
     cliTask('release architecture parity smoke', ['release', '--architecture-parity-smoke'], expectStatusOk),
     cliTask('release check', ['release', '--check'], expectStatusOk),
     cliTask('work-items validate', ['work-items', '--validate', '.agent-onboard/work-items.json'], expectStatusOk),
+    nodeTask('public artifact boundary check', [path.join(ROOT, 'scripts', 'check-public-artifact-boundary.js')], expectStatusOk),
     npmTask('npm pack dry run', ['pack', '--dry-run', '--json'], expectPackFiles)
   ];
 }

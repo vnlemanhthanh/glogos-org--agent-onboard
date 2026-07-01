@@ -10,9 +10,10 @@ const { createCoreCommandAdapter } = require('./agent_onboard/adapters/commands/
 const { createPackageCommandAdapter } = require('./agent_onboard/adapters/commands/release-package');
 const { createArchitectureCommandAdapter } = require('./agent_onboard/adapters/commands/architecture');
 const { createAuthorityCommandAdapter } = require('./agent_onboard/adapters/commands/authority');
+const { createTargetCommandAdapter } = require('./agent_onboard/adapters/commands/target');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_router_command_adapter_delegation_expansion_gate';
+const RELEASE_LINE = 'public_target_command_adapter_extraction_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -21,6 +22,7 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/adapters/commands/authority.js',
   'cli/agent_onboard/adapters/commands/core.js',
   'cli/agent_onboard/adapters/commands/release-package.js',
+  'cli/agent_onboard/adapters/commands/target.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',
@@ -683,7 +685,7 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
   check_command: 'agent-onboard release --surface-check',
   purpose: 'Admit the first controlled modular runtime package inclusion slice while keeping cli/agent-onboard.js as the runtime entrypoint.',
   expected_pack_files: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES,
-  required_package_json_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js']),
+  required_package_json_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/commands/target.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js']),
   source_only_files: Object.freeze([
     'AGENTS.md',
     'llms.txt',
@@ -2550,7 +2552,8 @@ const PUBLIC_PACKAGED_ROUTER_PORT_INCLUSION = Object.freeze({
     'cli/agent_onboard/adapters/commands/core.js': Object.freeze(['CORE_COMMAND_ADAPTER_EXTRACTION', 'createCoreCommandAdapter', 'describeCoreCommandAdapterExtraction']),
     'cli/agent_onboard/adapters/commands/release-package.js': Object.freeze(['PACKAGE_COMMAND_ADAPTER_EXTRACTION', 'createPackageCommandAdapter', 'describePackageCommandAdapterExtraction']),
     'cli/agent_onboard/adapters/commands/architecture.js': Object.freeze(['ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION', 'createArchitectureCommandAdapter', 'describeArchitectureCommandAdapterExtraction']),
-    'cli/agent_onboard/adapters/commands/authority.js': Object.freeze(['AUTHORITY_COMMAND_ADAPTER_EXTRACTION', 'createAuthorityCommandAdapter', 'describeAuthorityCommandAdapterExtraction'])
+    'cli/agent_onboard/adapters/commands/authority.js': Object.freeze(['AUTHORITY_COMMAND_ADAPTER_EXTRACTION', 'createAuthorityCommandAdapter', 'describeAuthorityCommandAdapterExtraction']),
+    'cli/agent_onboard/adapters/commands/target.js': Object.freeze(['TARGET_COMMAND_ADAPTER_EXTRACTION', 'createTargetCommandAdapter', 'describeTargetCommandAdapterExtraction'])
   }),
   acceptance_criteria: Object.freeze([
     'Expand package.json#files to include the router, compatibility command port, port facade, and admitted command adapter modules.',
@@ -2704,10 +2707,17 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
       factory: 'createAuthorityCommandAdapter',
       describe: 'describeAuthorityCommandAdapterExtraction',
       commands: Object.freeze(['authority', 'agents', 'guard'])
+    }),
+    Object.freeze({
+      group: 'target',
+      path: 'cli/agent_onboard/adapters/commands/target.js',
+      factory: 'createTargetCommandAdapter',
+      describe: 'describeTargetCommandAdapterExtraction',
+      commands: Object.freeze(['init', 'target-config', 'target', 'target-instance'])
     })
   ]),
-  delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'release', 'status', 'version']),
-  legacy_fallback_commands: Object.freeze(['init', 'target-config', 'work-items', 'target', 'target-instance']),
+  delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version']),
+  legacy_fallback_commands: Object.freeze(['work-items']),
   smoke_vectors: Object.freeze([
     Object.freeze({ id: 'status', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'status']), expected_exit_code: 0 }),
     Object.freeze({ id: 'version_alias', argv: Object.freeze(['node', 'cli/agent-onboard.js', '--version']), expected_exit_code: 0 }),
@@ -2961,7 +2971,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
       aob: 'cli/agent-onboard.js',
       'create-agent-onboard': 'cli/agent-onboard.js'
     }),
-    files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js'])
+    files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/commands/target.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js'])
   }),
   required_metadata_fields: Object.freeze(['description', 'author', 'repository.url', 'homepage', 'bugs.url', 'keywords']),
   required_keyword_minimum: 5,
@@ -11445,6 +11455,7 @@ function publicRouterCommandAdapterDelegationExpansion(root = packageRoot()) {
       imports_package_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/release-package')"),
       imports_architecture_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/architecture')"),
       imports_authority_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/authority')"),
+      imports_target_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/target')"),
       main_delegates_to_router: /function main[\s\S]*routeCommand\(argv, createRuntimeCompatibilityPort\(\)\)/.test(entrypointText)
     },
     compatibility_port: {
@@ -11494,6 +11505,7 @@ function publicRouterCommandAdapterDelegationExpansionCheck(root = packageRoot()
   if (!result.runtime_cutover.imports_package_adapter) errors.push(`${gate.entrypoint} must import packaged release package command adapter`);
   if (!result.runtime_cutover.imports_architecture_adapter) errors.push(`${gate.entrypoint} must import packaged architecture command adapter`);
   if (!result.runtime_cutover.imports_authority_adapter) errors.push(`${gate.entrypoint} must import packaged authority command adapter`);
+  if (!result.runtime_cutover.imports_target_adapter) errors.push(`${gate.entrypoint} must import packaged target command adapter`);
   if (!result.runtime_cutover.main_delegates_to_router) errors.push(`${gate.entrypoint} main() must continue delegating through command router`);
   if (!result.compatibility_port.command_adapters_required_in_this_gate) errors.push('compatibility command port must require command adapters in this gate');
   if (!result.compatibility_port.adapter_delegation_expanded_in_this_gate) errors.push('compatibility command port must declare adapter delegation expanded');
@@ -11558,7 +11570,7 @@ function publicRouterCommandAdapterDelegationExpansionCheck(root = packageRoot()
     validated: {
       delegation_status_expanded: gate.delegation_status === 'router_command_adapter_delegation_expanded',
       runtime_cutover_still_applied: gate.runtime_cutover_applied === true,
-      entrypoint_imports_packaged_adapters: result.runtime_cutover.imports_core_adapter && result.runtime_cutover.imports_package_adapter && result.runtime_cutover.imports_architecture_adapter && result.runtime_cutover.imports_authority_adapter,
+      entrypoint_imports_packaged_adapters: result.runtime_cutover.imports_core_adapter && result.runtime_cutover.imports_package_adapter && result.runtime_cutover.imports_architecture_adapter && result.runtime_cutover.imports_authority_adapter && result.runtime_cutover.imports_target_adapter,
       compatibility_port_delegates_to_adapters: result.compatibility_port.command_adapters_required_in_this_gate && result.compatibility_port.adapter_delegation_expanded_in_this_gate,
       delegated_commands_match_contract: arrayEquals(result.compatibility_port.delegated_commands.slice().sort(), gate.delegated_commands.slice().sort()),
       adapter_modules_present: result.adapter_module_reports.every((report) => report.present),
@@ -15069,6 +15081,14 @@ function createRuntimeCompatibilityPort() {
       authority: DOMAIN_SERVICE_FACADES.authorityService.runAuthority
     })
   });
+  const targetAdapter = createTargetCommandAdapter({
+    handlers: Object.freeze({
+      init: DOMAIN_SERVICE_FACADES.targetService.runInit,
+      'target-config': DOMAIN_SERVICE_FACADES.targetService.runTargetConfig,
+      target: DOMAIN_SERVICE_FACADES.targetService.runTargetCommand,
+      'target-instance': DOMAIN_SERVICE_FACADES.targetService.runTargetInstance
+    })
+  });
   const adapters = Object.freeze({
     help: coreAdapter,
     '--help': coreAdapter,
@@ -15081,7 +15101,11 @@ function createRuntimeCompatibilityPort() {
     architecture: architectureAdapter,
     authority: authorityAdapter,
     agents: authorityAdapter,
-    guard: authorityAdapter
+    guard: authorityAdapter,
+    init: targetAdapter,
+    'target-config': targetAdapter,
+    target: targetAdapter,
+    'target-instance': targetAdapter
   });
   const handlers = {};
   for (const command of Object.keys(COMMAND_ROUTE_HANDLERS)) {

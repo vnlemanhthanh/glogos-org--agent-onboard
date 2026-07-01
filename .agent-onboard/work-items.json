@@ -2564,7 +2564,36 @@
       "id": "P1S3M3W14",
       "milestone_id": "P1S3M3",
       "title": "Public target command adapter extraction gate",
-      "status": "open"
+      "status": "closed",
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-01T13:05:00.000Z",
+        "summary": "Closed by admitting the public target command adapter into the packaged runtime delegation path for init, target-config, target, and target-instance while preserving public CLI outputs and keeping source-only control artifacts out of the npm package.",
+        "changed_files": [
+          ".agent-onboard/target-command-adapter-extraction.json",
+          ".agent-onboard/work-items.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/target.js",
+          "cli/agent_onboard/adapters/compatibility-command-port.js",
+          "package.json",
+          "scripts/check-public-artifact-boundary.js",
+          "test/agent-onboard.test.js",
+          "test/run-tests.js"
+        ],
+        "checks_run": [
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "node cli/agent-onboard.js release --check",
+          "npm test"
+        ],
+        "checks_not_run": [
+          "npm run test:full",
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
     }
   ]
 }
