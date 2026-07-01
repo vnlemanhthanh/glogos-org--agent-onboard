@@ -1,0 +1,47 @@
+{
+  "schema": "agent-onboard-public-authority-command-adapter-extraction-001",
+  "title": "Agent-Onboard Public Authority Command Adapter Extraction Gate",
+  "package_name": "agent-onboard",
+  "release_line": "public_authority_command_adapter_extraction_gate",
+  "command": "agent-onboard architecture --authority-adapter",
+  "check_command": "agent-onboard architecture --authority-adapter-check",
+  "work_item_id": "P1S3M3W7",
+  "next_work_item_id": "P1S3M3W8",
+  "adapter_module": "cli/agent_onboard/adapters/commands/authority.js",
+  "compatibility_port_module": "cli/agent_onboard/adapters/compatibility-command-port.js",
+  "router_module": "cli/agent_onboard/command-router.js",
+  "adapter_status": "authority_command_adapter_extraction_admitted",
+  "runtime_cutover_applied": false,
+  "package_strategy": "controlled_source_module_inclusion",
+  "owned_top_level_commands": [
+    "authority",
+    "agents",
+    "guard"
+  ],
+  "excluded_command_groups": [
+    "core",
+    "architecture",
+    "release_package",
+    "work-items",
+    "target",
+    "target-instance",
+    "init",
+    "target-config"
+  ],
+  "boundary": {
+    "authority_adapter_command_writes_files": false,
+    "authority_adapter_check_command_writes_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "uses_authority_adapter_as_runtime_entrypoint": false,
+    "source_authority_adapter_module_remains_out_of_pack": true,
+    "package_allowlist_unchanged": true,
+    "writes_target_repository_state": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false
+  }
+}

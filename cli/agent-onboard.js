@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_architecture_command_adapter_extraction_gate';
+const RELEASE_LINE = 'public_authority_command_adapter_extraction_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -341,6 +341,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     package_command_adapter_module: 'cli/agent_onboard/adapters/commands/release-package.js',
     architecture_command_adapter_extraction_file: '.agent-onboard/architecture-command-adapter-extraction.json',
     architecture_command_adapter_module: 'cli/agent_onboard/adapters/commands/architecture.js',
+    authority_command_adapter_extraction_file: '.agent-onboard/authority-command-adapter-extraction.json',
+    authority_command_adapter_module: 'cli/agent_onboard/adapters/commands/authority.js',
     claims_domain_source_extraction_module: 'src/domains/claims.js',
     claims_domain_source_extraction_planned_module: 'src/domains/claims.js',
     work_items_domain_source_extraction_module: 'src/domains/work-items.js',
@@ -422,6 +424,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     architecture_package_adapter_check_command_writes_files: false,
     architecture_architecture_adapter_command_writes_files: false,
     architecture_architecture_adapter_check_command_writes_files: false,
+    architecture_authority_adapter_command_writes_files: false,
+    architecture_authority_adapter_check_command_writes_files: false,
     version_sprawl_check_command_writes_files: false,
     published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
@@ -457,7 +461,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     compatibility_command_port_seed_applied: true,
     core_command_adapter_extraction_applied: true,
     package_command_adapter_extraction_applied: true,
-    architecture_command_adapter_extraction_applied: true
+    architecture_command_adapter_extraction_applied: true,
+    authority_command_adapter_extraction_applied: true
   }),
   next_candidate_gates: Object.freeze([
     Object.freeze({
@@ -690,12 +695,16 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/core-command-adapter-extraction.json',
     '.agent-onboard/package-command-adapter-extraction.json',
     '.agent-onboard/architecture-command-adapter-extraction.json',
+    '.agent-onboard/authority-command-adapter-extraction.json',
+    '.agent-onboard/authority-command-adapter-extraction.json',
     'cli/agent_onboard/command-router.js',
     'cli/agent_onboard/adapters/compatibility-command-port.js',
     'cli/agent_onboard/ports/compatibility-command-port.js',
     'cli/agent_onboard/adapters/commands/core.js',
     'cli/agent_onboard/adapters/commands/release-package.js',
     'cli/agent_onboard/adapters/commands/architecture.js',
+    'cli/agent_onboard/adapters/commands/authority.js',
+    'cli/agent_onboard/adapters/commands/authority.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2385,6 +2394,54 @@ const PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
   })
 });
 
+const PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
+  schema: 'agent-onboard-public-authority-command-adapter-extraction-001',
+  title: 'Agent-Onboard Public Authority Command Adapter Extraction Gate',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --authority-adapter',
+  check_command: 'agent-onboard architecture --authority-adapter-check',
+  extraction_file: '.agent-onboard/authority-command-adapter-extraction.json',
+  adapter_module: 'cli/agent_onboard/adapters/commands/authority.js',
+  compatibility_port_module: 'cli/agent_onboard/adapters/compatibility-command-port.js',
+  router_module: 'cli/agent_onboard/command-router.js',
+  milestone_id: 'P1S3M3',
+  work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 7].join(''),
+  next_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 8].join(''),
+  extraction_status: 'authority_command_adapter_extraction_admitted',
+  runtime_cutover_applied: false,
+  package_strategy: 'controlled_source_module_inclusion',
+  adapter_seed_max_lines: 220,
+  expected_adapter_export_names: Object.freeze(['AUTHORITY_COMMAND_ADAPTER_EXTRACTION', 'describeAuthorityCommandAdapterExtraction', 'createAuthorityCommandAdapter']),
+  owned_top_level_commands: Object.freeze(['authority', 'agents', 'guard']),
+  excluded_top_level_commands: Object.freeze(['help', 'version', 'status', 'architecture', 'release', 'work-items', 'target', 'target-instance', 'init', 'target-config']),
+  acceptance_criteria: Object.freeze([
+    'Create the public source-only authority command adapter module at cli/agent_onboard/adapters/commands/authority.js.',
+    'Bind the authority adapter contract to the compatibility port group without changing the packaged runtime entrypoint.',
+    'Keep cli/agent-onboard.js as the packaged runtime entrypoint for this extraction gate.',
+    'Keep the compact npm package allowlist unchanged until controlled source-module inclusion.',
+    'Require the authority command adapter module to be side-effect-free on require and under the adapter seed line budget.',
+    'Seed the next work-items command adapter extraction gate.'
+  ]),
+  boundary: Object.freeze({
+    authority_adapter_command_writes_files: false,
+    authority_adapter_check_command_writes_files: false,
+    changes_public_cli_outputs: false,
+    changes_cli_runtime_dependency_graph: false,
+    uses_authority_adapter_as_runtime_entrypoint: false,
+    source_authority_adapter_module_remains_out_of_pack: true,
+    package_allowlist_unchanged: true,
+    creates_runtime_modules: true,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
+  })
+});
+
 const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
   schema: 'agent-onboard-public-version-reference-policy-001',
   title: 'Agent-Onboard Public Version Reference Policy',
@@ -2455,7 +2512,7 @@ const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
 });
 
 const PUBLIC_RELEASE_CONTRACT = Object.freeze({
-  schema: 'agent-onboard-public-release-contract-032',
+  schema: 'agent-onboard-public-release-contract-033',
   title: 'Agent-Onboard Public Release Contract',
   package_name: 'agent-onboard',
   release_line: RELEASE_LINE,
@@ -2531,6 +2588,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_package_adapter_check_command: 'agent-onboard architecture --package-adapter-check',
   architecture_architecture_adapter_command: 'agent-onboard architecture --architecture-adapter',
   architecture_architecture_adapter_check_command: 'agent-onboard architecture --architecture-adapter-check',
+  architecture_authority_adapter_command: 'agent-onboard architecture --authority-adapter',
+  architecture_authority_adapter_check_command: 'agent-onboard architecture --authority-adapter-check',
   version_sprawl_check_command: 'agent-onboard release --version-sprawl-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
@@ -2680,6 +2739,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'node cli/agent-onboard.js architecture --package-adapter-check',
     'node cli/agent-onboard.js architecture --architecture-adapter',
     'node cli/agent-onboard.js architecture --architecture-adapter-check',
+    'node cli/agent-onboard.js architecture --authority-adapter',
+    'node cli/agent-onboard.js architecture --authority-adapter-check',
     'node cli/agent-onboard.js release --version-sprawl-check',
     'node cli/agent-onboard.js authority --first-read',
     'node cli/agent-onboard.js authority --check',
@@ -2765,6 +2826,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     'npx agent-onboard@<version> architecture --package-adapter-check',
     'npx agent-onboard@<version> architecture --architecture-adapter',
     'npx agent-onboard@<version> architecture --architecture-adapter-check',
+    'npx agent-onboard@<version> architecture --authority-adapter',
+    'npx agent-onboard@<version> architecture --authority-adapter-check',
     'npx agent-onboard@<version> release --version-sprawl-check',
     'npx agent-onboard@<version> authority --first-read',
     'npx agent-onboard@<version> authority --check',
@@ -10060,6 +10123,204 @@ function publicArchitectureCommandAdapterExtractionCheck(root = packageRoot()) {
   };
 }
 
+function publicAuthorityCommandAdapterExtraction(root = packageRoot()) {
+  const gate = PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION;
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const adapterModulePath = path.join(root, gate.adapter_module);
+  const artifactPath = path.join(root, gate.extraction_file);
+  const adapterLineCount = countFileLines(root, gate.adapter_module);
+  let adapterModuleStatus = 'not_present_installed_context_allowed';
+  let adapterModuleSchema = null;
+  let adapterModuleExports = [];
+  let ownedCommands = [];
+  let excludedCommands = [];
+  let adapterRequireError = null;
+  if (fs.existsSync(adapterModulePath)) {
+    try {
+      delete require.cache[require.resolve(adapterModulePath)];
+      const adapterModule = require(adapterModulePath);
+      adapterModuleExports = Object.keys(adapterModule).sort();
+      const described = typeof adapterModule.describeAuthorityCommandAdapterExtraction === 'function' ? adapterModule.describeAuthorityCommandAdapterExtraction() : null;
+      adapterModuleSchema = described && described.schema ? described.schema : null;
+      ownedCommands = described && Array.isArray(described.owned_top_level_commands) ? described.owned_top_level_commands.slice().sort() : [];
+      excludedCommands = described && Array.isArray(described.excluded_top_level_commands) ? described.excluded_top_level_commands.slice().sort() : [];
+      adapterModuleStatus = 'present_validated';
+    } catch (error) {
+      adapterModuleStatus = 'present_require_failed';
+      adapterRequireError = error && error.message ? error.message : String(error);
+    }
+  }
+  const ledgerPath = path.join(root, '.agent-onboard', 'work-items.json');
+  let ledger = null;
+  if (fs.existsSync(ledgerPath)) {
+    try { ledger = readJson(ledgerPath); } catch { ledger = null; }
+  }
+  const workItems = ledger && Array.isArray(ledger.work_items) ? ledger.work_items : [];
+  return {
+    schema: 'agent-onboard-public-authority-command-adapter-extraction-result-001',
+    status: 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    extraction_file: gate.extraction_file,
+    extraction_file_present: fs.existsSync(artifactPath),
+    adapter_module: {
+      path: gate.adapter_module,
+      present: fs.existsSync(adapterModulePath),
+      status: adapterModuleStatus,
+      schema: adapterModuleSchema,
+      exports: adapterModuleExports,
+      owned_top_level_commands: ownedCommands,
+      excluded_top_level_commands: excludedCommands,
+      require_error: adapterRequireError,
+      line_count: adapterLineCount,
+      max_lines: gate.adapter_seed_max_lines
+    },
+    compatibility_port_module: gate.compatibility_port_module,
+    router_module: gate.router_module,
+    runtime_cutover: {
+      applied: gate.runtime_cutover_applied,
+      entrypoint: 'cli/agent-onboard.js',
+      entrypoint_line_count: countFileLines(root, 'cli/agent-onboard.js'),
+      authority_adapter_used_by_entrypoint_in_this_gate: gate.boundary.uses_authority_adapter_as_runtime_entrypoint
+    },
+    package_strategy: gate.package_strategy,
+    expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
+    milestone_state: {
+      work_item: workItems.find((item) => item.id === gate.work_item_id) || null,
+      next_work_item: workItems.find((item) => item.id === gate.next_work_item_id) || null
+    },
+    adapter_contract: gate,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicAuthorityCommandAdapterExtractionCheck(root = packageRoot()) {
+  const result = publicAuthorityCommandAdapterExtraction(root);
+  const gate = PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION;
+  const sourceLedgerRequired = result.package_context === 'source_repository';
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const errors = [];
+  if (gate.extraction_status !== 'authority_command_adapter_extraction_admitted') errors.push('authority command adapter extraction status must be admitted');
+  if (gate.runtime_cutover_applied !== false) errors.push('authority command adapter extraction must not apply runtime cutover');
+  if (gate.package_strategy !== 'controlled_source_module_inclusion') errors.push('authority command adapter extraction must preserve controlled_source_module_inclusion package strategy');
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.boundary.authority_adapter_command_writes_files !== false) errors.push('architecture --authority-adapter must remain no-write');
+  if (gate.boundary.authority_adapter_check_command_writes_files !== false) errors.push('architecture --authority-adapter-check must remain no-write');
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('authority command adapter extraction must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('authority command adapter extraction must not change packaged CLI runtime dependency graph');
+  if (gate.boundary.uses_authority_adapter_as_runtime_entrypoint !== false) errors.push('authority command adapter extraction must not use source modules as the packaged runtime entrypoint yet');
+  if (gate.boundary.source_authority_adapter_module_remains_out_of_pack !== true) errors.push('source authority adapter module must remain out of npm pack for this gate');
+  if (result.adapter_module.line_count > gate.adapter_seed_max_lines) errors.push(`${gate.adapter_module} must stay within ${gate.adapter_seed_max_lines} lines`);
+
+  let artifactStatus = 'not_present_installed_context_allowed';
+  let artifactSchema = null;
+  const artifactPath = path.join(root, gate.extraction_file);
+  if (fs.existsSync(artifactPath)) {
+    try {
+      const artifact = readJson(artifactPath);
+      artifactSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${gate.extraction_file} schema must be ${gate.schema}`);
+      if (artifact.work_item_id !== gate.work_item_id) errors.push(`${gate.extraction_file} must identify ${gate.work_item_id}`);
+      if (artifact.next_work_item_id !== gate.next_work_item_id) errors.push(`${gate.extraction_file} must seed ${gate.next_work_item_id}`);
+      if (artifact.adapter_module !== gate.adapter_module) errors.push(`${gate.extraction_file} must declare ${gate.adapter_module}`);
+      if (artifact.runtime_cutover_applied !== false) errors.push(`${gate.extraction_file} must not apply runtime cutover`);
+      if (!artifact.boundary || artifact.boundary.package_allowlist_unchanged !== true) errors.push(`${gate.extraction_file} must preserve package_allowlist_unchanged`);
+      artifactStatus = 'present_validated';
+    } catch (error) {
+      artifactStatus = 'present_invalid_json';
+      errors.push(`${gate.extraction_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (sourceLedgerRequired) {
+    artifactStatus = 'missing_source_context';
+    errors.push(`${gate.extraction_file} must exist in source repository context`);
+  }
+
+  const adapterModulePresentOrAllowed = result.adapter_module.present || result.package_context === 'installed_package';
+  if (!adapterModulePresentOrAllowed) errors.push(`${gate.adapter_module} must exist in source repository context`);
+  if (result.adapter_module.present) {
+    if (result.adapter_module.status !== 'present_validated') errors.push(`${gate.adapter_module} must be require-able without side effects${result.adapter_module.require_error ? `: ${result.adapter_module.require_error}` : ''}`);
+    if (result.adapter_module.schema !== 'agent-onboard-public-authority-command-adapter-extraction-module-001') errors.push(`${gate.adapter_module} must expose authority command adapter extraction module schema`);
+    for (const exportName of gate.expected_adapter_export_names) {
+      if (!result.adapter_module.exports.includes(exportName)) errors.push(`${gate.adapter_module} must export ${exportName}`);
+    }
+    for (const commandName of gate.owned_top_level_commands) {
+      if (!result.adapter_module.owned_top_level_commands.includes(commandName)) errors.push(`${gate.adapter_module} must own authority command ${commandName}`);
+    }
+    for (const commandName of gate.excluded_top_level_commands) {
+      if (!result.adapter_module.excluded_top_level_commands.includes(commandName)) errors.push(`${gate.adapter_module} must exclude non-authority command ${commandName}`);
+    }
+  }
+  const workItem = result.milestone_state.work_item;
+  const nextWorkItem = result.milestone_state.next_work_item;
+  if (sourceLedgerRequired) {
+    if (!workItem) errors.push(`${gate.work_item_id} work item must exist`);
+    else if (workItem.status !== 'closed') errors.push(`${gate.work_item_id} work item must be closed`);
+    if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
+    else if (!['open', 'closed'].includes(nextWorkItem.status)) errors.push(`${gate.next_work_item_id} work item must be open or closed after authority adapter extraction admission`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-authority-command-adapter-extraction-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    package_context: result.package_context,
+    validated: {
+      authority_adapter_extraction_status_admitted: gate.extraction_status === 'authority_command_adapter_extraction_admitted',
+      adapter_module_present_or_installed_context_allowed: adapterModulePresentOrAllowed,
+      adapter_module_requireable_when_present: !result.adapter_module.present || result.adapter_module.status === 'present_validated',
+      adapter_module_under_line_budget: result.adapter_module.line_count <= gate.adapter_seed_max_lines,
+      adapter_exports_contract: gate.expected_adapter_export_names.every((name) => !result.adapter_module.present || result.adapter_module.exports.includes(name)),
+      owned_authority_commands_contract: gate.owned_top_level_commands.every((name) => !result.adapter_module.present || result.adapter_module.owned_top_level_commands.includes(name)),
+      non_authority_commands_excluded: gate.excluded_top_level_commands.every((name) => !result.adapter_module.present || result.adapter_module.excluded_top_level_commands.includes(name)),
+      runtime_cutover_not_applied: gate.runtime_cutover_applied === false,
+      packaged_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      authority_adapter_module_out_of_pack_for_this_gate: gate.boundary.source_authority_adapter_module_remains_out_of_pack === true,
+      extraction_file_present_or_installed_context_allowed: artifactStatus === 'present_validated' || artifactStatus === 'not_present_installed_context_allowed',
+      work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
+      next_work_items_adapter_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && ['open', 'closed'].includes(nextWorkItem.status)),
+      authority_adapter_commands_no_write: gate.boundary.authority_adapter_command_writes_files === false && gate.boundary.authority_adapter_check_command_writes_files === false
+    },
+    adapter_module: result.adapter_module,
+    runtime_cutover: result.runtime_cutover,
+    source_authority_adapter_extraction_file: {
+      path: gate.extraction_file,
+      present: fs.existsSync(artifactPath),
+      status: artifactStatus,
+      schema: artifactSchema,
+      source_context_required: sourceLedgerRequired
+    },
+    milestone_state: result.milestone_state,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    boundary: result.boundary,
+    errors
+  };
+}
+
 function publicArchitectureMap(root = packageRoot()) {
   const pkg = readJson(path.join(root, 'package.json'));
   return {
@@ -10814,6 +11075,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const packageAdapterErrors = packageAdapter.errors.map((error) => `package command adapter extraction: ${error}`);
   const architectureAdapter = publicArchitectureCommandAdapterExtractionCheck(root);
   const architectureAdapterErrors = architectureAdapter.errors.map((error) => `architecture command adapter extraction: ${error}`);
+  const authorityAdapter = publicAuthorityCommandAdapterExtractionCheck(root);
+  const authorityAdapterErrors = authorityAdapter.errors.map((error) => `authority command adapter extraction: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -10884,12 +11147,14 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.architecture_package_adapter_check_command_writes_files !== false) errors.push('architecture package adapter check command must remain no-write');
   if (map.map.package_boundary.architecture_architecture_adapter_command_writes_files !== false) errors.push('architecture architecture adapter command must remain no-write');
   if (map.map.package_boundary.architecture_architecture_adapter_check_command_writes_files !== false) errors.push('architecture architecture adapter check command must remain no-write');
+  if (map.map.package_boundary.architecture_authority_adapter_command_writes_files !== false) errors.push('architecture authority adapter command must remain no-write');
+  if (map.map.package_boundary.architecture_authority_adapter_check_command_writes_files !== false) errors.push('architecture authority adapter check command must remain no-write');
   if (map.map.package_boundary.version_sprawl_check_command_writes_files !== false) errors.push('version sprawl check command must remain no-write');
   if (map.map.package_boundary.authority_first_read_command_writes_files !== false) errors.push('authority first-read command must remain no-write');
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -10904,7 +11169,7 @@ function publicArchitectureCheck(root = packageRoot()) {
       domain_ids_unique: new Set(domainIds).size === domainIds.length,
       runtime_entrypoint_present: map.current_runtime.entrypoint_exists,
       compact_package_boundary: arrayEquals(projectedPackFiles, expectedPackFiles),
-      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.architecture_partition_plan_command_writes_files === false && map.map.package_boundary.architecture_partition_check_command_writes_files === false && map.map.package_boundary.architecture_extraction_rehearsal_command_writes_files === false && map.map.package_boundary.architecture_extraction_check_command_writes_files === false && map.map.package_boundary.architecture_golden_outputs_command_writes_files === false && map.map.package_boundary.architecture_golden_check_command_writes_files === false && map.map.package_boundary.architecture_adapter_boundary_command_writes_files === false && map.map.package_boundary.architecture_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_first_slice_command_writes_files === false && map.map.package_boundary.architecture_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_plan_command_writes_files === false && map.map.package_boundary.architecture_second_slice_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_plan_command_writes_files === false && map.map.package_boundary.architecture_work_items_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_claims_plan_command_writes_files === false && map.map.package_boundary.architecture_claims_check_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_check_command_writes_files === false && map.map.package_boundary.version_sprawl_check_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
+      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.architecture_partition_plan_command_writes_files === false && map.map.package_boundary.architecture_partition_check_command_writes_files === false && map.map.package_boundary.architecture_extraction_rehearsal_command_writes_files === false && map.map.package_boundary.architecture_extraction_check_command_writes_files === false && map.map.package_boundary.architecture_golden_outputs_command_writes_files === false && map.map.package_boundary.architecture_golden_check_command_writes_files === false && map.map.package_boundary.architecture_adapter_boundary_command_writes_files === false && map.map.package_boundary.architecture_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_first_slice_command_writes_files === false && map.map.package_boundary.architecture_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_plan_command_writes_files === false && map.map.package_boundary.architecture_second_slice_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_plan_command_writes_files === false && map.map.package_boundary.architecture_work_items_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_claims_plan_command_writes_files === false && map.map.package_boundary.architecture_claims_check_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_architecture_adapter_command_writes_files === false && map.map.package_boundary.architecture_architecture_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_authority_adapter_command_writes_files === false && map.map.package_boundary.architecture_authority_adapter_check_command_writes_files === false && map.map.package_boundary.version_sprawl_check_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
       command_router_boundary: router.status === 'ok',
       domain_service_facades: facades.status === 'ok',
       authority_first_read_index: authority.status === 'ok',
@@ -10938,7 +11203,8 @@ function publicArchitectureCheck(root = packageRoot()) {
       compatibility_command_port_seed: compatibilityPort.status === 'ok',
       core_command_adapter_extraction: coreAdapter.status === 'ok',
       package_command_adapter_extraction: packageAdapter.status === 'ok',
-      architecture_command_adapter_extraction: architectureAdapter.status === 'ok'
+      architecture_command_adapter_extraction: architectureAdapter.status === 'ok',
+      authority_command_adapter_extraction: authorityAdapter.status === 'ok'
     },
     domain_ids: domainIds,
     expected_pack_files: expectedPackFiles,
@@ -10977,6 +11243,7 @@ function publicArchitectureCheck(root = packageRoot()) {
     core_command_adapter_extraction: coreAdapter,
     package_command_adapter_extraction: packageAdapter,
     architecture_command_adapter_extraction: architectureAdapter,
+    authority_command_adapter_extraction: authorityAdapter,
     boundary: map.boundary,
     errors
   };
@@ -11141,8 +11408,10 @@ function publicReleaseCheck(root = packageRoot()) {
   const packageAdapterErrors = packageAdapter.errors.map((error) => `package command adapter extraction: ${error}`);
   const architectureAdapter = publicArchitectureCommandAdapterExtractionCheck(root);
   const architectureAdapterErrors = architectureAdapter.errors.map((error) => `architecture command adapter extraction: ${error}`);
+  const authorityAdapter = publicAuthorityCommandAdapterExtractionCheck(root);
+  const authorityAdapterErrors = authorityAdapter.errors.map((error) => `authority command adapter extraction: ${error}`);
   const architectureParityErrors = architectureParity.errors.map((error) => `installed architecture parity: ${error}`);
-  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...versionPolicyErrors];
+  const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors, ...architectureAdapterErrors, ...authorityAdapterErrors, ...versionPolicyErrors];
   return {
     schema: 'agent-onboard-public-release-check-result-014',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -11197,6 +11466,7 @@ function publicReleaseCheck(root = packageRoot()) {
       core_command_adapter_extraction: coreAdapter.status === 'ok',
       package_command_adapter_extraction: packageAdapter.status === 'ok',
       architecture_command_adapter_extraction: architectureAdapter.status === 'ok',
+      authority_command_adapter_extraction: authorityAdapter.status === 'ok',
       public_version_reference_policy: versionPolicy.status === 'ok',
       public_package_surface_preservation: packageSurface.status === 'ok',
       public_installed_parity_architecture_smoke: architectureParity.status === 'ok'
@@ -11234,6 +11504,7 @@ function publicReleaseCheck(root = packageRoot()) {
     core_command_adapter_extraction: coreAdapter,
     package_command_adapter_extraction: packageAdapter,
     architecture_command_adapter_extraction: architectureAdapter,
+    authority_command_adapter_extraction: authorityAdapter,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     public_version_reference_policy: versionPolicy,
     public_package_surface_preservation: packageSurface,
@@ -11365,6 +11636,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const coreAdapter = publicCoreCommandAdapterExtractionCheck(root);
   const packageAdapter = publicPackageCommandAdapterExtractionCheck(root);
   const architectureAdapter = publicArchitectureCommandAdapterExtractionCheck(root);
+  const authorityAdapter = publicAuthorityCommandAdapterExtractionCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
@@ -11397,6 +11669,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   if (coreAdapter.status !== 'ok') componentErrors.push(...coreAdapter.errors.map((error) => `core command adapter extraction: ${error}`));
   if (packageAdapter.status !== 'ok') componentErrors.push(...packageAdapter.errors.map((error) => `package command adapter extraction: ${error}`));
   if (architectureAdapter.status !== 'ok') componentErrors.push(...architectureAdapter.errors.map((error) => `architecture command adapter extraction: ${error}`));
+  if (authorityAdapter.status !== 'ok') componentErrors.push(...authorityAdapter.errors.map((error) => `authority command adapter extraction: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -11438,6 +11711,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     core_command_adapter_extraction_check: coreAdapter.status === 'ok',
     package_command_adapter_extraction_check: packageAdapter.status === 'ok',
     architecture_command_adapter_extraction_check: architectureAdapter.status === 'ok',
+    authority_command_adapter_extraction_check: authorityAdapter.status === 'ok',
     runtime_version_matches_package_json: pkg.version === VERSION
   };
 
@@ -11503,6 +11777,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
       core_command_adapter_extraction_status: coreAdapter.status,
       package_command_adapter_extraction_status: packageAdapter.status,
       architecture_command_adapter_extraction_status: architectureAdapter.status,
+      authority_command_adapter_extraction_status: authorityAdapter.status,
       package_context: context.package_context,
       source_context_files_present: context.source_context_files_present,
       source_context_files_missing: context.source_context_files_missing
@@ -11539,6 +11814,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     core_command_adapter_extraction: coreAdapter,
     package_command_adapter_extraction: packageAdapter,
     architecture_command_adapter_extraction: architectureAdapter,
+    authority_command_adapter_extraction: authorityAdapter,
     boundary: {
       writes_files: false,
       writes_package_root: false,
@@ -12194,6 +12470,15 @@ function runArchitecture(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--authority-adapter') {
+    json(publicAuthorityCommandAdapterExtraction());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--authority-adapter-check') {
+    const result = publicAuthorityCommandAdapterExtractionCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -12203,7 +12488,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, --package-adapter, --package-adapter-check, --architecture-adapter, --architecture-adapter-check, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, --package-adapter, --package-adapter-check, --architecture-adapter, --architecture-adapter-check, --authority-adapter, --authority-adapter-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -12310,6 +12595,8 @@ function runRelease(args) {
       architecture_package_adapter_check_command: PUBLIC_RELEASE_CONTRACT.architecture_package_adapter_check_command,
       architecture_architecture_adapter_command: PUBLIC_RELEASE_CONTRACT.architecture_architecture_adapter_command,
       architecture_architecture_adapter_check_command: PUBLIC_RELEASE_CONTRACT.architecture_architecture_adapter_check_command,
+      architecture_authority_adapter_command: PUBLIC_RELEASE_CONTRACT.architecture_authority_adapter_command,
+      architecture_authority_adapter_check_command: PUBLIC_RELEASE_CONTRACT.architecture_authority_adapter_check_command,
       version_sprawl_check_command: PUBLIC_RELEASE_CONTRACT.version_sprawl_check_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       authority_first_read_command: PUBLIC_RELEASE_CONTRACT.authority_first_read_command,
@@ -12348,6 +12635,7 @@ function runRelease(args) {
       core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
       package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       architecture_command_adapter_extraction: PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION,
+      authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -12402,6 +12690,7 @@ function runRelease(args) {
       core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
       package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       architecture_command_adapter_extraction: PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION,
+      authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -12450,6 +12739,7 @@ function runRelease(args) {
       core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
       package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       architecture_command_adapter_extraction: PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION,
+      authority_command_adapter_extraction: PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -13241,7 +13531,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--architecture-adapter|--architecture-adapter-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--architecture-adapter|--architecture-adapter-check|--authority-adapter|--authority-adapter-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
@@ -13396,6 +13686,8 @@ module.exports = {
   publicWorkItemsDomainSourceExtractionInstalledFallbackSmokeCheck,
   publicArchitectureCommandAdapterExtraction,
   publicArchitectureCommandAdapterExtractionCheck,
+  publicAuthorityCommandAdapterExtraction,
+  publicAuthorityCommandAdapterExtractionCheck,
   publicClaimsDomainSourceExtractionPlan,
   publicClaimsDomainSourceExtractionPlanCheck,
   publicClaimsDomainSourceExtractionFirstSlice,
@@ -13438,5 +13730,6 @@ module.exports = {
   PUBLIC_TARGET_RUNTIME_NAMESPACE,
   PUBLIC_INSTALLED_PARITY_ARCHITECTURE_SMOKE,
   PUBLIC_CLI_RUNTIME_DE_MONOLITH_PLANNING,
-  PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION
+  PUBLIC_ARCHITECTURE_COMMAND_ADAPTER_EXTRACTION,
+  PUBLIC_AUTHORITY_COMMAND_ADAPTER_EXTRACTION
 };

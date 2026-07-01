@@ -233,6 +233,8 @@ npx agent-onboard architecture --package-adapter
 npx agent-onboard architecture --package-adapter-check
 npx agent-onboard architecture --architecture-adapter
 npx agent-onboard architecture --architecture-adapter-check
+npx agent-onboard architecture --authority-adapter
+npx agent-onboard architecture --authority-adapter-check
 npx agent-onboard release --version-sprawl-check
 ```
 
@@ -755,6 +757,8 @@ This version does not:
 This release adds the public source extraction golden output freeze gate: `architecture --golden-outputs` reports the frozen command-output contract, `architecture --golden-check` validates it, and `release --version-sprawl-check` prevents current patch-version literals from spreading through source docs and tests.
 
 This release adds the public architecture command adapter extraction gate: `architecture --architecture-adapter` reports the source-only adapter contract for the architecture command family, and `architecture --architecture-adapter-check` validates that it remains outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
+
+This release adds the public authority command adapter extraction gate: `architecture --authority-adapter` reports the source-only adapter contract for the authority command family, and `architecture --authority-adapter-check` validates that `authority`, `agents`, and `guard` remain outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
 
 <!-- ## Star History
 
