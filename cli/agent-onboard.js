@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_core_command_adapter_extraction_gate';
+const RELEASE_LINE = 'public_package_command_adapter_extraction_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -414,6 +414,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     architecture_compatibility_port_check_command_writes_files: false,
     architecture_core_adapter_command_writes_files: false,
     architecture_core_adapter_check_command_writes_files: false,
+    architecture_package_adapter_command_writes_files: false,
+    architecture_package_adapter_check_command_writes_files: false,
     version_sprawl_check_command_writes_files: false,
     published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
@@ -678,10 +680,12 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/thin-cli-router-seed.json',
     '.agent-onboard/compatibility-command-port-seed.json',
     '.agent-onboard/core-command-adapter-extraction.json',
+    '.agent-onboard/package-command-adapter-extraction.json',
     'cli/agent_onboard/command-router.js',
     'cli/agent_onboard/adapters/compatibility-command-port.js',
     'cli/agent_onboard/ports/compatibility-command-port.js',
     'cli/agent_onboard/adapters/commands/core.js',
+    'cli/agent_onboard/adapters/commands/release-package.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2274,6 +2278,55 @@ const PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
   })
 });
 
+
+const PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
+  schema: 'agent-onboard-public-package-command-adapter-extraction-001',
+  title: 'Agent-Onboard Public Package Command Adapter Extraction Gate',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --package-adapter',
+  check_command: 'agent-onboard architecture --package-adapter-check',
+  extraction_file: '.agent-onboard/package-command-adapter-extraction.json',
+  adapter_module: 'cli/agent_onboard/adapters/commands/release-package.js',
+  compatibility_port_module: 'cli/agent_onboard/adapters/compatibility-command-port.js',
+  router_module: 'cli/agent_onboard/command-router.js',
+  milestone_id: 'P1S3M3',
+  work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 5].join(''),
+  next_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 6].join(''),
+  extraction_status: 'package_command_adapter_extraction_admitted',
+  runtime_cutover_applied: false,
+  package_strategy: 'controlled_source_module_inclusion',
+  adapter_seed_max_lines: 220,
+  expected_adapter_export_names: Object.freeze(['PACKAGE_COMMAND_ADAPTER_EXTRACTION', 'describePackageCommandAdapterExtraction', 'createPackageCommandAdapter']),
+  owned_top_level_commands: Object.freeze(['release']),
+  excluded_top_level_commands: Object.freeze(['help', 'version', 'status', 'architecture', 'authority', 'work-items', 'target', 'target-instance', 'init', 'agents', 'guard', 'target-config']),
+  acceptance_criteria: Object.freeze([
+    'Create the public source-only package command adapter module at cli/agent_onboard/adapters/commands/release-package.js.',
+    'Bind the release package adapter contract to the compatibility port group without changing the packaged runtime entrypoint.',
+    'Keep cli/agent-onboard.js as the packaged runtime entrypoint for this extraction gate.',
+    'Keep the compact npm package allowlist unchanged until controlled source-module inclusion.',
+    'Require the package command adapter module to be side-effect-free on require and under the adapter seed line budget.',
+    'Seed the next architecture command adapter extraction gate.'
+  ]),
+  boundary: Object.freeze({
+    package_adapter_command_writes_files: false,
+    package_adapter_check_command_writes_files: false,
+    changes_public_cli_outputs: false,
+    changes_cli_runtime_dependency_graph: false,
+    uses_package_adapter_as_runtime_entrypoint: false,
+    source_package_adapter_module_remains_out_of_pack: true,
+    package_allowlist_unchanged: true,
+    creates_runtime_modules: true,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
+  })
+});
+
 const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
   schema: 'agent-onboard-public-version-reference-policy-001',
   title: 'Agent-Onboard Public Version Reference Policy',
@@ -2317,10 +2370,12 @@ const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
     '.agent-onboard/thin-cli-router-seed.json',
     '.agent-onboard/compatibility-command-port-seed.json',
     '.agent-onboard/core-command-adapter-extraction.json',
+    '.agent-onboard/package-command-adapter-extraction.json',
     'cli/agent_onboard/command-router.js',
     'cli/agent_onboard/adapters/compatibility-command-port.js',
     'cli/agent_onboard/ports/compatibility-command-port.js',
     'cli/agent_onboard/adapters/commands/core.js',
+    'cli/agent_onboard/adapters/commands/release-package.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2414,6 +2469,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_compatibility_port_check_command: 'agent-onboard architecture --compatibility-port-check',
   architecture_core_adapter_command: 'agent-onboard architecture --core-adapter',
   architecture_core_adapter_check_command: 'agent-onboard architecture --core-adapter-check',
+  architecture_package_adapter_command: 'agent-onboard architecture --package-adapter',
+  architecture_package_adapter_check_command: 'agent-onboard architecture --package-adapter-check',
   version_sprawl_check_command: 'agent-onboard release --version-sprawl-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
@@ -2459,10 +2516,12 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     '.agent-onboard/thin-cli-router-seed.json',
     '.agent-onboard/compatibility-command-port-seed.json',
     '.agent-onboard/core-command-adapter-extraction.json',
+    '.agent-onboard/package-command-adapter-extraction.json',
     'cli/agent_onboard/command-router.js',
     'cli/agent_onboard/adapters/compatibility-command-port.js',
     'cli/agent_onboard/ports/compatibility-command-port.js',
     'cli/agent_onboard/adapters/commands/core.js',
+    'cli/agent_onboard/adapters/commands/release-package.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -9535,6 +9594,884 @@ function publicSourceModuleExtractionAuthorityBundleParityCheck(root = packageRo
 }
 
 
+function publicPackageCommandAdapterExtraction(root = packageRoot()) {
+  const gate = PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION;
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const adapterModulePath = path.join(root, gate.adapter_module);
+  const artifactPath = path.join(root, gate.extraction_file);
+  const adapterLineCount = countFileLines(root, gate.adapter_module);
+  let adapterModuleStatus = 'not_present_installed_context_allowed';
+  let adapterModuleSchema = null;
+  let adapterModuleExports = [];
+  let ownedCommands = [];
+  let excludedCommands = [];
+  let adapterRequireError = null;
+  if (fs.existsSync(adapterModulePath)) {
+    try {
+      delete require.cache[require.resolve(adapterModulePath)];
+      const adapterModule = require(adapterModulePath);
+      adapterModuleExports = Object.keys(adapterModule).sort();
+      const described = typeof adapterModule.describePackageCommandAdapterExtraction === 'function' ? adapterModule.describePackageCommandAdapterExtraction() : null;
+      adapterModuleSchema = described && described.schema ? described.schema : null;
+      ownedCommands = described && Array.isArray(described.owned_top_level_commands) ? described.owned_top_level_commands.slice().sort() : [];
+      excludedCommands = described && Array.isArray(described.excluded_top_level_commands) ? described.excluded_top_level_commands.slice().sort() : [];
+      adapterModuleStatus = 'present_validated';
+    } catch (error) {
+      adapterModuleStatus = 'present_require_failed';
+      adapterRequireError = error && error.message ? error.message : String(error);
+    }
+  }
+  const ledgerPath = path.join(root, '.agent-onboard', 'work-items.json');
+  let ledger = null;
+  if (fs.existsSync(ledgerPath)) {
+    try { ledger = readJson(ledgerPath); } catch { ledger = null; }
+  }
+  const workItems = ledger && Array.isArray(ledger.work_items) ? ledger.work_items : [];
+  return {
+    schema: 'agent-onboard-public-package-command-adapter-extraction-result-001',
+    status: 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    extraction_file: gate.extraction_file,
+    extraction_file_present: fs.existsSync(artifactPath),
+    adapter_module: {
+      path: gate.adapter_module,
+      present: fs.existsSync(adapterModulePath),
+      status: adapterModuleStatus,
+      schema: adapterModuleSchema,
+      exports: adapterModuleExports,
+      owned_top_level_commands: ownedCommands,
+      excluded_top_level_commands: excludedCommands,
+      require_error: adapterRequireError,
+      line_count: adapterLineCount,
+      max_lines: gate.adapter_seed_max_lines
+    },
+    compatibility_port_module: gate.compatibility_port_module,
+    router_module: gate.router_module,
+    runtime_cutover: {
+      applied: gate.runtime_cutover_applied,
+      entrypoint: 'cli/agent-onboard.js',
+      entrypoint_line_count: countFileLines(root, 'cli/agent-onboard.js'),
+      package_adapter_used_by_entrypoint_in_this_gate: gate.boundary.uses_package_adapter_as_runtime_entrypoint
+    },
+    package_strategy: gate.package_strategy,
+    expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
+    milestone_state: {
+      work_item: workItems.find((item) => item.id === gate.work_item_id) || null,
+      next_work_item: workItems.find((item) => item.id === gate.next_work_item_id) || null
+    },
+    adapter_contract: gate,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicPackageCommandAdapterExtractionCheck(root = packageRoot()) {
+  const result = publicPackageCommandAdapterExtraction(root);
+  const gate = PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION;
+  const sourceLedgerRequired = result.package_context === 'source_repository';
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const errors = [];
+  if (gate.extraction_status !== 'package_command_adapter_extraction_admitted') errors.push('package command adapter extraction status must be admitted');
+  if (gate.runtime_cutover_applied !== false) errors.push('package command adapter extraction must not apply runtime cutover');
+  if (gate.package_strategy !== 'controlled_source_module_inclusion') errors.push('package command adapter extraction must preserve controlled_source_module_inclusion package strategy');
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.boundary.package_adapter_command_writes_files !== false) errors.push('architecture --package-adapter must remain no-write');
+  if (gate.boundary.package_adapter_check_command_writes_files !== false) errors.push('architecture --package-adapter-check must remain no-write');
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('package command adapter extraction must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('package command adapter extraction must not change packaged CLI runtime dependency graph');
+  if (gate.boundary.uses_package_adapter_as_runtime_entrypoint !== false) errors.push('package command adapter extraction must not use source modules as the packaged runtime entrypoint yet');
+  if (gate.boundary.source_package_adapter_module_remains_out_of_pack !== true) errors.push('source package adapter module must remain out of npm pack for this gate');
+  if (result.adapter_module.line_count > gate.adapter_seed_max_lines) errors.push(`${gate.adapter_module} must stay within ${gate.adapter_seed_max_lines} lines`);
+
+  let artifactStatus = 'not_present_installed_context_allowed';
+  let artifactSchema = null;
+  const artifactPath = path.join(root, gate.extraction_file);
+  if (fs.existsSync(artifactPath)) {
+    try {
+      const artifact = readJson(artifactPath);
+      artifactSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${gate.extraction_file} schema must be ${gate.schema}`);
+      if (artifact.work_item_id !== gate.work_item_id) errors.push(`${gate.extraction_file} must identify ${gate.work_item_id}`);
+      if (artifact.next_work_item_id !== gate.next_work_item_id) errors.push(`${gate.extraction_file} must seed ${gate.next_work_item_id}`);
+      if (artifact.adapter_module !== gate.adapter_module) errors.push(`${gate.extraction_file} must declare ${gate.adapter_module}`);
+      if (artifact.runtime_cutover_applied !== false) errors.push(`${gate.extraction_file} must not apply runtime cutover`);
+      if (!artifact.boundary || artifact.boundary.package_allowlist_unchanged !== true) errors.push(`${gate.extraction_file} must preserve package_allowlist_unchanged`);
+      artifactStatus = 'present_validated';
+    } catch (error) {
+      artifactStatus = 'present_invalid_json';
+      errors.push(`${gate.extraction_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (sourceLedgerRequired) {
+    artifactStatus = 'missing_source_context';
+    errors.push(`${gate.extraction_file} must exist in source repository context`);
+  }
+
+  const adapterModulePresentOrAllowed = result.adapter_module.present || result.package_context === 'installed_package';
+  if (!adapterModulePresentOrAllowed) errors.push(`${gate.adapter_module} must exist in source repository context`);
+  if (result.adapter_module.present) {
+    if (result.adapter_module.status !== 'present_validated') errors.push(`${gate.adapter_module} must be require-able without side effects${result.adapter_module.require_error ? `: ${result.adapter_module.require_error}` : ''}`);
+    if (result.adapter_module.schema !== 'agent-onboard-public-package-command-adapter-extraction-module-001') errors.push(`${gate.adapter_module} must expose package command adapter extraction module schema`);
+    for (const exportName of gate.expected_adapter_export_names) {
+      if (!result.adapter_module.exports.includes(exportName)) errors.push(`${gate.adapter_module} must export ${exportName}`);
+    }
+    for (const commandName of gate.owned_top_level_commands) {
+      if (!result.adapter_module.owned_top_level_commands.includes(commandName)) errors.push(`${gate.adapter_module} must own package command ${commandName}`);
+    }
+    for (const commandName of gate.excluded_top_level_commands) {
+      if (!result.adapter_module.excluded_top_level_commands.includes(commandName)) errors.push(`${gate.adapter_module} must exclude non-package command ${commandName}`);
+    }
+  }
+  const workItem = result.milestone_state.work_item;
+  const nextWorkItem = result.milestone_state.next_work_item;
+  if (sourceLedgerRequired) {
+    if (!workItem) errors.push(`${gate.work_item_id} work item must exist`);
+    else if (workItem.status !== 'closed') errors.push(`${gate.work_item_id} work item must be closed`);
+    if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
+    else if (!['open', 'closed'].includes(nextWorkItem.status)) errors.push(`${gate.next_work_item_id} work item must be open or closed after package adapter extraction admission`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-package-command-adapter-extraction-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    package_context: result.package_context,
+    validated: {
+      package_adapter_extraction_status_admitted: gate.extraction_status === 'package_command_adapter_extraction_admitted',
+      adapter_module_present_or_installed_context_allowed: adapterModulePresentOrAllowed,
+      adapter_module_requireable_when_present: !result.adapter_module.present || result.adapter_module.status === 'present_validated',
+      adapter_module_under_line_budget: result.adapter_module.line_count <= gate.adapter_seed_max_lines,
+      adapter_exports_contract: gate.expected_adapter_export_names.every((name) => !result.adapter_module.present || result.adapter_module.exports.includes(name)),
+      owned_package_commands_contract: gate.owned_top_level_commands.every((name) => !result.adapter_module.present || result.adapter_module.owned_top_level_commands.includes(name)),
+      non_package_commands_excluded: gate.excluded_top_level_commands.every((name) => !result.adapter_module.present || result.adapter_module.excluded_top_level_commands.includes(name)),
+      runtime_cutover_not_applied: gate.runtime_cutover_applied === false,
+      packaged_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      package_adapter_module_out_of_pack_for_this_gate: gate.boundary.source_package_adapter_module_remains_out_of_pack === true,
+      extraction_file_present_or_installed_context_allowed: artifactStatus === 'present_validated' || artifactStatus === 'not_present_installed_context_allowed',
+      work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
+      next_architecture_adapter_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && ['open', 'closed'].includes(nextWorkItem.status)),
+      package_adapter_commands_no_write: gate.boundary.package_adapter_command_writes_files === false && gate.boundary.package_adapter_check_command_writes_files === false
+    },
+    adapter_module: result.adapter_module,
+    runtime_cutover: result.runtime_cutover,
+    source_package_adapter_extraction_file: {
+      path: gate.extraction_file,
+      present: fs.existsSync(artifactPath),
+      status: artifactStatus,
+      schema: artifactSchema,
+      source_context_required: sourceLedgerRequired
+    },
+    milestone_state: result.milestone_state,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+function publicArchitectureMap(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  return {
+    schema: 'agent-onboard-public-architecture-map-result-001',
+    status: 'ok',
+    package_name: PUBLIC_ARCHITECTURE_MAP.package_name,
+    version: VERSION,
+    release_line: PUBLIC_ARCHITECTURE_MAP.release_line,
+    command: PUBLIC_ARCHITECTURE_MAP.command,
+    check_command: PUBLIC_ARCHITECTURE_MAP.check_command,
+    package_root: root,
+    package_context: sourceContext(root).package_context,
+    package_json_version: pkg.version,
+    map: PUBLIC_ARCHITECTURE_MAP,
+    command_router: PUBLIC_COMMAND_ROUTER,
+    domain_service_facades: PUBLIC_DOMAIN_SERVICE_FACADES,
+    source_domain_module_partition_plan: PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN,
+    source_domain_extraction_rehearsal: PUBLIC_SOURCE_DOMAIN_EXTRACTION_REHEARSAL,
+    source_extraction_golden_output_freeze: PUBLIC_SOURCE_EXTRACTION_GOLDEN_OUTPUT_FREEZE,
+      source_module_extraction_adapter_boundary: PUBLIC_SOURCE_MODULE_EXTRACTION_ADAPTER_BOUNDARY,
+    source_module_extraction_first_slice: PUBLIC_SOURCE_MODULE_EXTRACTION_FIRST_SLICE,
+    source_module_extraction_second_slice_plan: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN,
+    version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
+    authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
+    target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
+    current_runtime: {
+      entrypoint: PUBLIC_ARCHITECTURE_MAP.public_source_shape.current_entrypoint,
+      entrypoint_exists: fs.existsSync(path.join(root, PUBLIC_ARCHITECTURE_MAP.public_source_shape.current_entrypoint)),
+      physical_domain_split_status: PUBLIC_ARCHITECTURE_MAP.public_source_shape.physical_domain_split_status,
+      expected_pack_files: PUBLIC_ARCHITECTURE_MAP.public_source_shape.expected_pack_files.slice(),
+      projected_pack_files: packageJsonProjectedPackFiles(pkg)
+    },
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+
+function publicSourceModuleExtractionInstalledFallbackSmoke(root = packageRoot()) {
+  const runtimeBridge = publicSourceModuleExtractionRuntimeBridgeCheck(root);
+  const packageSurface = publicPackageSurfaceCheck(root);
+  const context = sourceContext(root);
+  const pkg = readJson(path.join(root, 'package.json'));
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const projectedPackFiles = packageJsonProjectedPackFiles(pkg).slice().sort();
+  const sourceModuleRel = PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.source_module;
+  const sourceModulePresent = fs.existsSync(path.join(root, sourceModuleRel));
+  const sourceModuleInPack = expectedPackFiles.includes(sourceModuleRel) || projectedPackFiles.includes(sourceModuleRel);
+  const projectedInstalledRuntimeBridge = {
+    context: 'installed_package',
+    source_module_present: false,
+    source_module: sourceModuleRel,
+    mode: 'bundled_fallback',
+    fallback_source: 'cli/agent-onboard.js',
+    allowed_because_source_module_is_not_in_npm_pack: !sourceModuleInPack
+  };
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-installed-fallback-smoke-result-001',
+    status: 'ok',
+    package_name: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.release_line,
+    command: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.command,
+    check_command: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.check_command,
+    package_root: root,
+    source_context: context,
+    installed_fallback_smoke_file: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file,
+    installed_fallback_smoke_file_present: fs.existsSync(path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file)),
+    source_module: sourceModuleRel,
+    source_module_present: sourceModulePresent,
+    projected_installed_runtime_bridge: projectedInstalledRuntimeBridge,
+    observed: {
+      runtime_bridge_check_status: runtimeBridge.status,
+      runtime_bridge_resolution_mode: runtimeBridge.runtime_bridge_resolution.mode,
+      package_surface_check_status: packageSurface.status,
+      source_module_in_expected_pack_files: expectedPackFiles.includes(sourceModuleRel),
+      source_module_in_projected_pack_files: projectedPackFiles.includes(sourceModuleRel),
+      source_context_files_in_pack: PUBLIC_RELEASE_CONTRACT.source_context_files.filter((rel) => projectedPackFiles.includes(rel))
+    },
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: projectedPackFiles,
+    installed_fallback_contract: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicSourceModuleExtractionInstalledFallbackSmokeCheck(root = packageRoot()) {
+  const result = publicSourceModuleExtractionInstalledFallbackSmoke(root);
+  const runtimeBridge = publicSourceModuleExtractionRuntimeBridgeCheck(root);
+  const packageSurface = publicPackageSurfaceCheck(root);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const projectedPackFiles = packageJsonProjectedPackFiles(readJson(path.join(root, 'package.json'))).slice().sort();
+  const sourceModuleRel = PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.source_module;
+  const artifactPath = path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file);
+  const context = sourceContext(root);
+  const errors = [];
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.smoke_status !== 'installed_fallback_smoke_admitted') errors.push('installed fallback smoke status must be installed_fallback_smoke_admitted');
+  if (runtimeBridge.status !== 'ok') errors.push('runtime bridge check must pass before installed fallback smoke');
+  if (packageSurface.status !== 'ok') errors.push('package surface check must pass before installed fallback smoke');
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_RUNTIME_BRIDGE.boundary.installed_context_fallback_required !== true) errors.push('runtime bridge must require installed-context fallback');
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.boundary.source_modules_remain_out_of_npm_pack !== true) errors.push('source modules must remain out of npm pack');
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.boundary.installed_fallback_check_command_writes_files !== false) errors.push('installed fallback check must remain no-write');
+  if (!arrayEquals(expectedPackFiles, projectedPackFiles)) errors.push('projected pack files must match the compact expected pack files');
+  if (expectedPackFiles.includes(sourceModuleRel) || projectedPackFiles.includes(sourceModuleRel)) errors.push(`${sourceModuleRel} must remain outside the npm package allowlist`);
+  if (context.package_context === 'installed_package' && fs.existsSync(path.join(root, sourceModuleRel))) errors.push(`${sourceModuleRel} must be absent from installed package context`);
+  if (context.package_context === 'installed_package' && runtimeBridge.runtime_bridge_resolution.mode !== 'bundled_fallback') errors.push('installed package runtime bridge must resolve through bundled_fallback');
+  if (context.package_context === 'source_repository' && !fs.existsSync(artifactPath)) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file} must exist in source repository context`);
+  if (fs.existsSync(artifactPath)) {
+    try {
+      const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+      if (artifact.schema !== PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.schema) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file} schema must be ${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.schema}`);
+      if (artifact.source_module !== sourceModuleRel) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file} source_module must be ${sourceModuleRel}`);
+      if (!artifact.projected_installed_context || artifact.projected_installed_context.runtime_bridge_resolution_mode !== 'bundled_fallback') errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file} must declare bundled_fallback projected installed context`);
+    } catch (error) {
+      errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file} must be valid JSON: ${error.message}`);
+    }
+  }
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-installed-fallback-smoke-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.release_line,
+    command: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.check_command,
+    package_root: root,
+    source_context: context,
+    validated: {
+      runtime_bridge_check: runtimeBridge.status === 'ok',
+      package_surface_check: packageSurface.status === 'ok',
+      installed_fallback_smoke_status: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.smoke_status === 'installed_fallback_smoke_admitted',
+      source_module_out_of_pack: !expectedPackFiles.includes(sourceModuleRel) && !projectedPackFiles.includes(sourceModuleRel),
+      projected_pack_allowlist_unchanged: arrayEquals(expectedPackFiles, projectedPackFiles),
+      installed_context_uses_bundled_fallback: context.package_context === 'installed_package' ? runtimeBridge.runtime_bridge_resolution.mode === 'bundled_fallback' : result.projected_installed_runtime_bridge.mode === 'bundled_fallback',
+      source_artifact_present_or_installed_context_allowed: fs.existsSync(artifactPath) || context.package_context === 'installed_package',
+      installed_fallback_commands_no_write: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.boundary.installed_fallback_smoke_command_writes_files === false && PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.boundary.installed_fallback_check_command_writes_files === false,
+      package_allowlist_unchanged: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.boundary.package_allowlist_unchanged === true
+    },
+    observed: result.observed,
+    runtime_bridge: {
+      status: runtimeBridge.status,
+      resolution_mode: runtimeBridge.runtime_bridge_resolution.mode,
+      source_module_present: runtimeBridge.runtime_bridge_resolution.source_module_present
+    },
+    source_installed_fallback_file: {
+      path: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.installed_fallback_smoke_file,
+      present: fs.existsSync(artifactPath),
+      status: fs.existsSync(artifactPath) ? 'present_validated' : (context.package_context === 'installed_package' ? 'not_present_installed_context_allowed' : 'missing'),
+      schema: PUBLIC_SOURCE_MODULE_EXTRACTION_INSTALLED_FALLBACK_SMOKE.schema,
+      source_context_required: true
+    },
+    projected_installed_runtime_bridge: result.projected_installed_runtime_bridge,
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: projectedPackFiles,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors
+  };
+}
+
+
+function gitignoreSecondSlicePolicy(root = packageRoot()) {
+  const rel = PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.gitignore_policy.gitignore_file;
+  const file = path.join(root, rel);
+  const present = fs.existsSync(file);
+  const content = present ? fs.readFileSync(file, 'utf8') : '';
+  const entries = content.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0 && !line.startsWith('#'));
+  const forbidden = ['.agent-onboard/', '.agent-onboard/*', 'src/', 'src/**', 'src/domains/', 'src/domains/*', 'src/domains/**'];
+  const localStateEntries = ['.agent-onboard/tmp/', '.agent-onboard/cache/', '.agent-onboard/local/'];
+  const perArtifactUnignoreEntries = entries.filter((entry) => /^!\.agent-onboard\/source-module-extraction-.*\.json$/.test(entry));
+  return {
+    file: rel,
+    present,
+    policy: 'track canonical .agent-onboard source JSON by default; ignore only local/runtime/cache state',
+    required_unignore_entries: [],
+    missing_required_unignore_entries: [],
+    forbidden_ignore_entries: forbidden,
+    present_forbidden_ignore_entries: forbidden.filter((entry) => entries.includes(entry)),
+    local_state_ignore_entries: localStateEntries,
+    missing_local_state_ignore_entries: localStateEntries.filter((entry) => !entries.includes(entry)),
+    per_artifact_unignore_entries: perArtifactUnignoreEntries,
+    entries
+  };
+}
+
+function publicSourceModuleExtractionSecondSlicePlan(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const plan = PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN;
+  const plannedModule = plan.planned_second_slice.planned_module;
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-second-slice-plan-result-001',
+    status: 'ok',
+    package_name: plan.package_name,
+    version: VERSION,
+    release_line: plan.release_line,
+    command: plan.command,
+    check_command: plan.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    second_slice_plan_file: plan.second_slice_plan_file,
+    second_slice_plan_file_present: fs.existsSync(path.join(root, plan.second_slice_plan_file)),
+    prerequisite_installed_fallback_smoke_file: plan.prerequisite_installed_fallback_smoke_file,
+    planned_second_slice: plan.planned_second_slice,
+    planned_module: plannedModule,
+    planned_module_present: fs.existsSync(path.join(root, plannedModule)),
+    current_source_modules_present: ['src/domains/package.js', plannedModule].filter((rel) => fs.existsSync(path.join(root, rel))),
+    gitignore_policy: gitignoreSecondSlicePolicy(root),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg),
+    expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
+    second_slice_plan: plan,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function publicSourceModuleExtractionSecondSlicePlanCheck(root = packageRoot()) {
+  const result = publicSourceModuleExtractionSecondSlicePlan(root);
+  const installedFallback = publicSourceModuleExtractionInstalledFallbackSmokeCheck(root);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const planned = PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.planned_second_slice;
+  const partitionPlan = PUBLIC_SOURCE_DOMAIN_MODULE_PARTITION_PLAN.planned_source_modules.find((module) => module.domain === planned.domain);
+  const facade = PUBLIC_DOMAIN_SERVICE_FACADES.facades.find((item) => item.id === planned.domain);
+  const artifactPath = path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file);
+  const errors = [];
+  if (installedFallback.status !== 'ok') errors.push(...installedFallback.errors.map((error) => `installed fallback smoke: ${error}`));
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_status !== 'planned_not_created') errors.push('second slice status must remain planned_not_created for this gate');
+  if (planned.domain !== 'authority') errors.push('second slice must plan the authority domain after the package first slice');
+  if (!partitionPlan) errors.push('second slice domain must exist in the source partition plan');
+  if (partitionPlan && partitionPlan.planned_module !== planned.planned_module) errors.push(`second slice planned module must match partition plan module ${partitionPlan.planned_module}`);
+  if (!facade || facade.service !== planned.facade) errors.push('second slice must map to authorityService facade');
+  if (planned.source_module_created_by_this_gate !== false) errors.push('second slice planning gate must not create the authority source module');
+  if (planned.published_import_api !== false) errors.push('second slice source module must not be admitted as public import API');
+  const followupFirstSliceFilePresent = fs.existsSync(path.join(root, '.agent-onboard/source-module-extraction-second-slice-first-slice.json'));
+  if (result.planned_module_present && !followupFirstSliceFilePresent) errors.push(`${planned.planned_module} must not be created until the second slice first-slice gate is admitted`);
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (result.projected_pack_files.includes(planned.planned_module)) errors.push(`${planned.planned_module} must stay outside the npm package allowlist`);
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.boundary.second_slice_plan_command_writes_files !== false) errors.push('architecture --second-slice-plan must remain no-write');
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.boundary.second_slice_check_command_writes_files !== false) errors.push('architecture --second-slice-check must remain no-write');
+  if (PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.boundary.package_allowlist_unchanged !== true) errors.push('second slice planning must preserve package allowlist');
+
+  let planFileStatus = 'not_present_installed_context_allowed';
+  let planFileSchema = null;
+  if (result.second_slice_plan_file_present) {
+    try {
+      const artifact = readJson(artifactPath);
+      planFileSchema = artifact.schema || null;
+      if (artifact.schema !== PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.schema) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} schema must be ${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.schema}`);
+      if (artifact.second_slice_status !== 'planned_not_created') errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} must declare planned_not_created`);
+      if (!artifact.planned_second_slice || artifact.planned_second_slice.domain !== planned.domain) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} must plan ${planned.domain}`);
+      if (!artifact.planned_second_slice || artifact.planned_second_slice.planned_module !== planned.planned_module) errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} planned module must be ${planned.planned_module}`);
+      planFileStatus = 'present_validated';
+    } catch (error) {
+      planFileStatus = 'present_invalid_json';
+      errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (result.package_context === 'source_repository') {
+    planFileStatus = 'missing_source_context';
+    errors.push(`${PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file} must exist in source repository context`);
+  }
+
+  const gitignore = result.gitignore_policy;
+  if (result.package_context === 'source_repository') {
+    if (!gitignore.present) errors.push('.gitignore must exist in source repository context');
+    for (const entry of gitignore.missing_required_unignore_entries) errors.push(`.gitignore must unignore ${entry}`);
+    for (const entry of gitignore.present_forbidden_ignore_entries) errors.push(`.gitignore must not ignore source module path with ${entry}`);
+    for (const entry of gitignore.per_artifact_unignore_entries) errors.push(`.gitignore must not use per-artifact unignore sprawl: ${entry}`);
+    for (const entry of gitignore.missing_local_state_ignore_entries) errors.push(`.gitignore must ignore local state entry ${entry}`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-second-slice-plan-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.release_line,
+    command: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.check_command,
+    package_root: root,
+    source_context: result.source_context,
+    validated: {
+      installed_fallback_smoke: installedFallback.status === 'ok',
+      second_slice_status: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_status === 'planned_not_created',
+      planned_domain_is_authority: planned.domain === 'authority',
+      planned_domain_maps_to_facade: !!facade && facade.service === planned.facade,
+      planned_module_matches_partition_plan: !!partitionPlan && partitionPlan.planned_module === planned.planned_module,
+      authority_module_not_created_by_this_gate: !result.planned_module_present || followupFirstSliceFilePresent,
+      second_slice_plan_file_present_or_installed_context_allowed: planFileStatus === 'present_validated' || planFileStatus === 'not_present_installed_context_allowed',
+      gitignore_tracks_source_artifacts: result.package_context === 'installed_package' || (gitignore.present && gitignore.missing_required_unignore_entries.length === 0),
+      gitignore_does_not_ignore_src_domains: result.package_context === 'installed_package' || gitignore.present_forbidden_ignore_entries.length === 0,
+      gitignore_uses_compact_local_state_policy: result.package_context === 'installed_package' || (gitignore.present && gitignore.per_artifact_unignore_entries.length === 0 && gitignore.missing_local_state_ignore_entries.length === 0),
+      second_slice_commands_no_write: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.boundary.second_slice_plan_command_writes_files === false && PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.boundary.second_slice_check_command_writes_files === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles)
+    },
+    planned_second_slice: planned,
+    second_slice_plan_file: {
+      path: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_PLAN.second_slice_plan_file,
+      present: result.second_slice_plan_file_present,
+      status: planFileStatus,
+      schema: planFileSchema,
+      source_context_required: result.package_context === 'source_repository'
+    },
+    gitignore_policy: gitignore,
+    prerequisite_installed_fallback_smoke: {
+      status: installedFallback.status,
+      errors: installedFallback.errors
+    },
+    projected_pack_files: result.projected_pack_files,
+    expected_pack_files: expectedPackFiles,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
+function loadAuthoritySecondSliceModule(root = packageRoot()) {
+  const modulePath = path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_FIRST_SLICE.source_module);
+  if (!fs.existsSync(modulePath)) return null;
+  const resolved = require.resolve(modulePath);
+  delete require.cache[resolved];
+  return require(resolved);
+}
+
+function publicSourceModuleExtractionSecondSliceFirstSlice(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const gate = PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_FIRST_SLICE;
+  let module_exports = [];
+  let module_value = null;
+  let module_load_error = null;
+  try {
+    const loaded = loadAuthoritySecondSliceModule(root);
+    if (loaded) {
+      module_exports = Object.keys(loaded).sort();
+      if (typeof loaded.getAuthorityDomainSecondSlice === 'function') {
+        module_value = loaded.getAuthorityDomainSecondSlice();
+      } else if (loaded.AUTHORITY_DOMAIN_SECOND_SLICE) {
+        module_value = loaded.AUTHORITY_DOMAIN_SECOND_SLICE;
+      }
+    }
+  } catch (error) {
+    module_load_error = error && error.message ? error.message : String(error);
+  }
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-second-slice-first-slice-result-001',
+    status: module_load_error ? 'error' : 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    second_slice_first_slice_file: gate.second_slice_first_slice_file,
+    second_slice_first_slice_file_present: fs.existsSync(path.join(root, gate.second_slice_first_slice_file)),
+    source_module: gate.source_module,
+    source_module_present: fs.existsSync(path.join(root, gate.source_module)),
+    source_module_exports: module_exports,
+    source_module_value: module_value,
+    source_module_load_error: module_load_error,
+    prerequisite_second_slice_plan_file: gate.prerequisite_second_slice_plan_file,
+    second_slice_first_slice: gate,
+    projected_pack_files: packageJsonProjectedPackFiles(pkg),
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function publicSourceModuleExtractionSecondSliceFirstSliceCheck(root = packageRoot()) {
+  const result = publicSourceModuleExtractionSecondSliceFirstSlice(root);
+  const plan = publicSourceModuleExtractionSecondSlicePlanCheck(root);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const gate = PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_FIRST_SLICE;
+  const expectedExports = gate.expected_module_export_names.slice().sort();
+  const expectedReadOrder = gate.expected_read_order_paths.slice();
+  const errors = [];
+  if (plan.status !== 'ok') errors.push(...plan.errors.map((error) => `second slice plan: ${error}`));
+  if (result.status !== 'ok') errors.push(`second slice first-slice module load failed: ${result.source_module_load_error}`);
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.second_slice_first_slice_status !== 'source_only_shadow_module_applied') errors.push('second slice first-slice status must be source_only_shadow_module_applied');
+  if (gate.extracted_domain.id !== 'authority') errors.push('second slice first-slice must extract the authority domain');
+  if (gate.boundary.created_source_module !== 'src/domains/authority.js') errors.push('second slice created source module must be src/domains/authority.js');
+  if (gate.boundary.creates_exactly_one_source_module !== true) errors.push('second slice first-slice must create exactly one source module');
+  if (gate.boundary.excludes_write_capable_agents_command !== true) errors.push('second slice first-slice must exclude write-capable agents command extraction');
+  if (gate.boundary.moves_existing_source_files !== false) errors.push('second slice first-slice must not move existing source files');
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('second slice first-slice must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('second slice first-slice must not make CLI runtime require source modules');
+  if (gate.boundary.exports_source_module_as_public_api !== false) errors.push('second slice first-slice must not expose source module as public import API');
+  if (gate.boundary.second_slice_first_slice_command_writes_files !== false) errors.push('architecture --second-slice-first-slice must remain no-write');
+  if (gate.boundary.second_slice_first_slice_check_command_writes_files !== false) errors.push('architecture --second-slice-first-slice-check must remain no-write');
+
+  let artifactStatus = 'not_present_installed_context_allowed';
+  let artifactSchema = null;
+  if (result.second_slice_first_slice_file_present) {
+    try {
+      const artifact = readJson(path.join(root, result.second_slice_first_slice_file));
+      artifactSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${result.second_slice_first_slice_file} schema must be ${gate.schema}`);
+      if (!artifact.extracted_domain || artifact.extracted_domain.id !== 'authority') errors.push(`${result.second_slice_first_slice_file} must declare extracted_domain.id authority`);
+      if (artifact.source_module !== 'src/domains/authority.js') errors.push(`${result.second_slice_first_slice_file} source_module must be src/domains/authority.js`);
+      artifactStatus = 'present_validated';
+    } catch (error) {
+      artifactStatus = 'present_invalid_json';
+      errors.push(`${result.second_slice_first_slice_file} is not valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (result.package_context === 'source_repository') {
+    artifactStatus = 'missing_source_context';
+    errors.push(`${result.second_slice_first_slice_file} must be present in source repository context`);
+  }
+
+  let sourceModuleStatus = 'not_present_installed_context_allowed';
+  const moduleValue = result.source_module_value || {};
+  const moduleExportsSorted = result.source_module_exports.slice().sort();
+  if (result.source_module_present) {
+    if (!arrayEquals(moduleExportsSorted, expectedExports)) errors.push(`${result.source_module} exports must be ${expectedExports.join(', ')}`);
+    if (moduleValue.schema !== 'agent-onboard-public-source-module-authority-second-slice-001') errors.push(`${result.source_module} must export authority second-slice schema`);
+    if (moduleValue.domain !== 'authority') errors.push(`${result.source_module} domain must be authority`);
+    if (moduleValue.facade !== 'authorityService') errors.push(`${result.source_module} facade must be authorityService`);
+    if (moduleValue.source_module !== result.source_module) errors.push(`${result.source_module} source_module field must match its path`);
+    if (moduleValue.runtime_dependency_status !== gate.extracted_domain.runtime_dependency_status) errors.push(`${result.source_module} runtime dependency status must remain source-only shadow`);
+    if (moduleValue.exports_public_api !== false) errors.push(`${result.source_module} must not declare public import API`);
+    if (moduleValue.includes_write_capable_agents_command !== false) errors.push(`${result.source_module} must exclude write-capable agents command extraction`);
+    if (moduleValue.writes_files !== false || moduleValue.state_writer !== false) errors.push(`${result.source_module} must remain read-only and non-state-writer`);
+    if (!arrayEquals((moduleValue.read_order_paths || []), expectedReadOrder)) errors.push(`${result.source_module} read_order_paths must match authority first-read order`);
+    sourceModuleStatus = 'present_validated';
+  } else if (result.package_context === 'source_repository') {
+    sourceModuleStatus = 'missing_source_context';
+    errors.push(`${result.source_module} must be present in source repository context`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-second-slice-first-slice-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    validated: {
+      second_slice_plan: plan.status === 'ok',
+      second_slice_status: gate.second_slice_first_slice_status === 'source_only_shadow_module_applied',
+      extracted_domain_is_authority: gate.extracted_domain.id === 'authority',
+      source_module_present_or_installed_context_allowed: sourceModuleStatus === 'present_validated' || sourceModuleStatus === 'not_present_installed_context_allowed',
+      second_slice_first_slice_file_present_or_installed_context_allowed: artifactStatus === 'present_validated' || artifactStatus === 'not_present_installed_context_allowed',
+      write_capable_agents_command_excluded: moduleValue.includes_write_capable_agents_command === false || sourceModuleStatus === 'not_present_installed_context_allowed',
+      commands_no_write: gate.boundary.second_slice_first_slice_command_writes_files === false && gate.boundary.second_slice_first_slice_check_command_writes_files === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles)
+    },
+    source_module: {
+      path: result.source_module,
+      present: result.source_module_present,
+      status: sourceModuleStatus,
+      exports: result.source_module_exports,
+      value: result.source_module_value,
+      source_context_required: result.package_context === 'source_repository'
+    },
+    second_slice_first_slice_file: {
+      path: result.second_slice_first_slice_file,
+      present: result.second_slice_first_slice_file_present,
+      status: artifactStatus,
+      schema: artifactSchema,
+      source_context_required: result.package_context === 'source_repository'
+    },
+    prerequisite_second_slice_plan: {
+      status: plan.status,
+      errors: plan.errors
+    },
+    projected_pack_files: result.projected_pack_files,
+    expected_pack_files: expectedPackFiles,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
+function bundledAuthorityDomainForParity(root = packageRoot()) {
+  const map = publicArchitectureMap(root);
+  const facade = PUBLIC_DOMAIN_SERVICE_FACADES.facades.find((item) => item.id === 'authority');
+  const domain = map.map.canonical_domains.find((item) => item.id === 'authority');
+  return {
+    schema: 'agent-onboard-public-bundled-authority-domain-view-001',
+    domain: domain ? domain.id : null,
+    facade: facade ? facade.service : null,
+    service: facade ? facade.service : null,
+    source: 'cli/agent-onboard.js',
+    owns_commands: PUBLIC_SOURCE_MODULE_EXTRACTION_SECOND_SLICE_FIRST_SLICE.expected_owned_commands.slice(),
+    excluded_commands: ['agents --write', 'agents --preview'],
+    writes_files: false,
+    state_writer: false,
+    state_files: domain ? domain.state_files.slice() : [],
+    read_order_paths: PUBLIC_AUTHORITY_FIRST_READ_INDEX.read_order.map((item) => item.path),
+    package_context: sourceContext(root).package_context
+  };
+}
+
+function publicSourceModuleExtractionAuthorityBundleParity(root = packageRoot()) {
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const sourceSlice = publicSourceModuleExtractionSecondSliceFirstSlice(root);
+  const bundledAuthority = bundledAuthorityDomainForParity(root);
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-authority-bundle-parity-result-001',
+    status: sourceSlice.status,
+    package_name: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.package_name,
+    version: VERSION,
+    release_line: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.release_line,
+    command: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.command,
+    check_command: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    authority_bundle_parity_file: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.authority_bundle_parity_file,
+    authority_bundle_parity_file_present: fs.existsSync(path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.authority_bundle_parity_file)),
+    source_module: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.source_module,
+    source_module_present: fs.existsSync(path.join(root, PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY.source_module)),
+    source_slice_value: sourceSlice.source_module_value,
+    source_slice_load_error: sourceSlice.source_module_load_error,
+    bundled_authority_view: bundledAuthority,
+    authority_bundle_parity: PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY,
+    projected_pack_files: packageJsonProjectedPackFiles(pkg),
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    }
+  };
+}
+
+function publicSourceModuleExtractionAuthorityBundleParityCheck(root = packageRoot()) {
+  const result = publicSourceModuleExtractionAuthorityBundleParity(root);
+  const firstSlice = publicSourceModuleExtractionSecondSliceFirstSliceCheck(root);
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const gate = PUBLIC_SOURCE_MODULE_EXTRACTION_AUTHORITY_BUNDLE_PARITY;
+  const errors = [];
+  if (firstSlice.status !== 'ok') errors.push(...firstSlice.errors.map((error) => `second slice first-slice: ${error}`));
+  if (result.status !== 'ok') errors.push(`authority source slice module load failed: ${result.source_slice_load_error}`);
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.parity_status !== 'authority_source_slice_matches_bundled_cli_view') errors.push('authority bundle parity status must remain authority_source_slice_matches_bundled_cli_view');
+  if (gate.boundary.authority_bundle_parity_command_writes_files !== false) errors.push('architecture --authority-bundle-parity must remain no-write');
+  if (gate.boundary.authority_bundle_parity_check_command_writes_files !== false) errors.push('architecture --authority-bundle-parity-check must remain no-write');
+  if (gate.boundary.creates_bundle_artifact !== false) errors.push('authority bundle parity gate must not create bundle artifacts');
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('authority bundle parity gate must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('authority bundle parity gate must not change CLI runtime dependency graph');
+  if (gate.boundary.includes_write_capable_agents_command !== false) errors.push('authority bundle parity gate must exclude write-capable agents command extraction');
+  if (gate.boundary.package_allowlist_unchanged !== true) errors.push('authority bundle parity gate must preserve package allowlist');
+
+  let parityFileStatus = 'not_present_installed_context_allowed';
+  let parityFileSchema = null;
+  if (result.authority_bundle_parity_file_present) {
+    try {
+      const parityFile = readJson(path.join(root, result.authority_bundle_parity_file));
+      parityFileSchema = parityFile.schema || null;
+      if (parityFile.schema !== gate.schema) errors.push(`${result.authority_bundle_parity_file} schema must be ${gate.schema}`);
+      if (parityFile.source_module !== gate.source_module) errors.push(`${result.authority_bundle_parity_file} source_module must be ${gate.source_module}`);
+      if (parityFile.parity_status !== gate.parity_status) errors.push(`${result.authority_bundle_parity_file} parity_status must be ${gate.parity_status}`);
+      if (!parityFile.boundary || parityFile.boundary.package_allowlist_unchanged !== true) errors.push(`${result.authority_bundle_parity_file} must preserve package_allowlist_unchanged`);
+      if (!parityFile.boundary || parityFile.boundary.includes_write_capable_agents_command !== false) errors.push(`${result.authority_bundle_parity_file} must exclude write-capable agents command extraction`);
+      parityFileStatus = 'present_validated';
+    } catch (error) {
+      parityFileStatus = 'present_invalid_json';
+      errors.push(`${result.authority_bundle_parity_file} is not valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (result.package_context === 'source_repository') {
+    parityFileStatus = 'missing_source_context';
+    errors.push(`${result.authority_bundle_parity_file} must be present in source repository context`);
+  }
+
+  const sourceSlice = result.source_slice_value || null;
+  const sourceContextAllowedMissing = result.package_context === 'installed_package' && !sourceSlice;
+  const commandParity = sourceContextAllowedMissing || (sourceSlice && arrayEquals(sourceSlice.owns_commands || [], result.bundled_authority_view.owns_commands));
+  const domainParity = sourceContextAllowedMissing || (sourceSlice && sourceSlice.domain === result.bundled_authority_view.domain);
+  const facadeParity = sourceContextAllowedMissing || (sourceSlice && sourceSlice.facade === result.bundled_authority_view.facade);
+  const readOrderParity = sourceContextAllowedMissing || (sourceSlice && arrayEquals(sourceSlice.read_order_paths || [], result.bundled_authority_view.read_order_paths));
+  const excludedAgentsParity = sourceContextAllowedMissing || (sourceSlice && sourceSlice.includes_write_capable_agents_command === false && arrayEquals(sourceSlice.excluded_commands || [], result.bundled_authority_view.excluded_commands));
+  const writeParity = sourceContextAllowedMissing || (sourceSlice && sourceSlice.writes_files === result.bundled_authority_view.writes_files && sourceSlice.state_writer === result.bundled_authority_view.state_writer);
+  if (!domainParity) errors.push('authority source slice domain must match bundled authority domain view');
+  if (!facadeParity) errors.push('authority source slice facade must match bundled authority facade view');
+  if (!commandParity) errors.push('authority source slice owned commands must match bundled authority command routes');
+  if (!readOrderParity) errors.push('authority source slice read order must match bundled first-read index');
+  if (!excludedAgentsParity) errors.push('authority source slice must exclude write-capable agents commands');
+  if (!writeParity) errors.push('authority source slice read/write boundary must match bundled authority view');
+
+  return {
+    schema: 'agent-onboard-public-source-module-extraction-authority-bundle-parity-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    validated: {
+      second_slice_first_slice: firstSlice.status === 'ok',
+      authority_bundle_parity_status: gate.parity_status === 'authority_source_slice_matches_bundled_cli_view',
+      source_slice_domain_matches_bundled_authority: domainParity,
+      source_slice_facade_matches_bundled_authority: facadeParity,
+      source_slice_commands_match_bundled_authority: commandParity,
+      source_slice_read_order_matches_bundled_first_read: readOrderParity,
+      write_capable_agents_command_excluded: excludedAgentsParity,
+      source_slice_write_boundary_matches_bundled_authority: writeParity,
+      source_module_present_or_installed_context_allowed: result.source_module_present || result.package_context === 'installed_package',
+      authority_bundle_parity_file_present_or_installed_context_allowed: parityFileStatus === 'present_validated' || parityFileStatus === 'not_present_installed_context_allowed',
+      authority_bundle_parity_commands_no_write: gate.boundary.authority_bundle_parity_command_writes_files === false && gate.boundary.authority_bundle_parity_check_command_writes_files === false,
+      public_cli_outputs_unchanged_by_gate: gate.boundary.changes_public_cli_outputs === false,
+      cli_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles)
+    },
+    source_slice: result.source_slice_value,
+    bundled_authority_view: result.bundled_authority_view,
+    source_authority_bundle_parity_file: {
+      path: result.authority_bundle_parity_file,
+      present: result.authority_bundle_parity_file_present,
+      status: parityFileStatus,
+      schema: parityFileSchema,
+      source_context_required: result.package_context === 'source_repository'
+    },
+    prerequisite_second_slice_first_slice: {
+      status: firstSlice.status,
+      errors: firstSlice.errors
+    },
+    projected_pack_files: result.projected_pack_files,
+    expected_pack_files: expectedPackFiles,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
 function publicArchitectureCheck(root = packageRoot()) {
   const map = publicArchitectureMap(root);
   const expectedDomains = ['core', 'authority', 'work_items', 'claims', 'target', 'release_package'];
@@ -9605,6 +10542,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const compatibilityPortErrors = compatibilityPort.errors.map((error) => `compatibility command port seed: ${error}`);
   const coreAdapter = publicCoreCommandAdapterExtractionCheck(root);
   const coreAdapterErrors = coreAdapter.errors.map((error) => `core command adapter extraction: ${error}`);
+  const packageAdapter = publicPackageCommandAdapterExtractionCheck(root);
+  const packageAdapterErrors = packageAdapter.errors.map((error) => `package command adapter extraction: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -9671,12 +10610,14 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.architecture_compatibility_port_check_command_writes_files !== false) errors.push('architecture compatibility port check command must remain no-write');
   if (map.map.package_boundary.architecture_core_adapter_command_writes_files !== false) errors.push('architecture core adapter command must remain no-write');
   if (map.map.package_boundary.architecture_core_adapter_check_command_writes_files !== false) errors.push('architecture core adapter check command must remain no-write');
+  if (map.map.package_boundary.architecture_package_adapter_command_writes_files !== false) errors.push('architecture package adapter command must remain no-write');
+  if (map.map.package_boundary.architecture_package_adapter_check_command_writes_files !== false) errors.push('architecture package adapter check command must remain no-write');
   if (map.map.package_boundary.version_sprawl_check_command_writes_files !== false) errors.push('version sprawl check command must remain no-write');
   if (map.map.package_boundary.authority_first_read_command_writes_files !== false) errors.push('authority first-read command must remain no-write');
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors, ...compatibilityPortErrors, ...coreAdapterErrors, ...packageAdapterErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -9691,7 +10632,7 @@ function publicArchitectureCheck(root = packageRoot()) {
       domain_ids_unique: new Set(domainIds).size === domainIds.length,
       runtime_entrypoint_present: map.current_runtime.entrypoint_exists,
       compact_package_boundary: arrayEquals(projectedPackFiles, expectedPackFiles),
-      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.architecture_partition_plan_command_writes_files === false && map.map.package_boundary.architecture_partition_check_command_writes_files === false && map.map.package_boundary.architecture_extraction_rehearsal_command_writes_files === false && map.map.package_boundary.architecture_extraction_check_command_writes_files === false && map.map.package_boundary.architecture_golden_outputs_command_writes_files === false && map.map.package_boundary.architecture_golden_check_command_writes_files === false && map.map.package_boundary.architecture_adapter_boundary_command_writes_files === false && map.map.package_boundary.architecture_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_first_slice_command_writes_files === false && map.map.package_boundary.architecture_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_plan_command_writes_files === false && map.map.package_boundary.architecture_second_slice_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_plan_command_writes_files === false && map.map.package_boundary.architecture_work_items_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_claims_plan_command_writes_files === false && map.map.package_boundary.architecture_claims_check_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_check_command_writes_files === false && map.map.package_boundary.version_sprawl_check_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
+      architecture_commands_no_write: map.map.package_boundary.architecture_map_command_writes_files === false && map.map.package_boundary.architecture_check_command_writes_files === false && map.map.package_boundary.architecture_router_command_writes_files === false && map.map.package_boundary.architecture_facades_command_writes_files === false && map.map.package_boundary.architecture_partition_plan_command_writes_files === false && map.map.package_boundary.architecture_partition_check_command_writes_files === false && map.map.package_boundary.architecture_extraction_rehearsal_command_writes_files === false && map.map.package_boundary.architecture_extraction_check_command_writes_files === false && map.map.package_boundary.architecture_golden_outputs_command_writes_files === false && map.map.package_boundary.architecture_golden_check_command_writes_files === false && map.map.package_boundary.architecture_adapter_boundary_command_writes_files === false && map.map.package_boundary.architecture_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_first_slice_command_writes_files === false && map.map.package_boundary.architecture_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_plan_command_writes_files === false && map.map.package_boundary.architecture_second_slice_check_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_command_writes_files === false && map.map.package_boundary.architecture_second_slice_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_authority_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_authority_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_command_writes_files === false && map.map.package_boundary.architecture_m2_seed_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_plan_command_writes_files === false && map.map.package_boundary.architecture_work_items_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_command_writes_files === false && map.map.package_boundary.architecture_work_items_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_work_items_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_work_items_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_work_items_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_claims_plan_command_writes_files === false && map.map.package_boundary.architecture_claims_check_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_command_writes_files === false && map.map.package_boundary.architecture_claims_first_slice_check_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_command_writes_files === false && map.map.package_boundary.architecture_claims_bundle_parity_check_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_command_writes_files === false && map.map.package_boundary.architecture_claims_runtime_bridge_check_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_smoke_command_writes_files === false && map.map.package_boundary.architecture_claims_installed_fallback_check_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_command_writes_files === false && map.map.package_boundary.architecture_core_adapter_check_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_command_writes_files === false && map.map.package_boundary.architecture_package_adapter_check_command_writes_files === false && map.map.package_boundary.version_sprawl_check_command_writes_files === false && map.map.package_boundary.authority_first_read_command_writes_files === false && map.map.package_boundary.authority_check_command_writes_files === false,
       command_router_boundary: router.status === 'ok',
       domain_service_facades: facades.status === 'ok',
       authority_first_read_index: authority.status === 'ok',
@@ -9760,6 +10701,7 @@ function publicArchitectureCheck(root = packageRoot()) {
     thin_cli_router_seed: thinCliRouter,
     compatibility_command_port_seed: compatibilityPort,
     core_command_adapter_extraction: coreAdapter,
+    package_command_adapter_extraction: packageAdapter,
     boundary: map.boundary,
     errors
   };
@@ -10138,6 +11080,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const thinCliRouter = publicThinCliRouterSeedCheck(root);
   const compatibilityPort = publicCompatibilityCommandPortSeedCheck(root);
   const coreAdapter = publicCoreCommandAdapterExtractionCheck(root);
+  const packageAdapter = publicPackageCommandAdapterExtractionCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
@@ -10168,6 +11111,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   if (thinCliRouter.status !== 'ok') componentErrors.push(...thinCliRouter.errors.map((error) => `thin CLI router seed: ${error}`));
   if (compatibilityPort.status !== 'ok') componentErrors.push(...compatibilityPort.errors.map((error) => `compatibility command port seed: ${error}`));
   if (coreAdapter.status !== 'ok') componentErrors.push(...coreAdapter.errors.map((error) => `core command adapter extraction: ${error}`));
+  if (packageAdapter.status !== 'ok') componentErrors.push(...packageAdapter.errors.map((error) => `package command adapter extraction: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -10941,6 +11885,15 @@ function runArchitecture(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--package-adapter') {
+    json(publicPackageCommandAdapterExtraction());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--package-adapter-check') {
+    const result = publicPackageCommandAdapterExtractionCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -10950,7 +11903,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, --compatibility-port, --compatibility-port-check, --core-adapter, --core-adapter-check, --package-adapter, --package-adapter-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -11053,6 +12006,8 @@ function runRelease(args) {
       architecture_compatibility_port_check_command: PUBLIC_RELEASE_CONTRACT.architecture_compatibility_port_check_command,
       architecture_core_adapter_command: PUBLIC_RELEASE_CONTRACT.architecture_core_adapter_command,
       architecture_core_adapter_check_command: PUBLIC_RELEASE_CONTRACT.architecture_core_adapter_check_command,
+      architecture_package_adapter_command: PUBLIC_RELEASE_CONTRACT.architecture_package_adapter_command,
+      architecture_package_adapter_check_command: PUBLIC_RELEASE_CONTRACT.architecture_package_adapter_check_command,
       version_sprawl_check_command: PUBLIC_RELEASE_CONTRACT.version_sprawl_check_command,
       architecture_check_command: PUBLIC_RELEASE_CONTRACT.architecture_check_command,
       authority_first_read_command: PUBLIC_RELEASE_CONTRACT.authority_first_read_command,
@@ -11088,6 +12043,8 @@ function runRelease(args) {
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
       source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       cli_runtime_de_monolith_planning: PUBLIC_CLI_RUNTIME_DE_MONOLITH_PLANNING,
+      core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
+      package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -11139,6 +12096,8 @@ function runRelease(args) {
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
       source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       cli_runtime_de_monolith_planning: PUBLIC_CLI_RUNTIME_DE_MONOLITH_PLANNING,
+      core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
+      package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -11184,6 +12143,8 @@ function runRelease(args) {
       source_module_extraction_claims_installed_fallback_smoke: PUBLIC_CLAIMS_DOMAIN_SOURCE_EXTRACTION_INSTALLED_FALLBACK_SMOKE,
       source_domain_extraction_stabilization_closure_review: PUBLIC_SOURCE_DOMAIN_EXTRACTION_STABILIZATION_CLOSURE_REVIEW,
       cli_runtime_de_monolith_planning: PUBLIC_CLI_RUNTIME_DE_MONOLITH_PLANNING,
+      core_command_adapter_extraction: PUBLIC_CORE_COMMAND_ADAPTER_EXTRACTION,
+      package_command_adapter_extraction: PUBLIC_PACKAGE_COMMAND_ADAPTER_EXTRACTION,
       version_reference_policy: PUBLIC_VERSION_REFERENCE_POLICY,
       authority_first_read_index: PUBLIC_AUTHORITY_FIRST_READ_INDEX,
       target_runtime_namespace: PUBLIC_TARGET_RUNTIME_NAMESPACE,
@@ -11975,7 +12936,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 

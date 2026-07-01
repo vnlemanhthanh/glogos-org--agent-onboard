@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.62",
+  "version": "0.0.63",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -256,7 +256,11 @@
     "core-adapter-extraction",
     "public-core-adapter",
     "command-adapter-extraction",
-    "core-command-surface"
+    "core-command-surface",
+    "package-command-adapter",
+    "release-command-adapter",
+    "public-package-adapter",
+    "release-package-adapter"
   ],
   "type": "commonjs",
   "engines": {

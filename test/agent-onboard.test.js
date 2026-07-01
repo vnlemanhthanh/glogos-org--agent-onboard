@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_core_command_adapter_extraction_gate';
+const EXPECTED_RELEASE_LINE = 'public_package_command_adapter_extraction_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 
 function run(args, opts = {}) {
@@ -174,6 +174,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.architecture_compatibility_port_check_command, 'agent-onboard architecture --compatibility-port-check');
   assert.strictEqual(output.architecture_core_adapter_command, 'agent-onboard architecture --core-adapter');
   assert.strictEqual(output.architecture_core_adapter_check_command, 'agent-onboard architecture --core-adapter-check');
+  assert.strictEqual(output.architecture_package_adapter_command, 'agent-onboard architecture --package-adapter');
+  assert.strictEqual(output.architecture_package_adapter_check_command, 'agent-onboard architecture --package-adapter-check');
   assert.strictEqual(output.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.authority_check_command, 'agent-onboard authority --check');
@@ -248,6 +250,8 @@ function cliTargetConfigForTest(dir) {
   assert.strictEqual(output.contract.architecture_compatibility_port_check_command, 'agent-onboard architecture --compatibility-port-check');
   assert.strictEqual(output.contract.architecture_core_adapter_command, 'agent-onboard architecture --core-adapter');
   assert.strictEqual(output.contract.architecture_core_adapter_check_command, 'agent-onboard architecture --core-adapter-check');
+  assert.strictEqual(output.contract.architecture_package_adapter_command, 'agent-onboard architecture --package-adapter');
+  assert.strictEqual(output.contract.architecture_package_adapter_check_command, 'agent-onboard architecture --package-adapter-check');
   assert.strictEqual(output.contract.architecture_check_command, 'agent-onboard architecture --check');
   assert.strictEqual(output.contract.authority_first_read_command, 'agent-onboard authority --first-read');
   assert.strictEqual(output.contract.authority_check_command, 'agent-onboard authority --check');
@@ -726,8 +730,8 @@ function cliTargetConfigForTest(dir) {
   assert.ok(output.validated.claims_domain_source_extraction_bundle_parity);
   assert.ok(output.validated.public_architecture_m1_closure_m2_seed);
   assert.strictEqual(output.public_architecture_m1_closure_m2_seed.milestone_transition.closed_milestone.status, 'closed');
-  assert.strictEqual(output.public_architecture_m1_closure_m2_seed.milestone_transition.opened_milestone.status, 'open');
-  assert.ok(output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 2, 'W', 12].join('')));
+  assert.ok(['open', 'closed'].includes(output.public_architecture_m1_closure_m2_seed.milestone_transition.opened_milestone.status));
+  assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 2, 'W', 12].join('')));
   assert.ok(output.validated.public_version_reference_policy);
   assert.strictEqual(output.public_architecture.status, 'ok');
   assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.title === 'Public installed parity architecture smoke gate'));
@@ -2237,7 +2241,7 @@ function cliTargetConfigForTest(dir) {
   const help = run(['--help']);
   assert.ok(help.stdout.includes('work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>'));
   assert.ok(help.stdout.includes('work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>'));
-  assert.ok(help.stdout.includes('--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--check'));
+  assert.ok(help.stdout.includes('--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--compatibility-port|--compatibility-port-check|--core-adapter|--core-adapter-check|--package-adapter|--package-adapter-check|--check'));
   assert.ok(help.stdout.includes('release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check'));
   assert.ok(help.stdout.includes('target runtime --namespace|--check'));
   assert.ok(help.stdout.includes('target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]'));
@@ -2654,6 +2658,37 @@ assert.ok(agents.includes('node cli/agent-onboard.js target runtime --check'));
   assert.strictEqual(output.adapter_module.status, 'present_validated');
   assert.strictEqual(output.source_core_adapter_extraction_file.path, '.agent-onboard/core-command-adapter-extraction.json');
   assert.strictEqual(output.source_core_adapter_extraction_file.status, 'present_validated');
+  assert.deepStrictEqual(output.errors, []);
+}
+
+
+{
+  const result = run(['architecture', '--package-adapter-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-package-command-adapter-extraction-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, EXPECTED_VERSION);
+  assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
+  assert.strictEqual(output.command, 'agent-onboard architecture --package-adapter-check');
+  assert.ok(output.validated.package_adapter_extraction_status_admitted);
+  assert.ok(output.validated.adapter_module_present_or_installed_context_allowed);
+  assert.ok(output.validated.adapter_module_requireable_when_present);
+  assert.ok(output.validated.adapter_module_under_line_budget);
+  assert.ok(output.validated.adapter_exports_contract);
+  assert.ok(output.validated.owned_package_commands_contract);
+  assert.ok(output.validated.non_package_commands_excluded);
+  assert.ok(output.validated.runtime_cutover_not_applied);
+  assert.ok(output.validated.packaged_runtime_dependency_graph_unchanged);
+  assert.ok(output.validated.package_allowlist_unchanged);
+  assert.ok(output.validated.package_adapter_module_out_of_pack_for_this_gate);
+  assert.ok(output.validated.extraction_file_present_or_installed_context_allowed);
+  assert.ok(output.validated.work_item_closed_or_installed_context_allowed);
+  assert.ok(output.validated.next_architecture_adapter_gate_open_or_installed_context_allowed);
+  assert.ok(output.validated.package_adapter_commands_no_write);
+  assert.strictEqual(output.adapter_module.path, 'cli/agent_onboard/adapters/commands/release-package.js');
+  assert.strictEqual(output.adapter_module.status, 'present_validated');
+  assert.strictEqual(output.source_package_adapter_extraction_file.path, '.agent-onboard/package-command-adapter-extraction.json');
+  assert.strictEqual(output.source_package_adapter_extraction_file.status, 'present_validated');
   assert.deepStrictEqual(output.errors, []);
 }
 

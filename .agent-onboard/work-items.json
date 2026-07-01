@@ -2229,6 +2229,42 @@
       "id": "P1S3M3W5",
       "milestone_id": "P1S3M3",
       "title": "Public package command adapter extraction gate",
+      "status": "closed",
+      "closure": {
+        "actor": "chatgpt-gpt-5.5-thinking",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by admitting the public package command adapter extraction gate: the release command family now has a source-only command adapter contract under the compatibility command port, while the packaged CLI runtime and compact npm package allowlist remain unchanged.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/package-command-adapter-extraction.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/release-package.js",
+          "package.json",
+          "README.md",
+          "AGENTS.md",
+          "llms.txt",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/release-package.js",
+          "node cli/agent-onboard.js architecture --package-adapter",
+          "node cli/agent-onboard.js architecture --package-adapter-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W6",
+      "milestone_id": "P1S3M3",
+      "title": "Public architecture command adapter extraction gate",
       "status": "open"
     }
   ]
