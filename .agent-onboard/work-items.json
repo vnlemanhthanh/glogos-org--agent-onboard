@@ -2093,6 +2093,48 @@
       "id": "P1S3M3W2",
       "milestone_id": "P1S3M3",
       "title": "Public thin CLI router seed gate",
+      "status": "closed",
+      "closure": {
+        "actor": "release-maintainer",
+        "closed_at": "2026-07-01T00:00:00.000Z",
+        "summary": "Closed by seeding the public thin CLI router source module and validation gate without changing the packaged runtime entrypoint or compact npm package surface.",
+        "changed_files": [
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/command-router.js",
+          "test/agent-onboard.test.js",
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/thin-cli-router-seed.json"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/command-router.js",
+          "node -c test/agent-onboard.test.js",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js architecture --thin-router",
+          "node cli/agent-onboard.js architecture --thin-router-check",
+          "node cli/agent-onboard.js architecture --cli-runtime-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "npm pack --dry-run --json",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node cli/agent-onboard.js release --architecture-parity-smoke",
+          "installed tarball smoke: status, architecture --thin-router-check, architecture --check, release --check"
+        ],
+        "checks_not_run": [
+          "npm publish --dry-run --json --ignore-scripts"
+        ],
+        "known_non_pass": [
+          "Full npm test may exceed short sandbox execution windows because it exercises the full accumulated smoke suite; targeted syntax, architecture, release, ledger, pack, and installed-tarball smoke checks are the claimed gate checks."
+        ]
+      }
+    },
+    {
+      "id": "P1S3M3W3",
+      "milestone_id": "P1S3M3",
+      "title": "Public compatibility command port seed gate",
       "status": "open"
     }
   ]

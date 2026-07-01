@@ -1,0 +1,28 @@
+{
+  "schema": "agent-onboard-public-thin-cli-router-seed-001",
+  "package_name": "agent-onboard",
+  "version_source": "package.json#version",
+  "release_line": "public_thin_cli_router_seed_gate",
+  "milestone_id": "P1S3M3",
+  "work_item_id": "P1S3M3W2",
+  "next_work_item_id": "P1S3M3W3",
+  "seed_status": "thin_cli_router_seed_admitted",
+  "router_module": "cli/agent_onboard/command-router.js",
+  "entrypoint": "cli/agent-onboard.js",
+  "runtime_cutover_applied": false,
+  "package_strategy": "controlled_source_module_inclusion",
+  "package_allowlist_unchanged_for_this_gate": true,
+  "router_seed_max_lines": 500,
+  "boundary": {
+    "thin_router_command_writes_files": false,
+    "thin_router_check_command_writes_files": false,
+    "changes_public_cli_outputs": false,
+    "changes_cli_runtime_dependency_graph": false,
+    "uses_router_module_as_runtime_entrypoint": false,
+    "source_router_module_remains_out_of_pack": true,
+    "package_allowlist_unchanged": true,
+    "git_mutation": false,
+    "publishes_package": false
+  },
+  "next_candidate": "P1S3M3W3 \u2014 Public compatibility command port seed gate"
+}

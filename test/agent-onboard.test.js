@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_cli_runtime_de_monolith_planning_gate';
+const EXPECTED_RELEASE_LINE = 'public_thin_cli_router_seed_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 
 function run(args, opts = {}) {
@@ -2551,6 +2551,35 @@ assert.ok(agents.includes('node cli/agent-onboard.js target runtime --check'));
   assert.strictEqual(output.source_cli_runtime_plan_file.status, 'present_validated');
   assert.strictEqual(output.selected_package_strategy.id, 'controlled_source_module_inclusion');
   assert.strictEqual(output.cli_line_budget.target_entrypoint_max_lines, 300);
+  assert.deepStrictEqual(output.errors, []);
+}
+
+
+{
+  const result = run(['architecture', '--thin-router-check']);
+  const output = readJsonOutput(result);
+  assert.strictEqual(output.schema, 'agent-onboard-public-thin-cli-router-seed-check-result-001');
+  assert.strictEqual(output.status, 'ok');
+  assert.strictEqual(output.version, EXPECTED_VERSION);
+  assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
+  assert.strictEqual(output.command, 'agent-onboard architecture --thin-router-check');
+  assert.ok(output.validated.router_seed_status_admitted);
+  assert.ok(output.validated.router_module_present_or_installed_context_allowed);
+  assert.ok(output.validated.router_module_requireable_when_present);
+  assert.ok(output.validated.router_module_under_line_budget);
+  assert.ok(output.validated.router_exports_contract);
+  assert.ok(output.validated.runtime_cutover_not_applied);
+  assert.ok(output.validated.packaged_runtime_dependency_graph_unchanged);
+  assert.ok(output.validated.package_allowlist_unchanged);
+  assert.ok(output.validated.router_module_out_of_pack_for_this_gate);
+  assert.ok(output.validated.seed_file_present_or_installed_context_allowed);
+  assert.ok(output.validated.work_item_closed_or_installed_context_allowed);
+  assert.ok(output.validated.next_port_gate_open_or_installed_context_allowed);
+  assert.ok(output.validated.thin_router_commands_no_write);
+  assert.strictEqual(output.router_module.path, 'cli/agent_onboard/command-router.js');
+  assert.strictEqual(output.router_module.status, 'present_validated');
+  assert.strictEqual(output.source_thin_router_seed_file.path, '.agent-onboard/thin-cli-router-seed.json');
+  assert.strictEqual(output.source_thin_router_seed_file.status, 'present_validated');
   assert.deepStrictEqual(output.errors, []);
 }
 

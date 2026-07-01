@@ -6,7 +6,7 @@ const os = require('os');
 const path = require('path');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_cli_runtime_de_monolith_planning_gate';
+const RELEASE_LINE = 'public_thin_cli_router_seed_gate';
 
 process.stdout.on('error', (error) => {
   if (error && error.code === 'EPIPE') process.exit(0);
@@ -332,6 +332,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     claims_domain_source_extraction_installed_fallback_smoke_file: '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
     source_domain_extraction_stabilization_closure_review_file: '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     cli_runtime_de_monolith_planning_file: '.agent-onboard/cli-runtime-de-monolith-planning.json',
+    thin_cli_router_seed_file: '.agent-onboard/thin-cli-router-seed.json',
+    thin_cli_router_seed_module: 'cli/agent_onboard/command-router.js',
     claims_domain_source_extraction_module: 'src/domains/claims.js',
     claims_domain_source_extraction_planned_module: 'src/domains/claims.js',
     work_items_domain_source_extraction_module: 'src/domains/work-items.js',
@@ -403,6 +405,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     architecture_source_domain_closure_check_command_writes_files: false,
     architecture_cli_runtime_plan_command_writes_files: false,
     architecture_cli_runtime_check_command_writes_files: false,
+    architecture_thin_router_command_writes_files: false,
+    architecture_thin_router_check_command_writes_files: false,
     version_sprawl_check_command_writes_files: false,
     published_package_surface_file_count: 4,
     command_router_dispatch_must_be_table_driven: true,
@@ -433,7 +437,8 @@ const PUBLIC_ARCHITECTURE_MAP = Object.freeze({
     claims_domain_source_extraction_bundle_parity_applied: true,
     claims_domain_source_extraction_runtime_bridge_applied: true,
     claims_domain_source_extraction_installed_fallback_smoke_applied: true,
-    cli_runtime_de_monolith_planning_applied: true
+    cli_runtime_de_monolith_planning_applied: true,
+    thin_cli_router_seed_applied: true
   }),
   next_candidate_gates: Object.freeze([
     Object.freeze({
@@ -661,6 +666,8 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
     '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     '.agent-onboard/cli-runtime-de-monolith-planning.json',
+    '.agent-onboard/thin-cli-router-seed.json',
+    'cli/agent_onboard/command-router.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2109,6 +2116,52 @@ const PUBLIC_CLI_RUNTIME_DE_MONOLITH_PLANNING = Object.freeze({
   })
 });
 
+
+const PUBLIC_THIN_CLI_ROUTER_SEED = Object.freeze({
+  schema: 'agent-onboard-public-thin-cli-router-seed-001',
+  title: 'Agent-Onboard Public Thin CLI Router Seed Gate',
+  package_name: 'agent-onboard',
+  release_line: RELEASE_LINE,
+  command: 'agent-onboard architecture --thin-router',
+  check_command: 'agent-onboard architecture --thin-router-check',
+  seed_file: '.agent-onboard/thin-cli-router-seed.json',
+  router_module: 'cli/agent_onboard/command-router.js',
+  milestone_id: 'P1S3M3',
+  work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 2].join(''),
+  next_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 3].join(''),
+  seed_status: 'thin_cli_router_seed_admitted',
+  runtime_cutover_applied: false,
+  package_strategy: 'controlled_source_module_inclusion',
+  entrypoint: 'cli/agent-onboard.js',
+  router_seed_max_lines: 500,
+  expected_router_export_names: Object.freeze(['ROUTER_SEED', 'describeRouterSeed', 'route']),
+  expected_top_level_commands: Object.freeze(['help', 'version', 'status', 'init', 'agents', 'guard', 'authority', 'architecture', 'release', 'target-config', 'work-items', 'target', 'target-instance']),
+  acceptance_criteria: Object.freeze([
+    'Create the public source-only command router module at cli/agent_onboard/command-router.js.',
+    'Keep cli/agent-onboard.js as the packaged runtime entrypoint for this seed gate.',
+    'Keep the compact npm package allowlist unchanged until the controlled source-module inclusion gate.',
+    'Require the router module to be side-effect-free on require and under the router seed line budget.',
+    'Seed the next compatibility command port gate.'
+  ]),
+  boundary: Object.freeze({
+    thin_router_command_writes_files: false,
+    thin_router_check_command_writes_files: false,
+    changes_public_cli_outputs: false,
+    changes_cli_runtime_dependency_graph: false,
+    uses_router_module_as_runtime_entrypoint: false,
+    source_router_module_remains_out_of_pack: true,
+    package_allowlist_unchanged: true,
+    creates_runtime_module: true,
+    writes_target_repository_state: false,
+    git_mutation: false,
+    installs_dependencies: false,
+    runs_package_manager: false,
+    runs_build_test_deploy: false,
+    publishes_package: false,
+    mutates_registry: false
+  })
+});
+
 const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
   schema: 'agent-onboard-public-version-reference-policy-001',
   title: 'Agent-Onboard Public Version Reference Policy',
@@ -2149,6 +2202,8 @@ const PUBLIC_VERSION_REFERENCE_POLICY = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
     '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     '.agent-onboard/cli-runtime-de-monolith-planning.json',
+    '.agent-onboard/thin-cli-router-seed.json',
+    'cli/agent_onboard/command-router.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -2236,6 +2291,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
   architecture_source_domain_closure_check_command: 'agent-onboard architecture --source-domain-closure-check',
   architecture_cli_runtime_plan_command: 'agent-onboard architecture --cli-runtime-plan',
   architecture_cli_runtime_check_command: 'agent-onboard architecture --cli-runtime-check',
+  architecture_thin_router_command: 'agent-onboard architecture --thin-router',
+  architecture_thin_router_check_command: 'agent-onboard architecture --thin-router-check',
   version_sprawl_check_command: 'agent-onboard release --version-sprawl-check',
   architecture_check_command: 'agent-onboard architecture --check',
   authority_first_read_command: 'agent-onboard authority --first-read',
@@ -2278,6 +2335,8 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
     '.agent-onboard/source-module-extraction-claims-installed-fallback-smoke.json',
     '.agent-onboard/source-domain-extraction-stabilization-closure-review.json',
     '.agent-onboard/cli-runtime-de-monolith-planning.json',
+    '.agent-onboard/thin-cli-router-seed.json',
+    'cli/agent_onboard/command-router.js',
     'src/domains/core.js',
     'src/domains/authority.js',
     'src/domains/work-items.js',
@@ -7999,7 +8058,7 @@ function publicCliRuntimeDeMonolithPlanningCheck(root = packageRoot()) {
     if (!workItem) errors.push(`${gate.work_item_id} work item must exist`);
     else if (workItem.status !== 'closed') errors.push(`${gate.work_item_id} work item must be closed`);
     if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
-    else if (nextWorkItem.status !== 'open') errors.push(`${gate.next_work_item_id} work item must be open`);
+    else if (!['open', 'closed'].includes(nextWorkItem.status)) errors.push(`${gate.next_work_item_id} work item must be open or closed after router seed admission`);
   }
 
   return {
@@ -8020,7 +8079,7 @@ function publicCliRuntimeDeMonolithPlanningCheck(root = packageRoot()) {
       monolith_growth_blocked: gate.cli_line_budget.current_monolith_growth_allowed === false && gate.cli_line_budget.no_new_domain_logic_in_monolith === true,
       planning_file_present_or_installed_context_allowed: fileStatus === 'present_validated' || fileStatus === 'not_present_installed_context_allowed',
       work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
-      next_router_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && nextWorkItem.status === 'open'),
+      next_router_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && ['open', 'closed'].includes(nextWorkItem.status)),
       cli_runtime_commands_no_write: gate.boundary.cli_runtime_plan_command_writes_files === false && gate.boundary.cli_runtime_check_command_writes_files === false
     },
     observed_runtime: result.observed_runtime,
@@ -8035,6 +8094,189 @@ function publicCliRuntimeDeMonolithPlanningCheck(root = packageRoot()) {
       schema: fileSchema,
       source_context_required: sourceLedgerRequired
     },
+    expected_pack_files: expectedPackFiles,
+    projected_pack_files: result.projected_pack_files,
+    boundary: result.boundary,
+    errors
+  };
+}
+
+
+function publicThinCliRouterSeed(root = packageRoot()) {
+  const gate = PUBLIC_THIN_CLI_ROUTER_SEED;
+  const pkg = readJson(path.join(root, 'package.json'));
+  const context = sourceContext(root);
+  const routerModulePath = path.join(root, gate.router_module);
+  const artifactPath = path.join(root, gate.seed_file);
+  const routerLineCount = countFileLines(root, gate.router_module);
+  let routerModuleStatus = 'not_present_installed_context_allowed';
+  let routerModuleSchema = null;
+  let routerModuleExports = [];
+  let routerRequireError = null;
+  if (fs.existsSync(routerModulePath)) {
+    try {
+      delete require.cache[require.resolve(routerModulePath)];
+      const routerModule = require(routerModulePath);
+      routerModuleExports = Object.keys(routerModule).sort();
+      const described = typeof routerModule.describeRouterSeed === 'function' ? routerModule.describeRouterSeed() : null;
+      routerModuleSchema = described && described.schema ? described.schema : null;
+      routerModuleStatus = 'present_validated';
+    } catch (error) {
+      routerModuleStatus = 'present_require_failed';
+      routerRequireError = error && error.message ? error.message : String(error);
+    }
+  }
+  const ledgerPath = path.join(root, '.agent-onboard', 'work-items.json');
+  let ledger = null;
+  if (fs.existsSync(ledgerPath)) {
+    try { ledger = readJson(ledgerPath); } catch { ledger = null; }
+  }
+  const workItems = ledger && Array.isArray(ledger.work_items) ? ledger.work_items : [];
+  return {
+    schema: 'agent-onboard-public-thin-cli-router-seed-result-001',
+    status: 'ok',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.command,
+    check_command: gate.check_command,
+    package_root: root,
+    package_context: context.package_context,
+    package_json_version: pkg.version,
+    seed_file: gate.seed_file,
+    seed_file_present: fs.existsSync(artifactPath),
+    router_module: {
+      path: gate.router_module,
+      present: fs.existsSync(routerModulePath),
+      status: routerModuleStatus,
+      schema: routerModuleSchema,
+      exports: routerModuleExports,
+      require_error: routerRequireError,
+      line_count: routerLineCount,
+      max_lines: gate.router_seed_max_lines
+    },
+    runtime_cutover: {
+      applied: gate.runtime_cutover_applied,
+      entrypoint: gate.entrypoint,
+      entrypoint_line_count: countFileLines(root, gate.entrypoint),
+      router_module_used_by_entrypoint_in_this_gate: gate.boundary.uses_router_module_as_runtime_entrypoint
+    },
+    package_strategy: gate.package_strategy,
+    expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
+    projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
+    milestone_state: {
+      work_item: workItems.find((item) => item.id === gate.work_item_id) || null,
+      next_work_item: workItems.find((item) => item.id === gate.next_work_item_id) || null
+    },
+    router_contract: gate,
+    boundary: {
+      writes_files: false,
+      writes_source_state: false,
+      writes_target_repository_state: false,
+      git_mutation: false,
+      installs_dependencies: false,
+      runs_package_manager: false,
+      runs_build_test_deploy: false,
+      publishes_package: false,
+      mutates_registry: false
+    },
+    errors: []
+  };
+}
+
+function publicThinCliRouterSeedCheck(root = packageRoot()) {
+  const result = publicThinCliRouterSeed(root);
+  const gate = PUBLIC_THIN_CLI_ROUTER_SEED;
+  const sourceLedgerRequired = result.package_context === 'source_repository';
+  const expectedPackFiles = PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort();
+  const errors = [];
+  if (gate.seed_status !== 'thin_cli_router_seed_admitted') errors.push('thin CLI router seed status must be admitted');
+  if (gate.runtime_cutover_applied !== false) errors.push('router seed gate must not apply runtime cutover');
+  if (gate.package_strategy !== 'controlled_source_module_inclusion') errors.push('router seed must preserve controlled_source_module_inclusion package strategy');
+  if (!arrayEquals(result.projected_pack_files, expectedPackFiles)) errors.push(`projected npm pack files must remain ${expectedPackFiles.join(', ')}`);
+  if (gate.boundary.thin_router_command_writes_files !== false) errors.push('architecture --thin-router must remain no-write');
+  if (gate.boundary.thin_router_check_command_writes_files !== false) errors.push('architecture --thin-router-check must remain no-write');
+  if (gate.boundary.changes_public_cli_outputs !== false) errors.push('router seed must not change public CLI outputs');
+  if (gate.boundary.changes_cli_runtime_dependency_graph !== false) errors.push('router seed must not change packaged CLI runtime dependency graph');
+  if (gate.boundary.uses_router_module_as_runtime_entrypoint !== false) errors.push('router seed must not use the source router module as the packaged runtime entrypoint yet');
+  if (gate.boundary.source_router_module_remains_out_of_pack !== true) errors.push('source router module must remain out of npm pack for this gate');
+  if (result.router_module.line_count > gate.router_seed_max_lines) errors.push(`${gate.router_module} must stay within ${gate.router_seed_max_lines} lines`);
+
+  let artifactStatus = 'not_present_installed_context_allowed';
+  let artifactSchema = null;
+  const artifactPath = path.join(root, gate.seed_file);
+  if (fs.existsSync(artifactPath)) {
+    try {
+      const artifact = readJson(artifactPath);
+      artifactSchema = artifact.schema || null;
+      if (artifact.schema !== gate.schema) errors.push(`${gate.seed_file} schema must be ${gate.schema}`);
+      if (artifact.work_item_id !== gate.work_item_id) errors.push(`${gate.seed_file} must identify ${gate.work_item_id}`);
+      if (artifact.next_work_item_id !== gate.next_work_item_id) errors.push(`${gate.seed_file} must seed ${gate.next_work_item_id}`);
+      if (artifact.router_module !== gate.router_module) errors.push(`${gate.seed_file} must declare ${gate.router_module}`);
+      if (artifact.runtime_cutover_applied !== false) errors.push(`${gate.seed_file} must not apply runtime cutover`);
+      if (!artifact.boundary || artifact.boundary.package_allowlist_unchanged !== true) errors.push(`${gate.seed_file} must preserve package_allowlist_unchanged`);
+      artifactStatus = 'present_validated';
+    } catch (error) {
+      artifactStatus = 'present_invalid_json';
+      errors.push(`${gate.seed_file} must be valid JSON: ${error && error.message ? error.message : String(error)}`);
+    }
+  } else if (sourceLedgerRequired) {
+    artifactStatus = 'missing_source_context';
+    errors.push(`${gate.seed_file} must exist in source repository context`);
+  }
+
+  const routerModulePresentOrAllowed = result.router_module.present || result.package_context === 'installed_package';
+  if (!routerModulePresentOrAllowed) errors.push(`${gate.router_module} must exist in source repository context`);
+  if (result.router_module.present) {
+    if (result.router_module.status !== 'present_validated') errors.push(`${gate.router_module} must be require-able without side effects${result.router_module.require_error ? `: ${result.router_module.require_error}` : ''}`);
+    if (result.router_module.schema !== 'agent-onboard-public-thin-cli-router-seed-module-001') errors.push(`${gate.router_module} must expose router seed module schema`);
+    for (const exportName of gate.expected_router_export_names) {
+      if (!result.router_module.exports.includes(exportName)) errors.push(`${gate.router_module} must export ${exportName}`);
+    }
+  }
+  const workItem = result.milestone_state.work_item;
+  const nextWorkItem = result.milestone_state.next_work_item;
+  if (sourceLedgerRequired) {
+    if (!workItem) errors.push(`${gate.work_item_id} work item must exist`);
+    else if (workItem.status !== 'closed') errors.push(`${gate.work_item_id} work item must be closed`);
+    if (!nextWorkItem) errors.push(`${gate.next_work_item_id} work item must exist`);
+    else if (!['open', 'closed'].includes(nextWorkItem.status)) errors.push(`${gate.next_work_item_id} work item must be open or closed after router seed admission`);
+  }
+
+  return {
+    schema: 'agent-onboard-public-thin-cli-router-seed-check-result-001',
+    status: errors.length === 0 ? 'ok' : 'error',
+    package_name: gate.package_name,
+    version: VERSION,
+    release_line: gate.release_line,
+    command: gate.check_command,
+    package_root: root,
+    package_context: result.package_context,
+    validated: {
+      router_seed_status_admitted: gate.seed_status === 'thin_cli_router_seed_admitted',
+      router_module_present_or_installed_context_allowed: routerModulePresentOrAllowed,
+      router_module_requireable_when_present: !result.router_module.present || result.router_module.status === 'present_validated',
+      router_module_under_line_budget: result.router_module.line_count <= gate.router_seed_max_lines,
+      router_exports_contract: gate.expected_router_export_names.every((name) => !result.router_module.present || result.router_module.exports.includes(name)),
+      runtime_cutover_not_applied: gate.runtime_cutover_applied === false,
+      packaged_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
+      package_allowlist_unchanged: arrayEquals(result.projected_pack_files, expectedPackFiles),
+      router_module_out_of_pack_for_this_gate: gate.boundary.source_router_module_remains_out_of_pack === true,
+      seed_file_present_or_installed_context_allowed: artifactStatus === 'present_validated' || artifactStatus === 'not_present_installed_context_allowed',
+      work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
+      next_port_gate_open_or_installed_context_allowed: !sourceLedgerRequired || (nextWorkItem && nextWorkItem.status === 'open'),
+      thin_router_commands_no_write: gate.boundary.thin_router_command_writes_files === false && gate.boundary.thin_router_check_command_writes_files === false
+    },
+    router_module: result.router_module,
+    runtime_cutover: result.runtime_cutover,
+    source_thin_router_seed_file: {
+      path: gate.seed_file,
+      present: fs.existsSync(artifactPath),
+      status: artifactStatus,
+      schema: artifactSchema,
+      source_context_required: sourceLedgerRequired
+    },
+    milestone_state: result.milestone_state,
     expected_pack_files: expectedPackFiles,
     projected_pack_files: result.projected_pack_files,
     boundary: result.boundary,
@@ -8786,6 +9028,8 @@ function publicArchitectureCheck(root = packageRoot()) {
   const sourceDomainClosureReviewErrors = sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`);
   const cliRuntimePlan = publicCliRuntimeDeMonolithPlanningCheck(root);
   const cliRuntimePlanErrors = cliRuntimePlan.errors.map((error) => `cli runtime de-monolith planning: ${error}`);
+  const thinCliRouter = publicThinCliRouterSeedCheck(root);
+  const thinCliRouterErrors = thinCliRouter.errors.map((error) => `thin CLI router seed: ${error}`);
   const errors = [];
   if (!arrayEquals(domainIds, expectedDomains)) errors.push(`architecture domain order must be ${expectedDomains.join(', ')}`);
   if (new Set(domainIds).size !== domainIds.length) errors.push('architecture domain ids must be unique');
@@ -8846,12 +9090,14 @@ function publicArchitectureCheck(root = packageRoot()) {
   if (map.map.package_boundary.architecture_source_domain_closure_check_command_writes_files !== false) errors.push('architecture source-domain closure check command must remain no-write');
   if (map.map.package_boundary.architecture_cli_runtime_plan_command_writes_files !== false) errors.push('architecture CLI runtime plan command must remain no-write');
   if (map.map.package_boundary.architecture_cli_runtime_check_command_writes_files !== false) errors.push('architecture CLI runtime check command must remain no-write');
+  if (map.map.package_boundary.architecture_thin_router_command_writes_files !== false) errors.push('architecture thin router command must remain no-write');
+  if (map.map.package_boundary.architecture_thin_router_check_command_writes_files !== false) errors.push('architecture thin router check command must remain no-write');
   if (map.map.package_boundary.version_sprawl_check_command_writes_files !== false) errors.push('version sprawl check command must remain no-write');
   if (map.map.package_boundary.authority_first_read_command_writes_files !== false) errors.push('authority first-read command must remain no-write');
   if (map.map.package_boundary.authority_check_command_writes_files !== false) errors.push('authority check command must remain no-write');
   if (map.map.package_boundary.target_runtime_namespace_command_writes_files !== false) errors.push('target runtime namespace command must remain no-write');
   if (map.map.package_boundary.target_runtime_check_command_writes_files !== false) errors.push('target runtime check command must remain no-write');
-  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors);
+  errors.push(...routerErrors, ...facadeErrors, ...authorityErrors, ...targetRuntimeErrors, ...sourcePartitionErrors, ...sourceExtractionErrors, ...goldenOutputErrors, ...adapterBoundaryErrors, ...firstSliceErrors, ...bundleParityErrors, ...runtimeBridgeErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsPlanErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...thinCliRouterErrors);
   return {
     schema: 'agent-onboard-public-architecture-check-result-001',
     status: errors.length === 0 ? 'ok' : 'error',
@@ -8929,6 +9175,8 @@ function publicArchitectureCheck(root = packageRoot()) {
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview,
     cli_runtime_de_monolith_planning: cliRuntimePlan,
+    thin_cli_router_seed: thinCliRouter,
+    thin_cli_router_seed: thinCliRouter,
     boundary: map.boundary,
     errors
   };
@@ -9083,6 +9331,8 @@ function publicReleaseCheck(root = packageRoot()) {
   const sourceDomainClosureReviewErrors = sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`);
   const cliRuntimePlan = publicCliRuntimeDeMonolithPlanningCheck(root);
   const cliRuntimePlanErrors = cliRuntimePlan.errors.map((error) => `cli runtime de-monolith planning: ${error}`);
+  const thinCliRouter = publicThinCliRouterSeedCheck(root);
+  const thinCliRouterErrors = thinCliRouter.errors.map((error) => `thin CLI router seed: ${error}`);
   const architectureParityErrors = architectureParity.errors.map((error) => `installed architecture parity: ${error}`);
   const errors = [...metadataErrors, ...packErrors, ...messagingErrors, ...sourceLedgerErrors, ...architectureErrors, ...packageSurfaceErrors, ...architectureParityErrors, ...installedFallbackSmokeErrors, ...secondSlicePlanErrors, ...secondSliceFirstSliceErrors, ...authorityBundleParityErrors, ...authorityRuntimeBridgeErrors, ...m2SeedErrors, ...workItemsFirstSliceErrors, ...workItemsBundleParityErrors, ...workItemsRuntimeBridgeErrors, ...workItemsInstalledFallbackErrors, ...claimsPlanErrors, ...claimsFirstSliceErrors, ...claimsBundleParityErrors, ...claimsRuntimeBridgeErrors, ...claimsInstalledFallbackErrors, ...sourceDomainClosureReviewErrors, ...cliRuntimePlanErrors, ...versionPolicyErrors];
   return {
@@ -9166,6 +9416,7 @@ function publicReleaseCheck(root = packageRoot()) {
     claims_domain_source_extraction_runtime_bridge: claimsRuntimeBridge,
     claims_domain_source_extraction_stabilization_closure_review: sourceDomainClosureReview,
     cli_runtime_de_monolith_planning: cliRuntimePlan,
+    thin_cli_router_seed: thinCliRouter,
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     public_version_reference_policy: versionPolicy,
     public_package_surface_preservation: packageSurface,
@@ -9292,6 +9543,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   const claimsInstalledFallback = publicClaimsDomainSourceExtractionInstalledFallbackSmokeCheck(root);
   const sourceDomainClosureReview = publicSourceDomainExtractionStabilizationClosureReviewCheck(root);
   const cliRuntimePlan = publicCliRuntimeDeMonolithPlanningCheck(root);
+  const thinCliRouter = publicThinCliRouterSeedCheck(root);
   const componentErrors = [];
   if (architecture.status !== 'ok') componentErrors.push(...architecture.errors.map((error) => `architecture: ${error}`));
   if (authority.status !== 'ok') componentErrors.push(...authority.errors.map((error) => `authority: ${error}`));
@@ -9319,6 +9571,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
   if (claimsInstalledFallback.status !== 'ok') componentErrors.push(...claimsInstalledFallback.errors.map((error) => `claims installed fallback smoke: ${error}`));
   if (sourceDomainClosureReview.status !== 'ok') componentErrors.push(...sourceDomainClosureReview.errors.map((error) => `source-domain closure review: ${error}`));
   if (cliRuntimePlan.status !== 'ok') componentErrors.push(...cliRuntimePlan.errors.map((error) => `cli runtime de-monolith planning: ${error}`));
+  if (thinCliRouter.status !== 'ok') componentErrors.push(...thinCliRouter.errors.map((error) => `thin CLI router seed: ${error}`));
 
   const parity = {
     package_metadata: metadataErrors.length === 0,
@@ -9355,6 +9608,8 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     claims_domain_source_extraction_installed_fallback_smoke_check: claimsInstalledFallback.status === 'ok',
     source_domain_extraction_stabilization_closure_review_check: sourceDomainClosureReview.status === 'ok',
     cli_runtime_de_monolith_planning_check: cliRuntimePlan.status === 'ok',
+    thin_cli_router_seed_check: thinCliRouter.status === 'ok',
+      thin_cli_router_seed_check: thinCliRouter.status === 'ok',
     runtime_version_matches_package_json: pkg.version === VERSION
   };
 
@@ -9415,6 +9670,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
       claims_domain_source_extraction_installed_fallback_smoke_status: claimsInstalledFallback.status,
       source_domain_extraction_stabilization_closure_review_status: sourceDomainClosureReview.status,
       cli_runtime_de_monolith_planning_status: cliRuntimePlan.status,
+      thin_cli_router_seed_status: thinCliRouter.status,
       package_context: context.package_context,
       source_context_files_present: context.source_context_files_present,
       source_context_files_missing: context.source_context_files_missing
@@ -9446,6 +9702,7 @@ function publicInstalledParityArchitectureSmoke(root = packageRoot()) {
     claims_domain_source_extraction_installed_fallback_smoke: claimsInstalledFallback,
     source_domain_extraction_stabilization_closure_review: sourceDomainClosureReview,
     cli_runtime_de_monolith_planning: cliRuntimePlan,
+    thin_cli_router_seed: thinCliRouter,
     boundary: {
       writes_files: false,
       writes_package_root: false,
@@ -10056,6 +10313,15 @@ function runArchitecture(args) {
     json(result);
     return result.status === 'ok' ? 0 : 1;
   }
+  if (args.length === 1 && args[0] === '--thin-router') {
+    json(publicThinCliRouterSeed());
+    return 0;
+  }
+  if (args.length === 1 && args[0] === '--thin-router-check') {
+    const result = publicThinCliRouterSeedCheck();
+    json(result);
+    return result.status === 'ok' ? 0 : 1;
+  }
   if (args.length === 1 && args[0] === '--check') {
     const result = publicArchitectureCheck();
     json(result);
@@ -10065,7 +10331,7 @@ function runArchitecture(args) {
     schema: 'agent-onboard-architecture-command-error-001',
     status: 'error',
     command_family: 'architecture',
-    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, or --check',
+    message: 'architecture requires --map, --router, --facades, --partition-plan, --partition-check, --extraction-rehearsal, --extraction-check, --golden-outputs, --golden-check, --adapter-boundary, --adapter-check, --first-slice, --first-slice-check, --bundle-parity, --bundle-parity-check, --runtime-bridge, --runtime-bridge-check, --installed-fallback-smoke, --installed-fallback-check, --second-slice-plan, --second-slice-check, --second-slice-first-slice, --second-slice-first-slice-check, --authority-bundle-parity, --authority-bundle-parity-check, --authority-runtime-bridge, --authority-runtime-bridge-check, --m2-seed, --m2-seed-check, --work-items-plan, --work-items-check, --work-items-first-slice, --work-items-first-slice-check, --work-items-bundle-parity, --work-items-bundle-parity-check, --work-items-runtime-bridge, --work-items-runtime-bridge-check, --work-items-installed-fallback-smoke, --work-items-installed-fallback-check, --claims-plan, --claims-check, --claims-first-slice, --claims-first-slice-check, --claims-bundle-parity, --claims-bundle-parity-check, --claims-runtime-bridge, --claims-runtime-bridge-check, --claims-installed-fallback-smoke, --claims-installed-fallback-check, --source-domain-closure-review, --source-domain-closure-check, --cli-runtime-plan, --cli-runtime-check, --thin-router, --thin-router-check, or --check',
     writes_files: false,
     publishes_package: false
   });
@@ -11084,7 +11350,7 @@ function runTargetInstance(args) {
 }
 
 function help() {
-  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
+  process.stdout.write(`agent-onboard ${VERSION}\n\nagent-onboard status\nagent-onboard init --dry-run|--write [--force]\nagent-onboard agents --preview|--write [--force]\nagent-onboard guard --plan|--check-boundary\nagent-onboard authority --first-read|--check\nagent-onboard architecture --map|--router|--facades|--partition-plan|--partition-check|--extraction-rehearsal|--extraction-check|--golden-outputs|--golden-check|--adapter-boundary|--adapter-check|--first-slice|--first-slice-check|--bundle-parity|--bundle-parity-check|--runtime-bridge|--runtime-bridge-check|--installed-fallback-smoke|--installed-fallback-check|--second-slice-plan|--second-slice-check|--second-slice-first-slice|--second-slice-first-slice-check|--authority-bundle-parity|--authority-bundle-parity-check|--authority-runtime-bridge|--authority-runtime-bridge-check|--m2-seed|--m2-seed-check|--work-items-plan|--work-items-check|--work-items-first-slice|--work-items-first-slice-check|--work-items-bundle-parity|--work-items-bundle-parity-check|--work-items-runtime-bridge|--work-items-runtime-bridge-check|--work-items-installed-fallback-smoke|--work-items-installed-fallback-check|--claims-plan|--claims-check|--claims-first-slice|--claims-first-slice-check|--claims-bundle-parity|--claims-bundle-parity-check|--claims-runtime-bridge|--claims-runtime-bridge-check|--claims-installed-fallback-smoke|--claims-installed-fallback-check|--source-domain-closure-review|--source-domain-closure-check|--cli-runtime-plan|--cli-runtime-check|--thin-router|--thin-router-check|--check\nagent-onboard release --plan|--contract|--fixture|--surface|--surface-check|--version-sprawl-check|--parity-smoke|--architecture-parity-smoke|--target-onboarding-smoke|--post-publish-handoff|--published-acceptance|--real-target-trial|--check\nagent-onboard target-config --schema\nagent-onboard target-config --template\nagent-onboard target-config --validate-template\nagent-onboard target-config --validate [agent-onboard.target.json]\nagent-onboard work-items --schema\nagent-onboard work-items --template\nagent-onboard work-items --validate-template\nagent-onboard work-items --validate [.agent-onboard/work-items.json]\nagent-onboard work-items --list [.agent-onboard/work-items.json]\nagent-onboard work-items --init --dry-run|--write [--force]\nagent-onboard work-items --append --dry-run|--write --id <public-work-item-id> --title <title>\nagent-onboard work-items --claim --dry-run|--write --id <public-work-item-id> --actor <actor>\nagent-onboard work-items --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>\nagent-onboard target runtime --namespace|--check\nagent-onboard target onboarding --plan|--fixture|--trial [--target <path>]|--write [--force]\nagent-onboard target bootstrap --dry-run|--write [--force]\nagent-onboard target-instance takeover --dry-run|--write [--force]\n`);
   return 0;
 }
 
