@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_architecture_aggregate_check_service_extraction_gate';
+const EXPECTED_RELEASE_LINE = 'public_release_package_runtime_service_partition_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -33,6 +33,12 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/domains/architecture/services/source-domains/work-items-source-domain-service.js',
   'cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
+  'cli/agent_onboard/domains/package/index.js',
+  'cli/agent_onboard/domains/package/services/installed-first-read-contract.js',
+  'cli/agent_onboard/domains/package/services/package-coordinate-service.js',
+  'cli/agent_onboard/domains/package/services/package-service.js',
+  'cli/agent_onboard/domains/package/services/package-surface-service.js',
+  'cli/agent_onboard/domains/package/services/source-manifest-service.js',
   'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/target/services/target-runtime-utilities.js',
   'cli/agent_onboard/domains/target/services/target-service.js',
@@ -2945,6 +2951,30 @@ fullSourceTest('full source block line 2950', () => {
   assert.strictEqual(output.source_router_command_adapter_delegation_file.path, '.agent-onboard/router-command-adapter-delegation-expansion.json');
   assert.strictEqual(output.source_router_command_adapter_delegation_file.status, 'present_validated');
   assert.deepStrictEqual(output.errors, []);
+});
+
+fullSourceTest('package runtime service partition seed admits release package domain services', () => {
+  const partitions = require(path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'service-partitions.js'));
+  const packageDomain = require(path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'package'));
+  const seed = partitions.describeRuntimeServicePartitionSeed();
+  const releasePackage = seed.seeded_domains.find((domain) => domain.id === 'release_package');
+  assert.ok(releasePackage);
+  assert.strictEqual(releasePackage.index, 'cli/agent_onboard/domains/package/index.js');
+  assert.deepStrictEqual(releasePackage.services, [
+    'cli/agent_onboard/domains/package/services/package-service.js',
+    'cli/agent_onboard/domains/package/services/package-surface-service.js',
+    'cli/agent_onboard/domains/package/services/source-manifest-service.js',
+    'cli/agent_onboard/domains/package/services/package-coordinate-service.js',
+    'cli/agent_onboard/domains/package/services/installed-first-read-contract.js'
+  ]);
+  assert.deepStrictEqual(releasePackage.fallback_commands, []);
+  assert.ok(releasePackage.extracted_commands.includes('release --check'));
+  assert.strictEqual(seed.boundary.no_legacy_release_package_fallback_commands, true);
+  assert.strictEqual(typeof packageDomain.service.createPackageService, 'function');
+  assert.strictEqual(typeof packageDomain.surface.createPackageSurfaceService, 'function');
+  assert.strictEqual(typeof packageDomain.sourceManifest.describeSourceManifestServiceSeed, 'function');
+  assert.strictEqual(typeof packageDomain.coordinate.describePackageCoordinateServiceSeed, 'function');
+  assert.strictEqual(typeof packageDomain.firstReadContract.describeInstalledFirstReadContractSeed, 'function');
 });
 
 runSelectedFullSourceTests();

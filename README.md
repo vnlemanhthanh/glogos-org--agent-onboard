@@ -952,3 +952,7 @@ Source-domain stabilization closure review: `architecture --source-domain-closur
 ## Public CLI runtime de-monolith planning
 
 `cli/agent-onboard.js` is now declared as monolith debt; the public runtime cutover path uses controlled source-module inclusion, keeps the current compact npm package allowlist unchanged for this planning gate, and seeds the thin CLI router cutover.
+
+## Public release package runtime service partition
+
+The public line admits the `release_package` domain service partition under `cli/agent_onboard/domains/package/`. The packaged module set separates release command coordination, package surface checks, source manifest context, package coordinates, and installed first-read contracts while preserving existing `agent-onboard release ...` outputs.

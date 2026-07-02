@@ -187,3 +187,7 @@ The public line splits work-items and claims source-domain architecture handlers
 ## Public architecture aggregate check service split
 
 The public line extracts the aggregate `architecture --check` coordinator into `cli/agent_onboard/domains/architecture/services/checks/architecture-check-service.js`. Keep it dependency-injected and output-compatible with architecture and release checks.
+
+## Public release package runtime service partition
+
+The public line admits `release_package` as packaged domain services under `cli/agent_onboard/domains/package/`. Keep release command coordination thin, keep package subresponsibilities split across service modules, and preserve existing release command outputs.

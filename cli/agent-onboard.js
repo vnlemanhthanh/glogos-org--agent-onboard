@@ -12,10 +12,11 @@ const { createArchitectureCommandAdapter } = require('./agent_onboard/adapters/c
 const { createAuthorityCommandAdapter } = require('./agent_onboard/adapters/commands/authority');
 const { createTargetCommandAdapter } = require('./agent_onboard/adapters/commands/target');
 const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/commands/work-items');
+const { service: packageDomain } = require('./agent_onboard/domains/package');
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_architecture_aggregate_check_service_extraction_gate';
+const RELEASE_LINE = 'public_release_package_runtime_service_partition_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -37,6 +38,12 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/domains/architecture/services/source-domains/work-items-source-domain-service.js',
   'cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
+  'cli/agent_onboard/domains/package/index.js',
+  'cli/agent_onboard/domains/package/services/installed-first-read-contract.js',
+  'cli/agent_onboard/domains/package/services/package-coordinate-service.js',
+  'cli/agent_onboard/domains/package/services/package-service.js',
+  'cli/agent_onboard/domains/package/services/package-surface-service.js',
+  'cli/agent_onboard/domains/package/services/source-manifest-service.js',
   'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/target/services/target-runtime-utilities.js',
   'cli/agent_onboard/domains/target/services/target-service.js',
@@ -6548,10 +6555,11 @@ function createRuntimeCompatibilityPort() {
       status: DOMAIN_SERVICE_FACADES.coreService.runStatus
     })
   });
+  const packageService = packageDomain.createPackageService({
+    release: DOMAIN_SERVICE_FACADES.releasePackageService.runRelease
+  });
   const packageAdapter = createPackageCommandAdapter({
-    handlers: Object.freeze({
-      release: DOMAIN_SERVICE_FACADES.releasePackageService.runRelease
-    })
+    service: packageService
   });
   const architectureAdapter = createArchitectureCommandAdapter({
     handlers: Object.freeze({

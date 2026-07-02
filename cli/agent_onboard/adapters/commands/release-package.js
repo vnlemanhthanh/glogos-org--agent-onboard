@@ -31,11 +31,13 @@ function describePackageCommandAdapterExtraction() {
 
 function createPackageCommandAdapter(options = Object.freeze({})) {
   const handlers = options.handlers && typeof options.handlers === 'object' ? options.handlers : Object.freeze({});
+  const service = options.service && typeof options.service === 'object' ? options.service : null;
   return Object.freeze({
     schema: 'agent-onboard-public-package-command-adapter-instance-001',
     adapter: PACKAGE_COMMAND_ADAPTER_EXTRACTION,
     commands: PACKAGE_COMMAND_ADAPTER_EXTRACTION.owned_top_level_commands,
     release(argv) {
+      if (service && typeof service.release === 'function') return service.release(Array.isArray(argv) ? argv.slice(3) : []);
       if (typeof handlers.release === 'function') return handlers.release(Array.isArray(argv) ? argv.slice(3) : []);
       return Object.freeze({
         schema: 'agent-onboard-public-package-command-adapter-release-result-001',
