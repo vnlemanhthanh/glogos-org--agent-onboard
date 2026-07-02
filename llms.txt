@@ -159,3 +159,7 @@ The public line extracts the architecture/release static catalog from `cli/agent
 ## Public target static catalog extraction
 
 The public line extracts the target onboarding static catalog from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/static-catalog.js`. Keep this module packaged, side-effect-free, and output-compatible.
+
+## Public target runtime service body extraction
+
+The public line extracts the target runtime service body from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/services/target-service.js`. Keep public target, guard, and ledger utility outputs stable while the entrypoint shrinks.

@@ -808,6 +808,8 @@ This release extracts the public architecture static catalog from `cli/agent-onb
 
 This release extracts the public target onboarding static catalog from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/static-catalog.js`, keeping target onboarding plan and fixture outputs unchanged while reducing the entrypoint size.
 
+This release extracts the public target runtime service body from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/services/target-service.js`, keeping the existing command handlers and public outputs stable while cutting the entrypoint by another large block.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->

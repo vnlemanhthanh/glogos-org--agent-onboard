@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_target_static_catalog_runtime_module_extraction_gate';
+const EXPECTED_RELEASE_LINE = 'public_target_runtime_service_body_extraction_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -27,6 +27,7 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/domains/architecture/static-catalog.js',
   'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/target/static-catalog.js',
+  'cli/agent_onboard/domains/target/services/target-service.js',
   'cli/agent_onboard/domains/work-items/index.js',
   'cli/agent_onboard/domains/work-items/services/work-items-service.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',
