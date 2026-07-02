@@ -361,4 +361,8 @@ The public line splits the M3 CLI runtime de-monolith catalog into `cli/agent_on
 
 ## Public architecture runtime service extraction
 
-The public line extracts architecture runtime/check handlers into `cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js`. Keep this service packaged, dependency-injected, and output-compatible; `cli/agent-onboard.js` should stay a wiring and dispatch surface.
+The public line extracts architecture runtime/check handlers into `cli/agent_onboard/domains/architecture/services/runtime/architecture-runtime-service.js`. Keep this service packaged, dependency-injected, and output-compatible; `cli/agent-onboard.js` should stay a wiring and dispatch surface.
+
+## Public architecture source extraction service split
+
+The public line splits source-extraction and bridge handlers into `cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js`. Keep the split services packaged, dependency-injected, and output-compatible; do not let either architecture service become a new god file.

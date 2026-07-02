@@ -1,6 +1,6 @@
 {
   "name": "agent-onboard",
-  "version": "0.0.85",
+  "version": "0.0.86",
   "description": "CLI for onboarding and managing target repositories.",
   "license": "Apache-2.0",
   "author": "Thanh Le <vnlemanhthanh@gmail.com>",
@@ -299,7 +299,8 @@
     "cli/agent_onboard/adapters/compatibility-command-port.js",
     "cli/agent_onboard/command-router.js",
     "cli/agent_onboard/domains/architecture/m3-runtime-catalog.js",
-    "cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js",
+    "cli/agent_onboard/domains/architecture/services/runtime/architecture-runtime-service.js",
+    "cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js",
     "cli/agent_onboard/domains/architecture/static-catalog.js",
     "cli/agent_onboard/domains/service-partitions.js",
     "cli/agent_onboard/domains/target/services/target-runtime-utilities.js",

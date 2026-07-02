@@ -814,7 +814,9 @@ This release splits target runtime utilities from `cli/agent_onboard/domains/tar
 
 This release splits the public M3 CLI runtime de-monolith catalog from `cli/agent_onboard/domains/architecture/static-catalog.js` into `cli/agent_onboard/domains/architecture/m3-runtime-catalog.js`, keeping architecture and release outputs stable while shrinking the architecture catalog.
 
-This release extracts the public architecture runtime service batch from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js`, keeping command outputs stable while cutting the entrypoint below 9k lines.
+This release extracts the public architecture runtime service batch from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/services/runtime/architecture-runtime-service.js`, keeping command outputs stable while cutting the entrypoint below 9k lines.
+
+This release splits source-extraction and bridge handlers from the architecture runtime service into `cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js`, keeping the runtime service below 1k lines while preserving architecture and release outputs.
 
 <!-- ## Star History
 

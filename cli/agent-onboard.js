@@ -15,7 +15,7 @@ const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/comm
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_architecture_runtime_service_extraction_batch_gate';
+const RELEASE_LINE = 'public_architecture_source_extraction_service_split_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -29,7 +29,8 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
   'cli/agent_onboard/domains/architecture/m3-runtime-catalog.js',
-  'cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js',
+  'cli/agent_onboard/domains/architecture/services/runtime/architecture-runtime-service.js',
+  'cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
   'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/target/services/target-runtime-utilities.js',
@@ -276,7 +277,7 @@ const BOUNDARY_GUARD_CONTRACT = Object.freeze({
 
 const { createPublicArchitectureCatalog } = require('./agent_onboard/domains/architecture/static-catalog');
 const { createPublicTargetStaticCatalog } = require('./agent_onboard/domains/target/static-catalog');
-const { createPublicArchitectureRuntimeService } = require('./agent_onboard/domains/architecture/services/architecture-runtime-service');
+const { createPublicArchitectureRuntimeService } = require('./agent_onboard/domains/architecture/services/runtime/architecture-runtime-service');
 const { createTargetRuntimeService } = require('./agent_onboard/domains/target/services/target-service');
 const {
   PUBLIC_ARCHITECTURE_MAP,
