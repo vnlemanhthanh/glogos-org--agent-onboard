@@ -140,7 +140,7 @@ Public thin entrypoint router cutover application:
 - node cli/agent-onboard.js architecture --check
 - node cli/agent-onboard.js release --check
 
-Current command adapter state: core, release package, architecture, authority, target, and work-items adapter extraction gates are closed. The router, compatibility command port, port facade, admitted command adapters, and work-items runtime service modules are packaged. The thin entrypoint router cutover is applied, and work-items legacy fallback deletion is the active gate.
+Current command adapter state: core, release package, architecture, authority, target, and work-items adapter extraction gates are closed. The router, compatibility command port, port facade, admitted command adapters, work-items runtime service modules, and architecture static catalog module are packaged. The thin entrypoint router cutover is applied, and architecture static catalog extraction is the active gate.
 
 ## Public work-items claim close runtime handoff
 
@@ -151,3 +151,7 @@ Current command adapter state: core, release package, architecture, authority, t
 ## Public work-items legacy fallback deletion
 
 The public line deletes the legacy bundled work-items fallback from `cli/agent-onboard.js`. The packaged work-items command adapter and packaged work-items runtime service are now the only public work-items command path.
+
+## Public architecture static catalog extraction
+
+The public line extracts the architecture/release static catalog from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/static-catalog.js`. Public CLI outputs remain stable while the entrypoint gets smaller.

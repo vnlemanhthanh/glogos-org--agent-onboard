@@ -804,6 +804,8 @@ This release adds the public work-items claim/close runtime handoff gate. `work-
 
 This release deletes the legacy bundled work-items fallback from `cli/agent-onboard.js`. The packaged work-items command adapter and runtime service are now the only public work-items command path.
 
+This release extracts the public architecture static catalog from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/static-catalog.js`, keeping public CLI outputs unchanged while reducing the entrypoint size.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->

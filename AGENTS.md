@@ -338,3 +338,7 @@ npm test
 ## Public work-items legacy fallback deletion
 
 The public line deletes the legacy bundled work-items fallback from `cli/agent-onboard.js`. The packaged work-items command adapter and packaged work-items runtime service are now the only public work-items command path.
+
+## Public architecture static catalog extraction
+
+The public line extracts the architecture/release static catalog from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/static-catalog.js`. Keep this module packaged and side-effect-free; public CLI outputs must remain stable.
