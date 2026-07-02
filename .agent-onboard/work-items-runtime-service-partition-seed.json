@@ -1,0 +1,53 @@
+{
+  "schema": "agent-onboard-public-work-items-runtime-service-partition-seed-001",
+  "title": "Agent-Onboard Public Work-Items Runtime Service Partition Seed Gate",
+  "package_name": "agent-onboard",
+  "release_line": "public_work_items_runtime_service_partition_seed_gate",
+  "milestone_id": "P1S3M3",
+  "work_item_id": "P1S3M3W17",
+  "runtime_partition_status": "work_items_runtime_service_partition_seed_admitted",
+  "entrypoint": "cli/agent-onboard.js",
+  "adapter_module": "cli/agent_onboard/adapters/commands/work-items.js",
+  "runtime_domain_modules": [
+    "cli/agent_onboard/domains/service-partitions.js",
+    "cli/agent_onboard/domains/work-items/index.js",
+    "cli/agent_onboard/domains/work-items/services/work-items-service.js"
+  ],
+  "extracted_read_only_commands": [
+    "work-items --list",
+    "work-items --validate"
+  ],
+  "legacy_fallback_commands": [
+    "work-items --schema",
+    "work-items --template",
+    "work-items --validate-template",
+    "work-items --init",
+    "work-items --append",
+    "work-items --claim",
+    "work-items --close"
+  ],
+  "package_strategy": "controlled_packaged_runtime_service_seed_inclusion",
+  "runtime_pattern_absorbed": {
+    "source": "runtime domain service partition pattern",
+    "absorbed_shape": "packaged command adapter plus runtime domain service seed",
+    "not_absorbed_yet": [
+      "full lazy command group catalog",
+      "full physical service directory partition",
+      "write-capable work-items command ownership"
+    ]
+  },
+  "boundary": {
+    "changes_public_cli_outputs": false,
+    "uses_work_items_adapter_as_runtime_entrypoint": true,
+    "work_items_adapter_module_packaged": true,
+    "work_items_runtime_service_modules_packaged": true,
+    "write_capable_work_items_commands_remain_legacy_fallback": true,
+    "writes_target_repository_state_on_require": false,
+    "git_mutation": false,
+    "installs_dependencies": false,
+    "runs_package_manager": false,
+    "runs_build_test_deploy": false,
+    "publishes_package": false,
+    "mutates_registry": false
+  }
+}

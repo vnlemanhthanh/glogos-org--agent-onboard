@@ -790,7 +790,7 @@ This release adds the public architecture command adapter extraction gate: `arch
 
 This release adds the public authority command adapter extraction gate: `architecture --authority-adapter` reports the source-only adapter contract for the authority command family, and `architecture --authority-adapter-check` validates that `authority`, `agents`, and `guard` remain outside the npm package allowlist and unused by the packaged runtime entrypoint for this gate.
 
-This release adds the public modular runtime package inclusion planning gate: `architecture --module-inclusion-plan` records the shift from adding more source-only command adapters toward the internal thin-entrypoint modular runtime shape, and `architecture --module-inclusion-check` keeps the current four-file package surface unchanged while planning the next controlled package inclusion slice.
+This release adds the public modular runtime package inclusion planning gate: `architecture --module-inclusion-plan` records the shift from adding more source-only command adapters toward a thin-entrypoint modular runtime shape, and `architecture --module-inclusion-check` keeps the current four-file package surface unchanged while planning the next controlled package inclusion slice.
 
 This release adds the public packaged router port inclusion gate: `architecture --packaged-router-port` reports the first controlled modular package inclusion slice, and `architecture --packaged-router-port-check` validates that the router, compatibility command port, port facade, and admitted command adapters are included in the npm package while `cli/agent-onboard.js` remains the runtime entrypoint for this gate.
 
@@ -799,6 +799,8 @@ This release adds the public thin entrypoint router cutover rehearsal gate: `arc
 This release adds the public thin entrypoint router cutover application gate: `architecture --thin-entrypoint-cutover` reports the applied runtime delegation, and `architecture --thin-entrypoint-cutover-check` validates that `cli/agent-onboard.js` now routes `main(process.argv)` through the packaged command router and compatibility command port while preserving the 11-file package surface.
 
 This release adds the public router command adapter delegation expansion gate: `architecture --router-adapter-delegation` reports the adapter-backed runtime routes, and `architecture --router-adapter-delegation-check` validates that core, release, architecture, and authority command families delegate through the packaged command adapters while keeping the 11-file package surface unchanged.
+
+This release adds the public work-items runtime service partition seed. `work-items --list` and `work-items --validate` now route through a packaged work-items command adapter and packaged runtime domain service modules, while schema/template/init/append/claim/close behavior remains on the legacy compatibility path for this gate. This is the first public runtime-domain-service slice absorbed into the package runtime.
 
 <!-- ## Star History
 

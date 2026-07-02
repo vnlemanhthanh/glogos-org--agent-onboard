@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_full_source_test_shard_balancing_gate';
+const EXPECTED_RELEASE_LINE = 'public_work_items_runtime_service_partition_seed_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -21,8 +21,12 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/adapters/commands/core.js',
   'cli/agent_onboard/adapters/commands/release-package.js',
   'cli/agent_onboard/adapters/commands/target.js',
+  'cli/agent_onboard/adapters/commands/work-items.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
+  'cli/agent_onboard/domains/service-partitions.js',
+  'cli/agent_onboard/domains/work-items/index.js',
+  'cli/agent_onboard/domains/work-items/services/work-items-service.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',
   'package.json'
 ];
@@ -2801,7 +2805,7 @@ fullSourceTest('full source block line 2838', () => {
   assert.ok(output.validated.public_cli_outputs_unchanged);
   assert.ok(output.validated.packaged_runtime_dependency_graph_unchanged);
   assert.ok(output.validated.planning_commands_no_write);
-  assert.ok(output.validated.internal_reference_shape_declared);
+  assert.ok(output.validated.runtime_reference_shape_declared);
   assert.ok(output.validated.first_inclusion_slice_declared);
   assert.ok(output.validated.planning_file_present_or_installed_context_allowed);
   assert.ok(output.validated.work_item_closed_or_installed_context_allowed);
@@ -2921,7 +2925,7 @@ fullSourceTest('full source block line 2950', () => {
   assert.ok(output.validated.delegation_file_present_or_installed_context_allowed);
   assert.ok(output.validated.work_item_closed_or_installed_context_allowed);
   assert.ok(output.validated.next_gate_open_or_installed_context_allowed);
-  assert.deepStrictEqual(output.compatibility_port.delegated_commands, ['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version']);
+  assert.deepStrictEqual(output.compatibility_port.delegated_commands, ['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version', 'work-items']);
   assert.deepStrictEqual(output.expected_pack_files, EXPECTED_PACK_FILES);
   assert.deepStrictEqual(output.projected_pack_files, EXPECTED_PACK_FILES);
   assert.strictEqual(output.source_router_command_adapter_delegation_file.path, '.agent-onboard/router-command-adapter-delegation-expansion.json');

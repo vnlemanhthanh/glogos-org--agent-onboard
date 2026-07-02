@@ -8,7 +8,7 @@
   "work_item_id": "P1S3M3W8",
   "next_work_item_id": "P1S3M3W9",
   "planning_status": "modular_runtime_package_inclusion_plan_admitted",
-  "internal_reference_shape": {
+  "runtime_reference_shape": {
     "thin_entrypoint": "cli/agent-onboard.js",
     "router_module": "cli/agent_onboard/command-router.js",
     "compatibility_port_module": "cli/agent_onboard/adapters/compatibility-command-port.js",

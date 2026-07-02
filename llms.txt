@@ -141,3 +141,9 @@ Public thin entrypoint router cutover application:
 - node cli/agent-onboard.js release --check
 
 Current command adapter state: core, release package, architecture, and authority adapter extraction gates are closed. The router, compatibility command port, port facade, and admitted command adapters are packaged in the 11-file npm surface. The thin entrypoint router cutover is applied, and router command adapter delegation expansion is the active gate.
+
+## Public work-items runtime service partition seed
+
+The public line is absorbing a runtime-domain-service partition pattern as a narrow packaged runtime seed. `work-items --list` and `work-items --validate` now route through the packaged work-items command adapter and packaged work-items runtime service modules. Write-capable work-items commands and template/schema helpers remain legacy fallback behavior in this gate.
+
+Current command adapter state: core, release package, architecture, authority, target, and work-items adapters are packaged. The package surface is intentionally expanded for the work-items runtime service seed while preserving public CLI output compatibility.

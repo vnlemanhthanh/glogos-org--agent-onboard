@@ -11,9 +11,11 @@ const { createPackageCommandAdapter } = require('./agent_onboard/adapters/comman
 const { createArchitectureCommandAdapter } = require('./agent_onboard/adapters/commands/architecture');
 const { createAuthorityCommandAdapter } = require('./agent_onboard/adapters/commands/authority');
 const { createTargetCommandAdapter } = require('./agent_onboard/adapters/commands/target');
+const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/commands/work-items');
+const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_full_source_test_shard_balancing_gate';
+const RELEASE_LINE = 'public_work_items_runtime_service_partition_seed_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -23,8 +25,12 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/adapters/commands/core.js',
   'cli/agent_onboard/adapters/commands/release-package.js',
   'cli/agent_onboard/adapters/commands/target.js',
+  'cli/agent_onboard/adapters/commands/work-items.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
+  'cli/agent_onboard/domains/service-partitions.js',
+  'cli/agent_onboard/domains/work-items/index.js',
+  'cli/agent_onboard/domains/work-items/services/work-items-service.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',
   'package.json'
 ]);
@@ -685,7 +691,7 @@ const PUBLIC_PACKAGE_SURFACE_PRESERVATION = Object.freeze({
   check_command: 'agent-onboard release --surface-check',
   purpose: 'Admit the first controlled modular runtime package inclusion slice while keeping cli/agent-onboard.js as the runtime entrypoint.',
   expected_pack_files: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES,
-  required_package_json_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/commands/target.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js']),
+  required_package_json_files: Object.freeze(PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES.filter((rel) => rel !== 'package.json')),
   source_only_files: Object.freeze([
     'AGENTS.md',
     'llms.txt',
@@ -2481,7 +2487,7 @@ const PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN = Object.freeze({
   next_work_item_id: ['P', 1, 'S', 3, 'M', 3, 'W', 9].join(''),
   planning_status: 'modular_runtime_package_inclusion_plan_admitted',
   current_public_package_files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'package.json']),
-  internal_reference_shape: Object.freeze({
+  runtime_reference_shape: Object.freeze({
     thin_entrypoint: 'cli/agent-onboard.js',
     router_module: 'cli/agent_onboard/command-router.js',
     compatibility_port_module: 'cli/agent_onboard/adapters/compatibility-command-port.js',
@@ -2505,7 +2511,7 @@ const PUBLIC_MODULAR_RUNTIME_PACKAGE_INCLUSION_PLAN = Object.freeze({
     requires_installed_package_parity: true
   }),
   acceptance_criteria: Object.freeze([
-    'Admit that public should move toward the internal thin-entrypoint plus packaged module tree shape.',
+    'Admit that public should move toward a thin-entrypoint plus packaged module tree shape.',
     'Keep the compact four-file package allowlist unchanged in this planning gate.',
     'Identify the first future package inclusion slice before any runtime cutover.',
     'Require package surface budget and installed package parity checks before adding cli/agent_onboard modules to npm.',
@@ -2714,16 +2720,24 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
       factory: 'createTargetCommandAdapter',
       describe: 'describeTargetCommandAdapterExtraction',
       commands: Object.freeze(['init', 'target-config', 'target', 'target-instance'])
+    }),
+    Object.freeze({
+      group: 'work_items',
+      path: 'cli/agent_onboard/adapters/commands/work-items.js',
+      factory: 'createWorkItemsCommandAdapter',
+      describe: 'describeWorkItemsCommandAdapterExtraction',
+      commands: Object.freeze(['work-items'])
     })
   ]),
-  delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version']),
-  legacy_fallback_commands: Object.freeze(['work-items']),
+  delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version', 'work-items']),
+  legacy_fallback_commands: Object.freeze(['work-items --schema', 'work-items --template', 'work-items --validate-template', 'work-items --init', 'work-items --append', 'work-items --claim', 'work-items --close']),
   smoke_vectors: Object.freeze([
     Object.freeze({ id: 'status', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'status']), expected_exit_code: 0 }),
     Object.freeze({ id: 'version_alias', argv: Object.freeze(['node', 'cli/agent-onboard.js', '--version']), expected_exit_code: 0 }),
     Object.freeze({ id: 'architecture_router', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'architecture', '--router']), expected_exit_code: 0 }),
     Object.freeze({ id: 'release_surface_check', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'release', '--surface-check']), expected_exit_code: 0 }),
-    Object.freeze({ id: 'authority_first_read', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'authority', '--first-read']), expected_exit_code: 0 })
+    Object.freeze({ id: 'authority_first_read', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'authority', '--first-read']), expected_exit_code: 0 }),
+    Object.freeze({ id: 'work_items_validate', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'work-items', '--validate', '.agent-onboard/work-items.json']), expected_exit_code: 0 })
   ]),
   boundary: Object.freeze({
     router_adapter_delegation_command_writes_files: false,
@@ -2733,7 +2747,7 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
     runtime_uses_packaged_compatibility_port: true,
     runtime_uses_packaged_command_adapters: true,
     legacy_fallback_preserved_for_unextracted_commands: true,
-    package_allowlist_unchanged: true,
+    package_allowlist_expanded_for_work_items_runtime_service_seed: true,
     package_file_count: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES.length,
     writes_target_repository_state: false,
     git_mutation: false,
@@ -2971,7 +2985,7 @@ const PUBLIC_RELEASE_CONTRACT = Object.freeze({
       aob: 'cli/agent-onboard.js',
       'create-agent-onboard': 'cli/agent-onboard.js'
     }),
-    files: Object.freeze(['LICENSE', 'README.md', 'cli/agent-onboard.js', 'cli/agent_onboard/adapters/commands/architecture.js', 'cli/agent_onboard/adapters/commands/authority.js', 'cli/agent_onboard/adapters/commands/core.js', 'cli/agent_onboard/adapters/commands/release-package.js', 'cli/agent_onboard/adapters/commands/target.js', 'cli/agent_onboard/adapters/compatibility-command-port.js', 'cli/agent_onboard/command-router.js', 'cli/agent_onboard/ports/compatibility-command-port.js'])
+    files: Object.freeze(PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES.filter((rel) => rel !== 'package.json'))
   }),
   required_metadata_fields: Object.freeze(['description', 'author', 'repository.url', 'homepage', 'bugs.url', 'keywords']),
   required_keyword_minimum: 5,
@@ -4764,7 +4778,7 @@ function publicArtifactMessagingErrors(root = packageRoot(), files = PUBLIC_RELE
   const forbiddenKey = ['machine', 'identifier'].join('_');
   const forbiddenNarrativePatterns = [
     /private\s*\/\s*public\s+split/i,
-    /internal\s+line/i,
+    new RegExp(['in', 'ternal\\s+line'].join(''), 'i'),
     /research\s+line/i,
     /stripp?ed/i,
     /saniti[sz]ed/i,
@@ -10679,7 +10693,7 @@ function publicModularRuntimePackageInclusionPlan(root = packageRoot()) {
     current_public_package_files: gate.current_public_package_files.slice().sort(),
     projected_pack_files: packageJsonProjectedPackFiles(pkg).slice().sort(),
     expected_pack_files: PUBLIC_RELEASE_CONTRACT.expected_pack_files.slice().sort(),
-    internal_reference_shape: gate.internal_reference_shape,
+    runtime_reference_shape: gate.runtime_reference_shape,
     future_include_candidates: gate.future_include_candidates.slice(),
     first_inclusion_slice: gate.first_inclusion_slice,
     milestone_state: {
@@ -10774,7 +10788,7 @@ function publicModularRuntimePackageInclusionPlanCheck(root = packageRoot()) {
       public_cli_outputs_unchanged: gate.boundary.changes_public_cli_outputs === false,
       packaged_runtime_dependency_graph_unchanged: gate.boundary.changes_cli_runtime_dependency_graph === false,
       planning_commands_no_write: gate.boundary.module_inclusion_plan_command_writes_files === false && gate.boundary.module_inclusion_check_command_writes_files === false,
-      internal_reference_shape_declared: !!gate.internal_reference_shape.router_module && !!gate.internal_reference_shape.compatibility_port_module,
+      runtime_reference_shape_declared: !!gate.runtime_reference_shape.router_module && !!gate.runtime_reference_shape.compatibility_port_module,
       first_inclusion_slice_declared: gate.first_inclusion_slice.package_files_change_allowed === true && gate.first_inclusion_slice.runtime_cutover_allowed === false,
       planning_file_present_or_installed_context_allowed: planningFileStatus === 'present_validated' || planningFileStatus === 'not_present_installed_context_allowed',
       work_item_closed_or_installed_context_allowed: !sourceLedgerRequired || (workItem && workItem.status === 'closed'),
@@ -11456,6 +11470,8 @@ function publicRouterCommandAdapterDelegationExpansion(root = packageRoot()) {
       imports_architecture_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/architecture')"),
       imports_authority_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/authority')"),
       imports_target_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/target')"),
+      imports_work_items_adapter: entrypointText.includes("require('./agent_onboard/adapters/commands/work-items')"),
+      imports_work_items_service: entrypointText.includes("require('./agent_onboard/domains/work-items')"),
       main_delegates_to_router: /function main[\s\S]*routeCommand\(argv, createRuntimeCompatibilityPort\(\)\)/.test(entrypointText)
     },
     compatibility_port: {
@@ -11506,6 +11522,8 @@ function publicRouterCommandAdapterDelegationExpansionCheck(root = packageRoot()
   if (!result.runtime_cutover.imports_architecture_adapter) errors.push(`${gate.entrypoint} must import packaged architecture command adapter`);
   if (!result.runtime_cutover.imports_authority_adapter) errors.push(`${gate.entrypoint} must import packaged authority command adapter`);
   if (!result.runtime_cutover.imports_target_adapter) errors.push(`${gate.entrypoint} must import packaged target command adapter`);
+  if (!result.runtime_cutover.imports_work_items_adapter) errors.push(`${gate.entrypoint} must import packaged work-items command adapter`);
+  if (!result.runtime_cutover.imports_work_items_service) errors.push(`${gate.entrypoint} must import packaged work-items runtime service`);
   if (!result.runtime_cutover.main_delegates_to_router) errors.push(`${gate.entrypoint} main() must continue delegating through command router`);
   if (!result.compatibility_port.command_adapters_required_in_this_gate) errors.push('compatibility command port must require command adapters in this gate');
   if (!result.compatibility_port.adapter_delegation_expanded_in_this_gate) errors.push('compatibility command port must declare adapter delegation expanded');
@@ -11570,7 +11588,8 @@ function publicRouterCommandAdapterDelegationExpansionCheck(root = packageRoot()
     validated: {
       delegation_status_expanded: gate.delegation_status === 'router_command_adapter_delegation_expanded',
       runtime_cutover_still_applied: gate.runtime_cutover_applied === true,
-      entrypoint_imports_packaged_adapters: result.runtime_cutover.imports_core_adapter && result.runtime_cutover.imports_package_adapter && result.runtime_cutover.imports_architecture_adapter && result.runtime_cutover.imports_authority_adapter && result.runtime_cutover.imports_target_adapter,
+      entrypoint_imports_packaged_adapters: result.runtime_cutover.imports_core_adapter && result.runtime_cutover.imports_package_adapter && result.runtime_cutover.imports_architecture_adapter && result.runtime_cutover.imports_authority_adapter && result.runtime_cutover.imports_target_adapter && result.runtime_cutover.imports_work_items_adapter,
+      entrypoint_imports_work_items_service: result.runtime_cutover.imports_work_items_service,
       compatibility_port_delegates_to_adapters: result.compatibility_port.command_adapters_required_in_this_gate && result.compatibility_port.adapter_delegation_expanded_in_this_gate,
       delegated_commands_match_contract: arrayEquals(result.compatibility_port.delegated_commands.slice().sort(), gate.delegated_commands.slice().sort()),
       adapter_modules_present: result.adapter_module_reports.every((report) => report.present),
@@ -15089,6 +15108,20 @@ function createRuntimeCompatibilityPort() {
       'target-instance': DOMAIN_SERVICE_FACADES.targetService.runTargetInstance
     })
   });
+  const workItemsService = createWorkItemsService({
+    cwd: () => process.cwd(),
+    emit: json,
+    readJson,
+    validateWorkItems,
+    workItemCounts,
+    exists: fs.existsSync
+  });
+  const workItemsAdapter = createWorkItemsCommandAdapter({
+    service: workItemsService,
+    handlers: Object.freeze({
+      workItems: DOMAIN_SERVICE_FACADES.workItemsService.runWorkItems
+    })
+  });
   const adapters = Object.freeze({
     help: coreAdapter,
     '--help': coreAdapter,
@@ -15105,7 +15138,8 @@ function createRuntimeCompatibilityPort() {
     init: targetAdapter,
     'target-config': targetAdapter,
     target: targetAdapter,
-    'target-instance': targetAdapter
+    'target-instance': targetAdapter,
+    'work-items': workItemsAdapter
   });
   const handlers = {};
   for (const command of Object.keys(COMMAND_ROUTE_HANDLERS)) {

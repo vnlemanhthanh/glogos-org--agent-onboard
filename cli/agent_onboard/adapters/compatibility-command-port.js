@@ -14,6 +14,7 @@ const COMPATIBILITY_COMMAND_PORT_SEED = Object.freeze({
     release_package: Object.freeze(['release']),
     onboarding: Object.freeze(['agents', 'guard']),
     target: Object.freeze(['init', 'target-config', 'target', 'target-instance']),
+    work_items: Object.freeze(['work-items']),
     coordination: Object.freeze(['authority', 'work-items'])
   }),
   boundary: Object.freeze({
@@ -49,7 +50,8 @@ function createCompatibilityCommandPort(handlers = Object.freeze({}), options = 
       architecture: Object.freeze(['architecture']),
       release_package: Object.freeze(['release']),
       authority: Object.freeze(['authority', 'agents', 'guard']),
-      target: Object.freeze(['init', 'target-config', 'target', 'target-instance'])
+      target: Object.freeze(['init', 'target-config', 'target', 'target-instance']),
+      work_items: Object.freeze(['work-items'])
     }),
     delegated_commands: Object.freeze(Object.keys(adapters).sort()),
     run(argv) {

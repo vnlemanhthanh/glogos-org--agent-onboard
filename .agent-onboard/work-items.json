@@ -2341,7 +2341,7 @@
       "closure": {
         "actor": "codex-gpt-5",
         "closed_at": "2026-07-01T00:00:00.000Z",
-        "summary": "Closed by admitting the public modular runtime package inclusion planning gate: after comparing the public source-only command adapter path with the internal thin-entrypoint modular runtime, the public line now plans a controlled package-surface inclusion slice before adding more source-only command adapters.",
+        "summary": "Closed by admitting the public modular runtime package inclusion planning gate: after comparing the public source-only command adapter path with a thin-entrypoint modular runtime shape, the public line now plans a controlled package-surface inclusion slice before adding more source-only command adapters.",
         "changed_files": [
           ".agent-onboard/work-items.json",
           ".agent-onboard/modular-runtime-package-inclusion-plan.json",
@@ -2681,6 +2681,62 @@
           "npm view agent-onboard@0.0.74 version --json (expected E404: version not published yet)"
         ],
         "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W17",
+      "milestone_id": "P1S3M3",
+      "title": "Public work-items runtime service partition seed gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T05:21:14.636Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T05:29:50.371Z",
+        "summary": "Closed by admitting the public work-items runtime service partition seed: work-items list and validate now route through a packaged work-items command adapter and runtime domain service while write-capable work-items commands remain legacy fallback, with package surface and public artifact guards updated.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/work-items-runtime-service-partition-seed.json",
+          ".agent-onboard/modular-runtime-package-inclusion-plan.json",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt",
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/compatibility-command-port.js",
+          "cli/agent_onboard/adapters/commands/work-items.js",
+          "cli/agent_onboard/domains/service-partitions.js",
+          "cli/agent_onboard/domains/work-items/index.js",
+          "cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "scripts/check-public-artifact-boundary.js",
+          "test/agent-onboard.test.js",
+          "test/run-tests.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/work-items.js",
+          "node -c cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "node cli/agent-onboard.js work-items --list .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
+          "node cli/agent-onboard.js architecture --module-inclusion-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node scripts/check-public-artifact-boundary.js",
+          "node cli/agent-onboard.js release --check",
+          "npm pack --dry-run --json",
+          "npm test",
+          "git diff --check",
+          "sensitive source name scrub scan: no matches"
+        ],
+        "checks_not_run": [
+          "npm run test:full",
           "npm publish --access public"
         ],
         "known_non_pass": []

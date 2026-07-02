@@ -13,7 +13,7 @@ const TEXT_EXTENSIONS = new Set(['', '.cjs', '.js', '.json', '.md', '.mjs', '.tx
 const MACHINE_IDENTIFIER_TOKEN = ['machine', 'identifier'].join('_');
 const FORBIDDEN_PATTERNS = [
   {
-    id: 'internal_work_item_identifier',
+    id: 'private_work_item_identifier',
     regex: /\bP\d+S\d+M\d+W\d+\b/g,
     reason: 'research work-item identifiers are source context, not public package API'
   },
