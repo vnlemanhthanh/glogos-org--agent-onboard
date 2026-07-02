@@ -12,11 +12,12 @@ const { createArchitectureCommandAdapter } = require('./agent_onboard/adapters/c
 const { createAuthorityCommandAdapter } = require('./agent_onboard/adapters/commands/authority');
 const { createTargetCommandAdapter } = require('./agent_onboard/adapters/commands/target');
 const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/commands/work-items');
+const { configGuard: coreConfigGuardDomain } = require('./agent_onboard/domains/core');
 const { service: packageDomain } = require('./agent_onboard/domains/package');
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_release_package_runtime_service_partition_gate';
+const RELEASE_LINE = 'public_core_config_guard_service_extraction_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -38,6 +39,8 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/domains/architecture/services/source-domains/work-items-source-domain-service.js',
   'cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
+  'cli/agent_onboard/domains/core/index.js',
+  'cli/agent_onboard/domains/core/services/config-guard-service.js',
   'cli/agent_onboard/domains/package/index.js',
   'cli/agent_onboard/domains/package/services/installed-first-read-contract.js',
   'cli/agent_onboard/domains/package/services/package-coordinate-service.js',
@@ -6116,82 +6119,22 @@ function runRelease(args) {
   return 1;
 }
 
+const CORE_CONFIG_GUARD_SERVICE = coreConfigGuardDomain.createCoreConfigGuardService({
+  emit: json,
+  cwd: () => process.cwd(),
+  path,
+  exists: fs.existsSync,
+  readJson,
+  validateTargetConfig,
+  evaluateTargetBoundaryConfig,
+  noMutationBoundary,
+  guardResultBase,
+  targetConfigFile: TARGET_CONFIG_FILE,
+  boundaryGuardContract: BOUNDARY_GUARD_CONTRACT
+});
+
 function runGuard(args) {
-  if (args.length === 1 && args[0] === '--plan') {
-    json({
-      schema: 'agent-onboard-guard-plan-001',
-      status: 'ok',
-      command_family: 'guard',
-      command: 'agent-onboard guard --plan',
-      admitted_command: 'agent-onboard guard --check-boundary',
-      canonical_config_file: TARGET_CONFIG_FILE,
-        enforcement_mode: BOUNDARY_GUARD_CONTRACT.enforcement_mode,
-      required_target_config_values: BOUNDARY_GUARD_CONTRACT.required_target_config_values,
-      forbidden_true_boundary_fields: BOUNDARY_GUARD_CONTRACT.forbidden_true_boundary_fields,
-      reads_target_config: false,
-      ...noMutationBoundary()
-    });
-    return 0;
-  }
-  if (args.length !== 1 || args[0] !== '--check-boundary') {
-    json({
-      schema: 'agent-onboard-guard-command-error-001',
-      status: 'error',
-      command_family: 'guard',
-      message: 'guard requires --plan or --check-boundary',
-      ...noMutationBoundary()
-    });
-    return 1;
-  }
-
-  const configPath = path.join(process.cwd(), TARGET_CONFIG_FILE);
-  if (!fs.existsSync(configPath)) {
-    json({
-      ...guardResultBase(),
-      status: 'blocked',
-      reason: 'missing agent-onboard.target.json in current target repo root',
-      reads_target_config: false,
-      blocked_violation_count: 1,
-      violations: [{ path: TARGET_CONFIG_FILE, expected: 'present', actual: 'missing' }],
-      blocks_declared_violation: true
-    });
-    return 2;
-  }
-
-  let config;
-  try {
-    config = readJson(configPath);
-  } catch (error) {
-    json({
-      ...guardResultBase(),
-      status: 'blocked',
-      reason: 'invalid JSON in agent-onboard.target.json',
-      detail: error && error.message ? error.message : String(error),
-      reads_target_config: true,
-      blocked_violation_count: 1,
-      violations: [{ path: TARGET_CONFIG_FILE, expected: 'valid JSON', actual: 'invalid JSON' }],
-      blocks_declared_violation: true
-    });
-    return 2;
-  }
-
-  const schemaErrors = validateTargetConfig(config);
-  const schemaViolations = schemaErrors.map((message) => ({ path: 'schema-validation', expected: 'valid agent-onboard-target-config-001', actual: message }));
-  const boundaryViolations = evaluateTargetBoundaryConfig(config);
-  const violations = [...schemaViolations, ...boundaryViolations];
-  const passed = violations.length === 0;
-  json({
-    ...guardResultBase(),
-    status: passed ? 'pass' : 'blocked',
-    reason: passed ? 'target boundary is read-only and dry-run' : 'target boundary declaration permits an operation this public guard blocks',
-    reads_target_config: true,
-    validates_target_config_schema: true,
-    blocked_violation_count: violations.length,
-    violations,
-    blocks_declared_violation: !passed,
-    managed_project_commands_allowed_now: 0
-  });
-  return passed ? 0 : 2;
+  return CORE_CONFIG_GUARD_SERVICE.runGuard(args);
 }
 
 function runTargetConfig(args) {

@@ -27,6 +27,16 @@ const RUNTIME_SERVICE_PARTITION_SEED = Object.freeze({
       ])
     }),
     Object.freeze({
+      id: 'core_config_guard',
+      index: 'cli/agent_onboard/domains/core/index.js',
+      services: Object.freeze([
+        'cli/agent_onboard/domains/core/services/config-guard-service.js'
+      ]),
+      runtime_adapter: 'cli/agent_onboard/adapters/commands/authority.js',
+      extracted_commands: Object.freeze(['guard --plan', 'guard --check-boundary']),
+      fallback_commands: Object.freeze([])
+    }),
+    Object.freeze({
       id: 'release_package',
       index: 'cli/agent_onboard/domains/package/index.js',
       services: Object.freeze([
@@ -64,7 +74,8 @@ const RUNTIME_SERVICE_PARTITION_SEED = Object.freeze({
     no_dynamic_eval: true,
     no_child_process: true,
     write_capable_work_items_commands_remain_legacy_fallback: false,
-    no_legacy_release_package_fallback_commands: true
+    no_legacy_release_package_fallback_commands: true,
+    no_legacy_core_config_guard_fallback_commands: true
   })
 });
 

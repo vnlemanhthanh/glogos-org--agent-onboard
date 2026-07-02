@@ -182,6 +182,8 @@ function syntaxTasks() {
     nodeTask('syntax: architecture claims source domain service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'services', 'source-domains', 'claims-source-domain-service.js')]),
     nodeTask('syntax: architecture source domain closure service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'services', 'source-domains', 'source-domain-closure-service.js')]),
     nodeTask('syntax: architecture static catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'static-catalog.js')]),
+    nodeTask('syntax: core runtime domain index', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'core', 'index.js')]),
+    nodeTask('syntax: core config guard service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'core', 'services', 'config-guard-service.js')]),
     nodeTask('syntax: package runtime domain index', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'package', 'index.js')]),
     nodeTask('syntax: package runtime service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'package', 'services', 'package-service.js')]),
     nodeTask('syntax: package surface service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'package', 'services', 'package-surface-service.js')]),

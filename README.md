@@ -956,3 +956,7 @@ Source-domain stabilization closure review: `architecture --source-domain-closur
 ## Public release package runtime service partition
 
 The public line admits the `release_package` domain service partition under `cli/agent_onboard/domains/package/`. The packaged module set separates release command coordination, package surface checks, source manifest context, package coordinates, and installed first-read contracts while preserving existing `agent-onboard release ...` outputs.
+
+## Public core config guard service extraction
+
+The public line extracts `guard --plan` and `guard --check-boundary` into the packaged core config guard service at `cli/agent_onboard/domains/core/services/config-guard-service.js`. The guard remains read-only, keeps the same target config boundary contract, and preserves existing guard JSON outputs while `cli/agent-onboard.js` stays focused on wiring and dispatch.

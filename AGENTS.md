@@ -378,3 +378,7 @@ The public line extracts the aggregate `architecture --check` coordinator into `
 ## Public release package runtime service partition
 
 The public line admits `release_package` as a packaged domain service partition under `cli/agent_onboard/domains/package/`. Keep `package-service.js` as a thin release command coordinator, keep package surface, source manifest, package coordinate, and installed first-read responsibilities in separate service modules, and do not grow `cli/agent-onboard.js` with new release/package logic.
+
+## Public core config guard service extraction
+
+The public line extracts `guard --plan` and `guard --check-boundary` into `cli/agent_onboard/domains/core/services/config-guard-service.js`. Keep this service packaged, dependency-injected, read-only, and output-compatible with the existing guard boundary contract.

@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_release_package_runtime_service_partition_gate';
+const EXPECTED_RELEASE_LINE = 'public_core_config_guard_service_extraction_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -33,6 +33,8 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/domains/architecture/services/source-domains/work-items-source-domain-service.js',
   'cli/agent_onboard/domains/architecture/services/source-extraction/architecture-source-extraction-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
+  'cli/agent_onboard/domains/core/index.js',
+  'cli/agent_onboard/domains/core/services/config-guard-service.js',
   'cli/agent_onboard/domains/package/index.js',
   'cli/agent_onboard/domains/package/services/installed-first-read-contract.js',
   'cli/agent_onboard/domains/package/services/package-coordinate-service.js',
@@ -2975,6 +2977,23 @@ fullSourceTest('package runtime service partition seed admits release package do
   assert.strictEqual(typeof packageDomain.sourceManifest.describeSourceManifestServiceSeed, 'function');
   assert.strictEqual(typeof packageDomain.coordinate.describePackageCoordinateServiceSeed, 'function');
   assert.strictEqual(typeof packageDomain.firstReadContract.describeInstalledFirstReadContractSeed, 'function');
+});
+
+fullSourceTest('core config guard service partition seed admits guard runtime service', () => {
+  const partitions = require(path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'service-partitions.js'));
+  const coreDomain = require(path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'core'));
+  const seed = partitions.describeRuntimeServicePartitionSeed();
+  const coreConfigGuard = seed.seeded_domains.find((domain) => domain.id === 'core_config_guard');
+  assert.ok(coreConfigGuard);
+  assert.strictEqual(coreConfigGuard.index, 'cli/agent_onboard/domains/core/index.js');
+  assert.deepStrictEqual(coreConfigGuard.services, [
+    'cli/agent_onboard/domains/core/services/config-guard-service.js'
+  ]);
+  assert.deepStrictEqual(coreConfigGuard.extracted_commands, ['guard --plan', 'guard --check-boundary']);
+  assert.deepStrictEqual(coreConfigGuard.fallback_commands, []);
+  assert.strictEqual(seed.boundary.no_legacy_core_config_guard_fallback_commands, true);
+  assert.strictEqual(typeof coreDomain.configGuard.createCoreConfigGuardService, 'function');
+  assert.strictEqual(typeof coreDomain.configGuard.describeConfigGuardServiceSeed, 'function');
 });
 
 runSelectedFullSourceTests();
