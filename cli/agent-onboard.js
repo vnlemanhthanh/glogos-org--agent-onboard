@@ -15,7 +15,7 @@ const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/comm
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_work_items_init_append_runtime_write_boundary_gate';
+const RELEASE_LINE = 'public_work_items_claim_close_runtime_handoff_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -2730,7 +2730,7 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
     })
   ]),
   delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version', 'work-items']),
-  legacy_fallback_commands: Object.freeze(['work-items --claim', 'work-items --close']),
+  legacy_fallback_commands: Object.freeze([]),
   smoke_vectors: Object.freeze([
     Object.freeze({ id: 'status', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'status']), expected_exit_code: 0 }),
     Object.freeze({ id: 'version_alias', argv: Object.freeze(['node', 'cli/agent-onboard.js', '--version']), expected_exit_code: 0 }),
@@ -2746,7 +2746,7 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
     runtime_uses_packaged_router: true,
     runtime_uses_packaged_compatibility_port: true,
     runtime_uses_packaged_command_adapters: true,
-    legacy_fallback_preserved_for_unextracted_commands: true,
+    no_legacy_work_items_fallback_commands: true,
     package_allowlist_expanded_for_work_items_runtime_service_seed: true,
     package_file_count: PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES.length,
     writes_target_repository_state: false,
@@ -15117,6 +15117,8 @@ function createRuntimeCompatibilityPort() {
     workItemsSchema: () => WORK_ITEMS_SCHEMA,
     workItemsTemplate,
     appendWorkItemDryRun,
+    claimWorkItemDryRun,
+    closeWorkItemDryRun,
     planWrites,
     performPlannedWrites,
     summarizePlan,

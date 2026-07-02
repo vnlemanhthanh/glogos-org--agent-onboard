@@ -800,7 +800,7 @@ This release adds the public thin entrypoint router cutover application gate: `a
 
 This release adds the public router command adapter delegation expansion gate: `architecture --router-adapter-delegation` reports the adapter-backed runtime routes, and `architecture --router-adapter-delegation-check` validates that core, release, architecture, and authority command families delegate through the packaged command adapters while keeping the 11-file package surface unchanged.
 
-This release adds the public work-items init/append runtime write-boundary gate. `work-items --schema`, `--template`, `--validate-template`, `--list`, `--validate`, `--init`, and `--append` now route through a packaged work-items command adapter and packaged runtime domain service modules, while claim/close behavior remains on the legacy compatibility path for this gate.
+This release adds the public work-items claim/close runtime handoff gate. `work-items --schema`, `--template`, `--validate-template`, `--list`, `--validate`, `--init`, `--append`, `--claim`, and `--close` now route through a packaged work-items command adapter and packaged runtime domain service modules with explicit dry-run/write boundaries for ledger writes.
 
 <!-- ## Star History
 

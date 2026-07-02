@@ -1,11 +1,11 @@
 {
   "schema": "agent-onboard-public-work-items-runtime-service-partition-seed-001",
-  "title": "Agent-Onboard Public Work-Items Init Append Runtime Write-Boundary Gate",
+  "title": "Agent-Onboard Public Work-Items Claim Close Runtime Handoff Gate",
   "package_name": "agent-onboard",
-  "release_line": "public_work_items_init_append_runtime_write_boundary_gate",
+  "release_line": "public_work_items_claim_close_runtime_handoff_gate",
   "milestone_id": "P1S3M3",
-  "work_item_id": "P1S3M3W19",
-  "runtime_partition_status": "work_items_init_append_runtime_write_boundary_admitted",
+  "work_item_id": "P1S3M3W20",
+  "runtime_partition_status": "work_items_claim_close_runtime_handoff_admitted",
   "entrypoint": "cli/agent-onboard.js",
   "adapter_module": "cli/agent_onboard/adapters/commands/work-items.js",
   "runtime_domain_modules": [
@@ -20,22 +20,20 @@
     "work-items --list",
     "work-items --validate"
   ],
-  "legacy_fallback_commands": [
-    "work-items --claim",
-    "work-items --close"
-  ],
+  "legacy_fallback_commands": [],
   "extracted_write_boundary_commands": [
     "work-items --init",
-    "work-items --append"
+    "work-items --append",
+    "work-items --claim",
+    "work-items --close"
   ],
   "package_strategy": "controlled_packaged_runtime_service_seed_inclusion",
   "runtime_pattern_absorbed": {
     "source": "runtime domain service partition pattern",
-    "absorbed_shape": "packaged command adapter plus runtime domain service for read-only work-items commands and explicit init/append write-boundary commands",
+    "absorbed_shape": "packaged command adapter plus runtime domain service for read-only work-items commands and explicit init/append/claim/close write-boundary commands",
     "not_absorbed_yet": [
       "full lazy command group catalog",
-      "full physical service directory partition",
-      "claim and close command ownership"
+      "full physical service directory partition"
     ]
   },
   "boundary": {
@@ -44,7 +42,8 @@
     "work_items_adapter_module_packaged": true,
     "work_items_runtime_service_modules_packaged": true,
     "init_append_write_only_under_explicit_write": true,
-    "claim_close_work_items_commands_remain_legacy_fallback": true,
+    "claim_close_write_only_under_explicit_write": true,
+    "no_legacy_work_items_fallback_commands": true,
     "writes_target_repository_state_on_require": false,
     "git_mutation": false,
     "installs_dependencies": false,

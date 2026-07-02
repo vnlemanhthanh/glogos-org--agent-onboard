@@ -16,12 +16,11 @@ const WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
   ]),
   extracted_write_boundary_commands: Object.freeze([
     'work-items --init',
-    'work-items --append'
-  ]),
-  fallback_commands: Object.freeze([
+    'work-items --append',
     'work-items --claim',
     'work-items --close'
   ]),
+  fallback_commands: Object.freeze([]),
   excluded_top_level_commands: Object.freeze(['help', 'version', 'status', 'architecture', 'release', 'authority', 'target', 'target-instance', 'init', 'agents', 'guard', 'target-config']),
   output_contract: Object.freeze({
     schema: 'work-items --schema is served by the packaged work-items runtime service',
@@ -31,7 +30,9 @@ const WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
     validate: 'work-items --validate is served by the packaged work-items runtime service',
     init: 'work-items --init is served by the packaged work-items runtime service with explicit --write boundary',
     append: 'work-items --append is served by the packaged work-items runtime service with explicit --write boundary',
-    fallback: 'claim and close work-items commands remain bundled CLI fallback in this gate'
+    claim: 'work-items --claim is served by the packaged work-items runtime service with explicit --write boundary',
+    close: 'work-items --close is served by the packaged work-items runtime service with explicit --write boundary',
+    fallback: 'no work-items subcommands require bundled CLI fallback in this gate'
   }),
   boundary: Object.freeze({
     used_by_runtime_entrypoint_in_this_gate: true,
@@ -43,7 +44,8 @@ const WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
     no_dynamic_eval: true,
     no_child_process: true,
     init_append_commands_use_explicit_write_boundary: true,
-    claim_close_work_items_commands_remain_legacy_fallback: true
+    claim_close_commands_use_explicit_write_boundary: true,
+    no_legacy_work_items_fallback_commands: true
   })
 });
 
@@ -62,6 +64,8 @@ function createWorkItemsCommandAdapter(options = Object.freeze({})) {
       const args = Array.isArray(argv) ? argv.slice(3) : [];
       if (args.includes('--init') && service && typeof service.init === 'function') return service.init(args);
       if (args.includes('--append') && service && typeof service.append === 'function') return service.append(args);
+      if (args.includes('--claim') && service && typeof service.claim === 'function') return service.claim(args);
+      if (args.includes('--close') && service && typeof service.close === 'function') return service.close(args);
       if (args.includes('--schema') && service && typeof service.schema === 'function') return service.schema(args);
       if (args.includes('--template') && service && typeof service.template === 'function') return service.template(args);
       if (args.includes('--validate-template') && service && typeof service.validateTemplate === 'function') return service.validateTemplate(args);

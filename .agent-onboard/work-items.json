@@ -2733,7 +2733,7 @@
           "npm pack --dry-run --json",
           "npm test",
           "git diff --check",
-            "public artifact privacy scrub scan: no matches"
+          "public artifact privacy scrub scan: no matches"
         ],
         "checks_not_run": [
           "npm run test:full",
@@ -2786,7 +2786,7 @@
           "npm pack --dry-run --json",
           "npm test",
           "git diff --check",
-            "public artifact privacy scrub scan: no matches"
+          "public artifact privacy scrub scan: no matches"
         ],
         "checks_not_run": [
           "npm run test:full",
@@ -2827,6 +2827,58 @@
           "node -c cli/agent_onboard/domains/work-items/services/work-items-service.js",
           "node cli/agent-onboard.js work-items --init --dry-run --force",
           "node cli/agent-onboard.js work-items --append --dry-run --id P9S9M9W9 --title Runtime append dry-run smoke",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node scripts/check-public-artifact-boundary.js",
+          "node cli/agent-onboard.js release --check",
+          "npm pack --dry-run --json",
+          "npm test",
+          "git diff --check",
+          "public artifact privacy scrub scan: no matches"
+        ],
+        "checks_not_run": [
+          "npm run test:full",
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W20",
+      "milestone_id": "P1S3M3",
+      "title": "Public work-items claim close runtime handoff gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T05:53:00.134Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T05:59:27.747Z",
+        "summary": "Closed by routing work-items claim and close through the packaged work-items command adapter and runtime service with explicit dry-run/write boundaries, leaving no legacy fallback commands in the work-items adapter contract.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/work-items-runtime-service-partition-seed.json",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt",
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/work-items.js",
+          "cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/work-items.js",
+          "node -c cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "node -c test/agent-onboard.test.js",
+          "node -c test/run-tests.js",
+          "node cli/agent-onboard.js work-items --claim --dry-run --id P1S3M3W20 --actor runtime-smoke (expected already-claimed refusal)",
+          "node cli/agent-onboard.js work-items --close --dry-run --id P1S3M3W20 --actor runtime-smoke --summary Runtime close dry-run smoke",
           "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
           "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
           "node cli/agent-onboard.js architecture --check",

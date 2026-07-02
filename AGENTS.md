@@ -312,9 +312,9 @@ node cli/agent-onboard.js release --check
 
 This gate expands runtime delegation through the packaged command adapters after the `process.argv` router cutover. It keeps the 11-file package surface unchanged; future gates should continue extracting command families without growing `cli/agent-onboard.js` again.
 
-## Public work-items init append runtime write boundary
+## Public work-items claim close runtime handoff
 
-The public line is now moving the work-items ledger write boundary into the packaged runtime service in a controlled slice. The packaged work-items command adapter plus packaged runtime domain service modules route `work-items --schema`, `--template`, `--validate-template`, `--list`, `--validate`, `--init`, and `--append`; `work-items --claim` and `--close` remain legacy fallback commands for this gate.
+The public line now routes the full work-items command family through the packaged runtime service. The packaged work-items command adapter plus packaged runtime domain service modules route `work-items --schema`, `--template`, `--validate-template`, `--list`, `--validate`, `--init`, `--append`, `--claim`, and `--close`; ledger-writing commands keep explicit dry-run/write boundaries.
 
 Run these source checks for this gate:
 

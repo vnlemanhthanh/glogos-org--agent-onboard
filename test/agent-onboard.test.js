@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_work_items_init_append_runtime_write_boundary_gate';
+const EXPECTED_RELEASE_LINE = 'public_work_items_claim_close_runtime_handoff_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -793,7 +793,7 @@ fullSourceTest('full source block line 780', () => {
   assert.strictEqual(output.validated.source_work_items_ledger, true);
   assert.strictEqual(output.source_context.package_context, 'source_repository');
   assert.strictEqual(output.source_work_items_ledger.present, true);
-  assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 1, 'W', 19].join(''))); // W19 closed by this gate
+  assert.ok(!output.source_work_items_ledger.open_work_items.some((item) => item.id === ['P', 1, 'S', 3, 'M', 3, 'W', 19].join(''))); // W19 closed before this gate
   assert.ok(output.validated.public_package_surface_preservation);
   assert.ok(output.validated.public_installed_parity_architecture_smoke);
   assert.ok(output.validated.public_architecture_map);

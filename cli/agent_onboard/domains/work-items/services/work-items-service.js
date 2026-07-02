@@ -17,12 +17,11 @@ const WORK_ITEMS_SERVICE_SEED = Object.freeze({
   ]),
   owned_write_boundary_commands: Object.freeze([
     'work-items --init',
-    'work-items --append'
-  ]),
-  fallback_commands: Object.freeze([
+    'work-items --append',
     'work-items --claim',
     'work-items --close'
   ]),
+  fallback_commands: Object.freeze([]),
   boundary: Object.freeze({
     packaged_in_npm_tarball_in_this_gate: true,
     no_side_effect_on_require: true,
@@ -32,7 +31,8 @@ const WORK_ITEMS_SERVICE_SEED = Object.freeze({
     no_dynamic_eval: true,
     no_child_process: true,
     init_append_commands_write_only_under_explicit_write: true,
-    claim_close_work_items_commands_remain_legacy_fallback: true
+    claim_close_commands_write_only_under_explicit_write: true,
+    no_legacy_work_items_fallback_commands: true
   })
 });
 
@@ -69,6 +69,14 @@ function defaultAppendWorkItemDryRun() {
   throw new Error('work-items --append requires an append planner');
 }
 
+function defaultClaimWorkItemDryRun() {
+  throw new Error('work-items --claim requires a claim planner');
+}
+
+function defaultCloseWorkItemDryRun() {
+  throw new Error('work-items --close requires a close planner');
+}
+
 function fileAfterFlag(args, flag, fallback) {
   const index = args.indexOf(flag);
   const value = args[index + 1];
@@ -83,6 +91,18 @@ function optionAfterFlag(args, flag) {
   return value;
 }
 
+function repeatedOptionsAfterFlag(args, flag) {
+  const values = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] !== flag) continue;
+    const value = args[index + 1];
+    if (!value || value.startsWith('-')) throw new Error(`${flag} requires a value`);
+    values.push(value);
+    index += 1;
+  }
+  return values;
+}
+
 function createWorkItemsService(options = Object.freeze({})) {
   const cwd = typeof options.cwd === 'function' ? options.cwd : () => process.cwd();
   const emit = typeof options.emit === 'function' ? options.emit : defaultJson;
@@ -92,6 +112,8 @@ function createWorkItemsService(options = Object.freeze({})) {
   const workItemsSchema = typeof options.workItemsSchema === 'function' ? options.workItemsSchema : defaultWorkItemsSchema;
   const workItemsTemplate = typeof options.workItemsTemplate === 'function' ? options.workItemsTemplate : defaultWorkItemsTemplate;
   const appendWorkItemDryRun = typeof options.appendWorkItemDryRun === 'function' ? options.appendWorkItemDryRun : defaultAppendWorkItemDryRun;
+  const claimWorkItemDryRun = typeof options.claimWorkItemDryRun === 'function' ? options.claimWorkItemDryRun : defaultClaimWorkItemDryRun;
+  const closeWorkItemDryRun = typeof options.closeWorkItemDryRun === 'function' ? options.closeWorkItemDryRun : defaultCloseWorkItemDryRun;
   const planWrites = typeof options.planWrites === 'function' ? options.planWrites : () => [];
   const performPlannedWrites = typeof options.performPlannedWrites === 'function' ? options.performPlannedWrites : () => {};
   const summarizePlan = typeof options.summarizePlan === 'function' ? options.summarizePlan : (plannedWrites) => plannedWrites;
@@ -233,6 +255,194 @@ function createWorkItemsService(options = Object.freeze({})) {
     return ok ? 0 : 1;
   }
 
+  function claim(args) {
+    const dry = args.includes('--dry-run');
+    const write = args.includes('--write');
+    if (!write && !dry) throw new Error('work-items --claim requires --dry-run or --write');
+    if (write && dry) throw new Error('work-items --claim accepts only one of --dry-run or --write');
+
+    const mode = write ? 'write' : 'dry-run';
+    const command = `agent-onboard work-items --claim --${mode}`;
+    const file = optionAfterFlag(args, '--file') || '.agent-onboard/work-items.json';
+    const absolutePath = path.resolve(cwd(), file);
+    if (!exists(absolutePath)) {
+      emit({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'missing .agent-onboard/work-items.json in current target repo root',
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const current = readJson(absolutePath);
+    const currentErrors = validateWorkItems(current);
+    if (currentErrors.length > 0) {
+      emit({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'current work-item ledger is invalid',
+        writes_performed: false,
+        errors: currentErrors
+      });
+      return 1;
+    }
+
+    let proposal;
+    try {
+      proposal = claimWorkItemDryRun(current, {
+        id: optionAfterFlag(args, '--id'),
+        actor: optionAfterFlag(args, '--actor'),
+        claimed_at: optionAfterFlag(args, '--claimed-at'),
+        note: optionAfterFlag(args, '--note')
+      });
+    } catch (error) {
+      emit({
+        schema: 'agent-onboard-work-items-claim-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: error.message || String(error),
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const proposalErrors = validateWorkItems(proposal.proposed_ledger);
+    const ok = proposalErrors.length === 0;
+    if (write && ok) writeJson(absolutePath, proposal.proposed_ledger);
+    emit({
+      schema: 'agent-onboard-work-items-claim-result-001',
+      status: ok ? 'ok' : 'error',
+      command_family: 'work-items',
+      command,
+      file,
+      mode,
+      writes_performed: write && ok,
+      counts_before: workItemCounts(current),
+      counts_after: workItemCounts(proposal.proposed_ledger),
+      claimed: proposal.claimed,
+      next_steps: proposal.next_steps,
+      proposed_ledger: proposal.proposed_ledger,
+      errors: proposalErrors,
+      boundary: {
+        installs_dependencies: false,
+        runs_build_test_deploy: false,
+        publishes_or_pushes: false,
+        modifies_source_files: false,
+        modifies_work_items_file: write,
+        modifies_only_canonical_work_items_file: write
+      }
+    });
+    return ok ? 0 : 1;
+  }
+
+  function close(args) {
+    const dry = args.includes('--dry-run');
+    const write = args.includes('--write');
+    if (!write && !dry) throw new Error('work-items --close requires --dry-run or --write');
+    if (write && dry) throw new Error('work-items --close accepts only one of --dry-run or --write');
+
+    const mode = write ? 'write' : 'dry-run';
+    const command = `agent-onboard work-items --close --${mode}`;
+    const file = optionAfterFlag(args, '--file') || '.agent-onboard/work-items.json';
+    const absolutePath = path.resolve(cwd(), file);
+    if (!exists(absolutePath)) {
+      emit({
+        schema: 'agent-onboard-work-items-close-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'missing .agent-onboard/work-items.json in current target repo root',
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const current = readJson(absolutePath);
+    const currentErrors = validateWorkItems(current);
+    if (currentErrors.length > 0) {
+      emit({
+        schema: 'agent-onboard-work-items-close-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: 'current work-item ledger is invalid',
+        writes_performed: false,
+        errors: currentErrors
+      });
+      return 1;
+    }
+
+    let proposal;
+    try {
+      proposal = closeWorkItemDryRun(current, {
+        id: optionAfterFlag(args, '--id'),
+        actor: optionAfterFlag(args, '--actor'),
+        closed_at: optionAfterFlag(args, '--closed-at'),
+        summary: optionAfterFlag(args, '--summary'),
+        changed_files: repeatedOptionsAfterFlag(args, '--changed-file'),
+        checks_run: repeatedOptionsAfterFlag(args, '--check'),
+        checks_not_run: repeatedOptionsAfterFlag(args, '--check-not-run'),
+        known_non_pass: repeatedOptionsAfterFlag(args, '--known-non-pass')
+      });
+    } catch (error) {
+      emit({
+        schema: 'agent-onboard-work-items-close-result-001',
+        status: 'error',
+        command_family: 'work-items',
+        command,
+        file,
+        mode,
+        reason: error.message || String(error),
+        writes_performed: false
+      });
+      return 1;
+    }
+
+    const proposalErrors = validateWorkItems(proposal.proposed_ledger);
+    const ok = proposalErrors.length === 0;
+    if (write && ok) writeJson(absolutePath, proposal.proposed_ledger);
+    emit({
+      schema: 'agent-onboard-work-items-close-result-001',
+      status: ok ? 'ok' : 'error',
+      command_family: 'work-items',
+      command,
+      file,
+      mode,
+      writes_performed: write && ok,
+      counts_before: workItemCounts(current),
+      counts_after: workItemCounts(proposal.proposed_ledger),
+      closed: proposal.closed,
+      handoff_evidence: proposal.handoff_evidence,
+      proposed_ledger: proposal.proposed_ledger,
+      errors: proposalErrors,
+      boundary: {
+        installs_dependencies: false,
+        runs_build_test_deploy: false,
+        publishes_or_pushes: false,
+        modifies_source_files: false,
+        modifies_work_items_file: write,
+        modifies_only_canonical_work_items_file: write
+      }
+    });
+    return ok ? 0 : 1;
+  }
+
   function schema() {
     emit({
       schema: 'agent-onboard-work-items-schema-response-001',
@@ -319,6 +529,8 @@ function createWorkItemsService(options = Object.freeze({})) {
     seed: WORK_ITEMS_SERVICE_SEED,
     init,
     append,
+    claim,
+    close,
     schema: schema,
     template,
     validateTemplate,
