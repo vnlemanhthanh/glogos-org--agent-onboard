@@ -812,6 +812,10 @@ This release extracts the public target runtime service body from `cli/agent-onb
 
 This release splits target runtime utilities from `cli/agent_onboard/domains/target/services/target-service.js` into `cli/agent_onboard/domains/target/services/target-runtime-utilities.js`, keeping target service focused and preserving public outputs.
 
+This release splits the public M3 CLI runtime de-monolith catalog from `cli/agent_onboard/domains/architecture/static-catalog.js` into `cli/agent_onboard/domains/architecture/m3-runtime-catalog.js`, keeping architecture and release outputs stable while shrinking the architecture catalog.
+
+This release extracts the public architecture runtime service batch from `cli/agent-onboard.js` into `cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js`, keeping command outputs stable while cutting the entrypoint below 9k lines.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->

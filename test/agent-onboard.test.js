@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_VERSION = PACKAGE_JSON.version;
-const EXPECTED_RELEASE_LINE = 'public_target_service_utility_split_gate';
+const EXPECTED_RELEASE_LINE = 'public_architecture_runtime_service_extraction_batch_gate';
 const EXPECTED_VERSIONED_NPX = `npx agent-onboard@${EXPECTED_VERSION}`;
 const EXPECTED_PACK_FILES = [
   'LICENSE',
@@ -24,6 +24,8 @@ const EXPECTED_PACK_FILES = [
   'cli/agent_onboard/adapters/commands/work-items.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
+  'cli/agent_onboard/domains/architecture/m3-runtime-catalog.js',
+  'cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
   'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/target/services/target-runtime-utilities.js',
@@ -2593,7 +2595,8 @@ fullSourceTest('full source block line 2628', () => {
   assert.strictEqual(output.release_line, EXPECTED_RELEASE_LINE);
   assert.strictEqual(output.command, 'agent-onboard architecture --cli-runtime-check');
   assert.ok(output.validated.monolith_debt_declared);
-  assert.ok(output.validated.cli_line_count_floor_observed);
+  assert.strictEqual(output.validated.cli_line_count_floor_observed, false);
+  assert.ok(output.validated.architecture_service_extraction_line_count_observed);
   assert.ok(output.validated.controlled_source_module_inclusion_selected);
   assert.ok(output.validated.compact_pack_allowlist_unchanged_for_this_gate);
   assert.ok(output.validated.thin_entrypoint_budget_declared);
@@ -2605,6 +2608,7 @@ fullSourceTest('full source block line 2628', () => {
   assert.strictEqual(output.source_cli_runtime_plan_file.status, 'present_validated');
   assert.strictEqual(output.selected_package_strategy.id, 'controlled_source_module_inclusion');
   assert.strictEqual(output.cli_line_budget.target_entrypoint_max_lines, 300);
+  assert.strictEqual(output.observed_runtime.extracted_service_line_count_ceiling, 9000);
   assert.deepStrictEqual(output.errors, []);
 });
 

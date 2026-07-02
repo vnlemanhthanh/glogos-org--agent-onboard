@@ -3139,6 +3139,100 @@
         ],
         "known_non_pass": []
       }
+    },
+    {
+      "id": "P1S3M3W26",
+      "milestone_id": "P1S3M3",
+      "title": "Public architecture M3 runtime catalog split gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T11:14:29.038Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T11:16:59.213Z",
+        "summary": "Closed by splitting the public architecture M3 runtime de-monolith catalog into a packaged side-effect-free module while preserving architecture, release, and package-surface outputs.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          "cli/agent_onboard/domains/architecture/static-catalog.js",
+          "cli/agent_onboard/domains/architecture/m3-runtime-catalog.js",
+          "cli/agent-onboard.js",
+          "package.json",
+          "test/agent-onboard.test.js",
+          "test/run-tests.js",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/domains/architecture/static-catalog.js",
+          "node -c cli/agent_onboard/domains/architecture/m3-runtime-catalog.js",
+          "node -c test/agent-onboard.test.js",
+          "node -c test/run-tests.js",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js release --surface",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node scripts/check-public-artifact-boundary.js",
+          "npm pack --dry-run --json",
+          "npm run test:all (passed with quick concurrency 8 and full 32 shards at concurrency 8)"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
+    },
+    {
+      "id": "P1S3M3W27",
+      "milestone_id": "P1S3M3",
+      "title": "Public architecture runtime service extraction batch gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T11:19:34.330Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T15:33:51.822Z",
+        "summary": "Closed by extracting a 35-function public architecture runtime/check batch from cli/agent-onboard.js into a packaged dependency-injected architecture runtime service, reducing the entrypoint below 9k lines while preserving architecture and release outputs.",
+        "changed_files": [
+          ".agent-onboard/cli-runtime-de-monolith-planning.json",
+          ".agent-onboard/work-items.json",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt",
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/domains/architecture/m3-runtime-catalog.js",
+          "cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js",
+          "test/agent-onboard.test.js",
+          "test/run-tests.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js; node -c cli/agent_onboard/domains/architecture/m3-runtime-catalog.js; node -c cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js; node -c test/agent-onboard.test.js; node -c test/run-tests.js",
+          "node cli/agent-onboard.js status",
+          "node cli/agent-onboard.js release --surface",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js architecture --cli-runtime-check",
+          "node cli/agent-onboard.js architecture --m2-seed-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js release --check",
+          "node scripts/check-public-artifact-boundary.js",
+          "npm pack --dry-run --json",
+          "npm run test:all (passed with quick concurrency 8 and full 32 shards at concurrency 8)",
+          "git diff --check",
+          "public artifact privacy scrub scan: no matches"
+        ],
+        "checks_not_run": [
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
     }
   ]
 }

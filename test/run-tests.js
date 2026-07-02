@@ -173,6 +173,8 @@ function syntaxTasks() {
     nodeTask('syntax: target command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'target.js')]),
     nodeTask('syntax: work-items command adapter', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'adapters', 'commands', 'work-items.js')]),
     nodeTask('syntax: runtime service partitions', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'service-partitions.js')]),
+    nodeTask('syntax: architecture M3 runtime catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'm3-runtime-catalog.js')]),
+    nodeTask('syntax: architecture runtime service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'services', 'architecture-runtime-service.js')]),
     nodeTask('syntax: architecture static catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'static-catalog.js')]),
     nodeTask('syntax: target static catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'target', 'static-catalog.js')]),
     nodeTask('syntax: target runtime service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'target', 'services', 'target-service.js')]),

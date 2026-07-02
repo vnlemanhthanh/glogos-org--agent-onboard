@@ -354,3 +354,11 @@ The public line extracts the target runtime service body from `cli/agent-onboard
 ## Public target service utility split
 
 The public line splits target runtime utilities into `cli/agent_onboard/domains/target/services/target-runtime-utilities.js`. Keep this module packaged and behavior-compatible; do not let `target-service.js` become the next god file.
+
+## Public architecture M3 runtime catalog split
+
+The public line splits the M3 CLI runtime de-monolith catalog into `cli/agent_onboard/domains/architecture/m3-runtime-catalog.js`. Keep this module packaged and side-effect-free; architecture and release outputs must remain stable.
+
+## Public architecture runtime service extraction
+
+The public line extracts architecture runtime/check handlers into `cli/agent_onboard/domains/architecture/services/architecture-runtime-service.js`. Keep this service packaged, dependency-injected, and output-compatible; `cli/agent-onboard.js` should stay a wiring and dispatch surface.

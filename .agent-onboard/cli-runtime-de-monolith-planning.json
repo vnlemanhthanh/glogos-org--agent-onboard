@@ -13,6 +13,7 @@
     "entrypoint": "cli/agent-onboard.js",
     "monolith_debt_declared": true,
     "observed_cli_line_count_floor": 10000,
+    "extracted_service_line_count_ceiling": 9000,
     "source_domain_modules_are_not_packaged_yet": true,
     "physical_cutover_not_applied_in_this_gate": true
   },
@@ -25,7 +26,7 @@
     "rejected_for_now": [
       "generated_dist_bundle"
     ],
-    "reason": "Internal architecture already proves thin CLI plus module tree; public should adopt the same shape under public boundary guards before adding a generated bundle layer."
+    "reason": "Admitted architecture work proves thin CLI plus module tree; public should keep adopting the shape under public boundary guards before adding a generated bundle layer."
   },
   "target_runtime_shape": [
     "thin CLI entrypoint",
