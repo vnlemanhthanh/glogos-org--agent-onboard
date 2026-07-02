@@ -7,11 +7,14 @@ const WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
   planned_adapter_path: 'cli/agent_onboard/adapters/commands/work-items.js',
   compatibility_port_group: 'work_items',
   owned_top_level_commands: Object.freeze(['work-items']),
-  extracted_read_only_commands: Object.freeze(['work-items --list', 'work-items --validate']),
-  fallback_commands: Object.freeze([
+  extracted_read_only_commands: Object.freeze([
     'work-items --schema',
     'work-items --template',
     'work-items --validate-template',
+    'work-items --list',
+    'work-items --validate'
+  ]),
+  fallback_commands: Object.freeze([
     'work-items --init',
     'work-items --append',
     'work-items --claim',
@@ -19,9 +22,12 @@ const WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION = Object.freeze({
   ]),
   excluded_top_level_commands: Object.freeze(['help', 'version', 'status', 'architecture', 'release', 'authority', 'target', 'target-instance', 'init', 'agents', 'guard', 'target-config']),
   output_contract: Object.freeze({
+    schema: 'work-items --schema is served by the packaged work-items runtime service',
+    template: 'work-items --template is served by the packaged work-items runtime service',
+    validate_template: 'work-items --validate-template is served by the packaged work-items runtime service',
     list: 'work-items --list is served by the packaged work-items runtime service',
     validate: 'work-items --validate is served by the packaged work-items runtime service',
-    fallback: 'write-capable and template/schema work-items commands remain bundled CLI fallback in this gate'
+    fallback: 'write-capable work-items commands remain bundled CLI fallback in this gate'
   }),
   boundary: Object.freeze({
     used_by_runtime_entrypoint_in_this_gate: true,
@@ -49,6 +55,9 @@ function createWorkItemsCommandAdapter(options = Object.freeze({})) {
     commands: WORK_ITEMS_COMMAND_ADAPTER_EXTRACTION.owned_top_level_commands,
     workItems(argv) {
       const args = Array.isArray(argv) ? argv.slice(3) : [];
+      if (args.includes('--schema') && service && typeof service.schema === 'function') return service.schema(args);
+      if (args.includes('--template') && service && typeof service.template === 'function') return service.template(args);
+      if (args.includes('--validate-template') && service && typeof service.validateTemplate === 'function') return service.validateTemplate(args);
       if (args.includes('--list') && service && typeof service.list === 'function') return service.list(args);
       if (args.includes('--validate') && service && typeof service.validate === 'function') return service.validate(args);
       if (typeof handlers.workItems === 'function') return handlers.workItems(args);

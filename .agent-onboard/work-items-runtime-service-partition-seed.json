@@ -1,11 +1,11 @@
 {
   "schema": "agent-onboard-public-work-items-runtime-service-partition-seed-001",
-  "title": "Agent-Onboard Public Work-Items Runtime Service Partition Seed Gate",
+  "title": "Agent-Onboard Public Work-Items Read-Only Runtime Completion Gate",
   "package_name": "agent-onboard",
-  "release_line": "public_work_items_runtime_service_partition_seed_gate",
+  "release_line": "public_work_items_read_only_runtime_completion_gate",
   "milestone_id": "P1S3M3",
-  "work_item_id": "P1S3M3W17",
-  "runtime_partition_status": "work_items_runtime_service_partition_seed_admitted",
+  "work_item_id": "P1S3M3W18",
+  "runtime_partition_status": "work_items_read_only_runtime_completion_admitted",
   "entrypoint": "cli/agent-onboard.js",
   "adapter_module": "cli/agent_onboard/adapters/commands/work-items.js",
   "runtime_domain_modules": [
@@ -14,13 +14,13 @@
     "cli/agent_onboard/domains/work-items/services/work-items-service.js"
   ],
   "extracted_read_only_commands": [
+    "work-items --schema",
+    "work-items --template",
+    "work-items --validate-template",
     "work-items --list",
     "work-items --validate"
   ],
   "legacy_fallback_commands": [
-    "work-items --schema",
-    "work-items --template",
-    "work-items --validate-template",
     "work-items --init",
     "work-items --append",
     "work-items --claim",
@@ -29,7 +29,7 @@
   "package_strategy": "controlled_packaged_runtime_service_seed_inclusion",
   "runtime_pattern_absorbed": {
     "source": "runtime domain service partition pattern",
-    "absorbed_shape": "packaged command adapter plus runtime domain service seed",
+    "absorbed_shape": "packaged command adapter plus runtime domain service for the complete read-only work-items surface",
     "not_absorbed_yet": [
       "full lazy command group catalog",
       "full physical service directory partition",

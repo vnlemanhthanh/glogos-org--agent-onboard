@@ -2741,6 +2741,59 @@
         ],
         "known_non_pass": []
       }
+    },
+    {
+      "id": "P1S3M3W18",
+      "milestone_id": "P1S3M3",
+      "title": "Public work-items read-only runtime completion gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T05:33:59.317Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T05:38:17.331Z",
+        "summary": "Closed by completing the public work-items read-only runtime surface: schema, template, validate-template, list, and validate now route through the packaged work-items command adapter and runtime domain service while init, append, claim, and close remain legacy fallback.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/work-items-runtime-service-partition-seed.json",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt",
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/work-items.js",
+          "cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "test/agent-onboard.test.js",
+          "test/run-tests.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/work-items.js",
+          "node -c cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "node cli/agent-onboard.js work-items --schema",
+          "node cli/agent-onboard.js work-items --template",
+          "node cli/agent-onboard.js work-items --validate-template",
+          "node cli/agent-onboard.js work-items --list .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node scripts/check-public-artifact-boundary.js",
+          "node cli/agent-onboard.js release --check",
+          "npm pack --dry-run --json",
+          "npm test",
+          "git diff --check",
+          "sensitive source name scrub scan: no matches"
+        ],
+        "checks_not_run": [
+          "npm run test:full",
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
     }
   ]
 }

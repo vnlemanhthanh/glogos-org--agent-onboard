@@ -15,7 +15,7 @@ const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/comm
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_work_items_runtime_service_partition_seed_gate';
+const RELEASE_LINE = 'public_work_items_read_only_runtime_completion_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -2730,7 +2730,7 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
     })
   ]),
   delegated_commands: Object.freeze(['--help', '--version', '-h', '-v', 'agents', 'architecture', 'authority', 'guard', 'help', 'init', 'release', 'status', 'target', 'target-config', 'target-instance', 'version', 'work-items']),
-  legacy_fallback_commands: Object.freeze(['work-items --schema', 'work-items --template', 'work-items --validate-template', 'work-items --init', 'work-items --append', 'work-items --claim', 'work-items --close']),
+  legacy_fallback_commands: Object.freeze(['work-items --init', 'work-items --append', 'work-items --claim', 'work-items --close']),
   smoke_vectors: Object.freeze([
     Object.freeze({ id: 'status', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'status']), expected_exit_code: 0 }),
     Object.freeze({ id: 'version_alias', argv: Object.freeze(['node', 'cli/agent-onboard.js', '--version']), expected_exit_code: 0 }),
@@ -15114,6 +15114,8 @@ function createRuntimeCompatibilityPort() {
     readJson,
     validateWorkItems,
     workItemCounts,
+    workItemsSchema: () => WORK_ITEMS_SCHEMA,
+    workItemsTemplate,
     exists: fs.existsSync
   });
   const workItemsAdapter = createWorkItemsCommandAdapter({

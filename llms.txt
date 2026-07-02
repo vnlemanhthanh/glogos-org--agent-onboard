@@ -140,10 +140,10 @@ Public thin entrypoint router cutover application:
 - node cli/agent-onboard.js architecture --check
 - node cli/agent-onboard.js release --check
 
-Current command adapter state: core, release package, architecture, and authority adapter extraction gates are closed. The router, compatibility command port, port facade, and admitted command adapters are packaged in the 11-file npm surface. The thin entrypoint router cutover is applied, and router command adapter delegation expansion is the active gate.
+Current command adapter state: core, release package, architecture, authority, target, and work-items adapter extraction gates are closed. The router, compatibility command port, port facade, admitted command adapters, and work-items runtime service modules are packaged. The thin entrypoint router cutover is applied, and work-items read-only runtime completion is the active gate.
 
-## Public work-items runtime service partition seed
+## Public work-items read-only runtime completion
 
-The public line is absorbing a runtime-domain-service partition pattern as a narrow packaged runtime seed. `work-items --list` and `work-items --validate` now route through the packaged work-items command adapter and packaged work-items runtime service modules. Write-capable work-items commands and template/schema helpers remain legacy fallback behavior in this gate.
+The public line is completing the read-only work-items runtime surface through the packaged work-items command adapter and packaged work-items runtime service modules. `work-items --schema`, `--template`, `--validate-template`, `--list`, and `--validate` route through the runtime service. Write-capable work-items commands remain legacy fallback behavior in this gate.
 
-Current command adapter state: core, release package, architecture, authority, target, and work-items adapters are packaged. The package surface is intentionally expanded for the work-items runtime service seed while preserving public CLI output compatibility.
+Current command adapter state: core, release package, architecture, authority, target, and work-items adapters are packaged. The package surface remains intentionally bounded while preserving public CLI output compatibility.

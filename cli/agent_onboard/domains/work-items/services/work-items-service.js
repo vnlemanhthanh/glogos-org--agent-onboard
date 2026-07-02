@@ -8,11 +8,14 @@ const WORK_ITEMS_SERVICE_SEED = Object.freeze({
   package_name: 'agent-onboard',
   role: 'packaged_runtime_work_items_domain_service_seed',
   service_path: 'cli/agent_onboard/domains/work-items/services/work-items-service.js',
-  owned_read_only_commands: Object.freeze(['work-items --list', 'work-items --validate']),
-  fallback_commands: Object.freeze([
+  owned_read_only_commands: Object.freeze([
     'work-items --schema',
     'work-items --template',
     'work-items --validate-template',
+    'work-items --list',
+    'work-items --validate'
+  ]),
+  fallback_commands: Object.freeze([
     'work-items --init',
     'work-items --append',
     'work-items --claim',
@@ -51,6 +54,14 @@ function defaultCounts(value) {
   };
 }
 
+function defaultWorkItemsSchema() {
+  return Object.freeze({});
+}
+
+function defaultWorkItemsTemplate() {
+  return Object.freeze({});
+}
+
 function fileAfterFlag(args, flag, fallback) {
   const index = args.indexOf(flag);
   const value = args[index + 1];
@@ -63,7 +74,42 @@ function createWorkItemsService(options = Object.freeze({})) {
   const readJson = typeof options.readJson === 'function' ? options.readJson : defaultReadJson;
   const validateWorkItems = typeof options.validateWorkItems === 'function' ? options.validateWorkItems : () => [];
   const workItemCounts = typeof options.workItemCounts === 'function' ? options.workItemCounts : defaultCounts;
+  const workItemsSchema = typeof options.workItemsSchema === 'function' ? options.workItemsSchema : defaultWorkItemsSchema;
+  const workItemsTemplate = typeof options.workItemsTemplate === 'function' ? options.workItemsTemplate : defaultWorkItemsTemplate;
   const exists = typeof options.exists === 'function' ? options.exists : fs.existsSync;
+
+  function schema() {
+    emit({
+      schema: 'agent-onboard-work-items-schema-response-001',
+      status: 'ok',
+      work_items_schema: workItemsSchema()
+    });
+    return 0;
+  }
+
+  function template() {
+    emit({
+      schema: 'agent-onboard-work-items-template-response-001',
+      status: 'ok',
+      canonical_file: '.agent-onboard/work-items.json',
+      work_items: workItemsTemplate()
+    });
+    return 0;
+  }
+
+  function validateTemplate() {
+    const errors = validateWorkItems(workItemsTemplate());
+    const ok = errors.length === 0;
+    emit({
+      schema: 'agent-onboard-work-items-template-validation-001',
+      status: ok ? 'ok' : 'error',
+      template_source: 'embedded',
+      canonical_file: '.agent-onboard/work-items.json',
+      validated: true,
+      errors
+    });
+    return ok ? 0 : 1;
+  }
 
   function validate(args) {
     const file = fileAfterFlag(args, '--validate', '.agent-onboard/work-items.json');
@@ -114,8 +160,11 @@ function createWorkItemsService(options = Object.freeze({})) {
   }
 
   return Object.freeze({
-    schema: 'agent-onboard-public-work-items-runtime-service-instance-001',
+    instance_schema: 'agent-onboard-public-work-items-runtime-service-instance-001',
     seed: WORK_ITEMS_SERVICE_SEED,
+    schema: schema,
+    template,
+    validateTemplate,
     validate,
     list
   });
