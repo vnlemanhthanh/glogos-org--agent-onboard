@@ -2897,6 +2897,54 @@
         ],
         "known_non_pass": []
       }
+    },
+    {
+      "id": "P1S3M3W21",
+      "milestone_id": "P1S3M3",
+      "title": "Public work-items legacy fallback deletion gate",
+      "status": "closed",
+      "claim": {
+        "actor": "codex-gpt-5",
+        "claimed_at": "2026-07-02T06:04:58.268Z"
+      },
+      "closure": {
+        "actor": "codex-gpt-5",
+        "closed_at": "2026-07-02T10:25:12.713Z",
+        "summary": "Closed by deleting the legacy bundled work-items fallback body from cli/agent-onboard.js after the packaged work-items runtime service became the sole public work-items command path.",
+        "changed_files": [
+          ".agent-onboard/work-items.json",
+          ".agent-onboard/work-items-runtime-service-partition-seed.json",
+          "AGENTS.md",
+          "README.md",
+          "llms.txt",
+          "package.json",
+          "cli/agent-onboard.js",
+          "cli/agent_onboard/adapters/commands/work-items.js",
+          "test/agent-onboard.test.js"
+        ],
+        "checks_run": [
+          "node -c cli/agent-onboard.js",
+          "node -c cli/agent_onboard/adapters/commands/work-items.js",
+          "node -c cli/agent_onboard/domains/work-items/services/work-items-service.js",
+          "node cli/agent-onboard.js work-items --schema",
+          "node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json",
+          "node cli/agent-onboard.js work-items --append --dry-run --id P9S9M9W9 --title Runtime append dry-run smoke",
+          "node cli/agent-onboard.js architecture --router-adapter-delegation-check",
+          "node cli/agent-onboard.js architecture --check",
+          "node cli/agent-onboard.js release --surface-check",
+          "node cli/agent-onboard.js release --version-sprawl-check",
+          "node scripts/check-public-artifact-boundary.js",
+          "npm pack --dry-run --json",
+          "npm test",
+          "git diff --check",
+          "public artifact privacy scrub scan: no matches"
+        ],
+        "checks_not_run": [
+          "npm run test:full",
+          "npm publish --access public"
+        ],
+        "known_non_pass": []
+      }
     }
   ]
 }

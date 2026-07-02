@@ -334,3 +334,7 @@ node cli/agent-onboard.js release --surface-check
 node cli/agent-onboard.js release --check
 npm test
 ```
+
+## Public work-items legacy fallback deletion
+
+The public line deletes the legacy bundled work-items fallback from `cli/agent-onboard.js`. The packaged work-items command adapter and packaged work-items runtime service are now the only public work-items command path.

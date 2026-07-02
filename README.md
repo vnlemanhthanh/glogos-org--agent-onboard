@@ -802,6 +802,8 @@ This release adds the public router command adapter delegation expansion gate: `
 
 This release adds the public work-items claim/close runtime handoff gate. `work-items --schema`, `--template`, `--validate-template`, `--list`, `--validate`, `--init`, `--append`, `--claim`, and `--close` now route through a packaged work-items command adapter and packaged runtime domain service modules with explicit dry-run/write boundaries for ledger writes.
 
+This release deletes the legacy bundled work-items fallback from `cli/agent-onboard.js`. The packaged work-items command adapter and runtime service are now the only public work-items command path.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->

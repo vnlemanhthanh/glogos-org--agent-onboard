@@ -54,7 +54,6 @@ function describeWorkItemsCommandAdapterExtraction() {
 }
 
 function createWorkItemsCommandAdapter(options = Object.freeze({})) {
-  const handlers = options.handlers && typeof options.handlers === 'object' ? options.handlers : Object.freeze({});
   const service = options.service && typeof options.service === 'object' ? options.service : null;
   return Object.freeze({
     schema: 'agent-onboard-public-work-items-command-adapter-instance-001',
@@ -71,14 +70,7 @@ function createWorkItemsCommandAdapter(options = Object.freeze({})) {
       if (args.includes('--validate-template') && service && typeof service.validateTemplate === 'function') return service.validateTemplate(args);
       if (args.includes('--list') && service && typeof service.list === 'function') return service.list(args);
       if (args.includes('--validate') && service && typeof service.validate === 'function') return service.validate(args);
-      if (typeof handlers.workItems === 'function') return handlers.workItems(args);
-      return Object.freeze({
-        schema: 'agent-onboard-public-work-items-command-adapter-work-items-result-001',
-        status: 'source_only_seed',
-        writes_files: false,
-        publishes_package: false,
-        mutates_registry: false
-      });
+      throw new Error('work-items requires --schema, --template, --validate-template, --init --dry-run|--write [--force], --validate [file], or --list [file], or --append --dry-run|--write --id <public-work-item-id> --title <title>, or --claim --dry-run|--write --id <public-work-item-id> --actor <actor>, or --close --dry-run|--write --id <public-work-item-id> --actor <actor> --summary <summary>');
     },
     run(argv) {
       const command = Array.isArray(argv) ? (argv[2] || 'help') : 'help';
