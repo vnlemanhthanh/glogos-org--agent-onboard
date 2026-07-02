@@ -328,7 +328,7 @@ node cli/agent-onboard.js work-items --validate-template
 node cli/agent-onboard.js work-items --list .agent-onboard/work-items.json
 node cli/agent-onboard.js work-items --validate .agent-onboard/work-items.json
 node cli/agent-onboard.js work-items --init --dry-run --force
-node cli/agent-onboard.js work-items --append --dry-run --id P9S9M9W9 --title "Runtime append dry-run smoke"
+node cli/agent-onboard.js work-items --append --dry-run --id <public-work-item-id> --title "Runtime append dry-run smoke"
 node cli/agent-onboard.js architecture --router-adapter-delegation-check
 node cli/agent-onboard.js release --surface-check
 node cli/agent-onboard.js release --check
@@ -350,3 +350,7 @@ The public line extracts the target onboarding static catalog from `cli/agent-on
 ## Public target runtime service body extraction
 
 The public line extracts the target runtime service body from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/services/target-service.js`. Keep this module packaged, keep public outputs stable, and split smaller services only through follow-up work items.
+
+## Public target service utility split
+
+The public line splits target runtime utilities into `cli/agent_onboard/domains/target/services/target-runtime-utilities.js`. Keep this module packaged and behavior-compatible; do not let `target-service.js` become the next god file.

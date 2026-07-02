@@ -15,7 +15,7 @@ const { createWorkItemsCommandAdapter } = require('./agent_onboard/adapters/comm
 const { createWorkItemsService } = require('./agent_onboard/domains/work-items');
 const VERSION = require('../package.json').version;
 const TARGET_CONFIG_FILE = 'agent-onboard.target.json';
-const RELEASE_LINE = 'public_target_runtime_service_body_extraction_gate';
+const RELEASE_LINE = 'public_target_service_utility_split_gate';
 const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'LICENSE',
   'README.md',
@@ -28,10 +28,11 @@ const PUBLIC_PACKAGED_ROUTER_PORT_PACK_FILES = Object.freeze([
   'cli/agent_onboard/adapters/commands/work-items.js',
   'cli/agent_onboard/adapters/compatibility-command-port.js',
   'cli/agent_onboard/command-router.js',
-  'cli/agent_onboard/domains/service-partitions.js',
   'cli/agent_onboard/domains/architecture/static-catalog.js',
-  'cli/agent_onboard/domains/target/static-catalog.js',
+  'cli/agent_onboard/domains/service-partitions.js',
+  'cli/agent_onboard/domains/target/services/target-runtime-utilities.js',
   'cli/agent_onboard/domains/target/services/target-service.js',
+  'cli/agent_onboard/domains/target/static-catalog.js',
   'cli/agent_onboard/domains/work-items/index.js',
   'cli/agent_onboard/domains/work-items/services/work-items-service.js',
   'cli/agent_onboard/ports/compatibility-command-port.js',

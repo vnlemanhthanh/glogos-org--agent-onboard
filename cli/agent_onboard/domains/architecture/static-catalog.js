@@ -2474,7 +2474,7 @@ const PUBLIC_ROUTER_COMMAND_ADAPTER_DELEGATION_EXPANSION = Object.freeze({
     Object.freeze({ id: 'architecture_router', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'architecture', '--router']), expected_exit_code: 0 }),
     Object.freeze({ id: 'release_surface_check', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'release', '--surface-check']), expected_exit_code: 0 }),
     Object.freeze({ id: 'authority_first_read', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'authority', '--first-read']), expected_exit_code: 0 }),
-    Object.freeze({ id: 'work_items_validate', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'work-items', '--validate', '.agent-onboard/work-items.json']), expected_exit_code: 0 })
+    Object.freeze({ id: 'work_items_validate_template', argv: Object.freeze(['node', 'cli/agent-onboard.js', 'work-items', '--validate-template']), expected_exit_code: 0 })
   ]),
   boundary: Object.freeze({
     router_adapter_delegation_command_writes_files: false,

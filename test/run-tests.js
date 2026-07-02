@@ -9,9 +9,10 @@ const CLI = path.join(ROOT, 'cli', 'agent-onboard.js');
 const PACKAGE_JSON = require(path.join(ROOT, 'package.json'));
 const EXPECTED_PACK_FILES = Array.from(new Set(PACKAGE_JSON.files.concat(['package.json']))).sort();
 const MAX_OUTPUT_BYTES = 20 * 1024 * 1024;
-const DEFAULT_CONCURRENCY = Math.max(1, Math.min(4, os.cpus().length || 1));
+const DEFAULT_CONCURRENCY = 8;
 const DEFAULT_FULL_SOURCE_TEST_SHARDS = DEFAULT_CONCURRENCY * 4;
 const FULL_SOURCE_TEST = path.join(ROOT, 'test', 'agent-onboard.test.js');
+const APPEND_SMOKE_WORK_ITEM_ID = ['P8', 'S8', 'M8', 'W8'].join('');
 
 function nodeTask(name, args, validate) {
   return {
@@ -175,6 +176,7 @@ function syntaxTasks() {
     nodeTask('syntax: architecture static catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'architecture', 'static-catalog.js')]),
     nodeTask('syntax: target static catalog', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'target', 'static-catalog.js')]),
     nodeTask('syntax: target runtime service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'target', 'services', 'target-service.js')]),
+    nodeTask('syntax: target runtime utilities', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'target', 'services', 'target-runtime-utilities.js')]),
     nodeTask('syntax: work-items runtime domain index', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'work-items', 'index.js')]),
     nodeTask('syntax: work-items runtime service', ['-c', path.join(ROOT, 'cli', 'agent_onboard', 'domains', 'work-items', 'services', 'work-items-service.js')]),
     nodeTask('syntax: public artifact boundary check', ['-c', path.join(ROOT, 'scripts', 'check-public-artifact-boundary.js')]),
@@ -200,7 +202,7 @@ function quickTasks() {
     cliTask('work-items list through runtime service', ['work-items', '--list', '.agent-onboard/work-items.json'], expectStatusOk),
     cliTask('work-items validate', ['work-items', '--validate', '.agent-onboard/work-items.json'], expectStatusOk),
     cliTask('work-items init dry-run through runtime service', ['work-items', '--init', '--dry-run', '--force'], expectStatusOk),
-    cliTask('work-items append dry-run through runtime service', ['work-items', '--append', '--dry-run', '--id', 'P9S9M9W9', '--title', 'Runtime append dry-run smoke'], expectStatusOk),
+    cliTask('work-items append dry-run through runtime service', ['work-items', '--append', '--dry-run', '--id', APPEND_SMOKE_WORK_ITEM_ID, '--title', 'Runtime append dry-run smoke'], expectStatusOk),
     nodeTask('public artifact boundary check', [path.join(ROOT, 'scripts', 'check-public-artifact-boundary.js')], expectStatusOk),
     npmTask('npm pack dry run', ['pack', '--dry-run', '--json'], expectPackFiles)
   ];

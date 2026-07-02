@@ -810,6 +810,8 @@ This release extracts the public target onboarding static catalog from `cli/agen
 
 This release extracts the public target runtime service body from `cli/agent-onboard.js` into `cli/agent_onboard/domains/target/services/target-service.js`, keeping the existing command handlers and public outputs stable while cutting the entrypoint by another large block.
 
+This release splits target runtime utilities from `cli/agent_onboard/domains/target/services/target-service.js` into `cli/agent_onboard/domains/target/services/target-runtime-utilities.js`, keeping target service focused and preserving public outputs.
+
 <!-- ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=glogos-org/agent-onboard&type=date&legend=top-left)](https://www.star-history.com/?repos=glogos-org%2Fagent-onboard&type=date&legend=top-left) -->
